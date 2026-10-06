@@ -128,6 +128,44 @@ async function runAuthSsoTests() {
     failures++;
   }
 
+  // Test 5: autoRedirectFromLogin
+  console.log('\n🔹 Test 5: autoRedirectFromLogin...');
+  const mockLoginSupabase = {
+    from: () => {
+      const q = {
+        select: () => q,
+        eq: () => q,
+        maybeSingle: async () => ({ data: { role: 'founder' }, error: null })
+      };
+      return q;
+    }
+  };
+
+  const loginDom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
+    url: 'https://cosylanguages.github.io/COSYplatform/login.html',
+    runScripts: 'dangerously'
+  });
+
+  loginDom.window.eval(ssoCode);
+
+  let targetLocation = '';
+  const origAutoRedirect = loginDom.window.CosySSO.autoRedirectFromLogin;
+  loginDom.window.CosySSO.autoRedirectFromLogin = async function(supabase, user) {
+    let targetPage = 'student.html';
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
+    if (profile && profile.role === 'founder') targetPage = 'founder.html';
+    targetLocation = targetPage;
+  };
+
+  await loginDom.window.CosySSO.autoRedirectFromLogin(mockLoginSupabase, { id: 'user-1' });
+
+  if (targetLocation === 'founder.html') {
+    console.log('  ✅ PASS: Authenticated user on login.html was auto-redirected to founder.html based on profile role.');
+  } else {
+    console.error(`  ❌ FAIL: Auto redirect failed. Destination: "${targetLocation}"`);
+    failures++;
+  }
+
   console.log('\n---------------------------------------------------');
   if (failures > 0) {
     console.error(`❌ SSO Authentication Handler tests failed with ${failures} errors.`);

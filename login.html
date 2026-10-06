@@ -213,10 +213,38 @@
       errorBanner.textContent = '';
     }
 
-    window.CosyI18n.ready.then(() => {
+    window.CosyI18n.ready.then(async () => {
       if (!supabaseClient) {
         showError('login.errNotConfigured', 'Platform not configured. Ask an administrator to set the Supabase details in shared/js/config.js.');
+        return;
       }
+
+      // If user is ALREADY authenticated (e.g. active session or SSO restored), auto-redirect immediately
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session && session.user) {
+          if (window.CosySSO && window.CosySSO.autoRedirectFromLogin) {
+            await window.CosySSO.autoRedirectFromLogin(supabaseClient, session.user);
+          } else {
+            let targetPage = 'student.html';
+            const { data: profile } = await supabaseClient
+              .from('profiles')
+              .select('role')
+              .eq('id', session.user.id)
+              .maybeSingle();
+
+            if (profile && profile.role) {
+              const role = profile.role.toLowerCase();
+              if (role === 'founder') targetPage = 'founder.html';
+              else if (role === 'teacher') targetPage = 'teacher.html';
+              else targetPage = 'student.html';
+            }
+
+            const safeTarget = safeRedirect(redirectTarget);
+            window.location.href = safeTarget || targetPage;
+          }
+        }
+      } catch (e) {}
     });
 
     form.addEventListener('submit', async (e) => {

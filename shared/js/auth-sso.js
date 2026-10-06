@@ -70,6 +70,11 @@ window.CosySSO = window.CosySSO || {};
         } else {
           window.location.hash = '';
         }
+
+        if (window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('/login')) {
+          await autoRedirectFromLogin(supabase, data.session.user);
+        }
+
         return true;
       } else if (error) {
         console.warn('[CosySSO] setSession error:', error.message);
@@ -125,9 +130,33 @@ window.CosySSO = window.CosySSO || {};
   /**
    * Export functions on window.CosySSO
    */
+  async function autoRedirectFromLogin(supabase, user) {
+    if (!user) return;
+    let targetPage = 'student.html';
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profile && profile.role) {
+        const role = profile.role.toLowerCase();
+        if (role === 'founder') targetPage = 'founder.html';
+        else if (role === 'teacher') targetPage = 'teacher.html';
+        else targetPage = 'student.html';
+      }
+    } catch (e) {}
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectTarget = urlParams.get('redirect');
+    window.location.href = redirectTarget || targetPage;
+  }
+
   window.CosySSO.parseHashTokens = parseHashTokens;
   window.CosySSO.restoreSessionFromHash = restoreSessionFromHash;
   window.CosySSO.buildEcosystemUrlWithTokens = buildEcosystemUrlWithTokens;
+  window.CosySSO.autoRedirectFromLogin = autoRedirectFromLogin;
 
   // Execute restoreSessionFromHash on script load
   if (typeof window !== 'undefined') {
