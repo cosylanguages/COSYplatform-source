@@ -123,6 +123,37 @@ CREATE POLICY "Teachers and founders read entitled lesson content"
     )
   );
 
+-- 5. CMS Page Overrides Table
+CREATE TABLE IF NOT EXISTS cms_page_overrides (
+  page_path TEXT PRIMARY KEY,
+  overrides JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_by UUID REFERENCES auth.users(id)
+);
+
+ALTER TABLE cms_page_overrides ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read page overrides"
+  ON cms_page_overrides FOR SELECT
+  USING (true);
+
+CREATE POLICY "Founders can manage page overrides"
+  ON cms_page_overrides FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles p
+      WHERE p.id = auth.uid()
+        AND LOWER(p.role) IN ('founder', 'admin', 'owner')
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM profiles p
+      WHERE p.id = auth.uid()
+        AND LOWER(p.role) IN ('founder', 'admin', 'owner')
+    )
+  );
+
 CREATE POLICY "Users read entitled student-safe lesson content"
   ON student_lesson_content FOR SELECT
   USING (

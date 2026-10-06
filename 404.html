@@ -8,7 +8,7 @@
   <meta name="description" content="The requested page could not be found or requires different access permissions." data-i18n-placeholder="notfound.metaDescription">
   <title data-i18n="notfound.title">Page Not Found · COSYlanguages</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1"></script>
   <script>
     (function() {
       const firstPart = location.pathname.split('/')[1] || '';
@@ -42,6 +42,16 @@
       js2.async = false;
       js2.src = basePath + 'shared/js/auth-guard.js';
       head.appendChild(js2);
+
+      const jsSso = document.createElement('script');
+      jsSso.async = false;
+      jsSso.src = basePath + 'shared/js/auth-sso.js';
+      head.appendChild(jsSso);
+
+      const jsCms = document.createElement('script');
+      jsCms.async = false;
+      jsCms.src = basePath + 'shared/js/cms-editor.js';
+      head.appendChild(jsCms);
 
       const js3 = document.createElement('script');
       js3.async = false;
