@@ -4,8 +4,10 @@
   "description": "COSYplatform Content Repository",
   "private": true,
   "scripts": {
-    "validate": "node scripts/check-content-integrity.js && node scripts/validate-curriculums.js && node scripts/validate-lessons.js && node scripts/sync-manifest-status.js --check && npm run check:stats && npm run check:cefr && npm run check:contrast && npm run test:i18n && npm run test:founder && npm run test:classroom && node scripts/test-pages-build.js && node scripts/test-publish-labels.js && npm run smoke",
+    "validate": "node scripts/check-content-integrity.js && node scripts/validate-curriculums.js && node scripts/validate-lessons.js && node scripts/sync-manifest-status.js --check && npm run check:stats && npm run check:cefr && npm run check:contrast && npm run test:i18n && npm run test:founder && npm run test:classroom && npm run test:sso && npm run test:cms && node scripts/test-pages-build.js && node scripts/test-publish-labels.js && npm run smoke",
     "test:i18n": "node scripts/test-i18n.js && node scripts/test-i18n-resolution.js && node scripts/test-i18n-pages.js",
+    "test:sso": "node scripts/test-auth-sso.js",
+    "test:cms": "node scripts/test-cms-editor.js",
     "smoke": "node scripts/smoke-pages.js",
     "build:pages": "node scripts/build-pages-site.js",
     "build:pronunciation-roadmaps": "node scripts/build-pronunciation-roadmaps.js",
