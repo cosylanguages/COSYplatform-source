@@ -228,12 +228,7 @@ Other findings:
 
 ---
 
-## 4. `cosyworld` references
-A search of all four repos finds one mention: `COSYplatform/docs/data-sources.md` (section 5, lines ~73–77), an exclusion-policy note. You asked to remove all references; decide whether this policy statement should go too.
-
----
-
-## 5. Changes to make in the CEFR master (v1.1)
+## 4. Changes to make in the CEFR master (v1.1)
 1. Add the level-code table with `A0 = Pre-A1` and the `sublevel` rule (2.1).
 2. Rename `domain` → `use_domain` (2.2).
 3. Lowercase all IDs and scale codes (2.4).
@@ -245,7 +240,7 @@ A search of all four repos finds one mention: `COSYplatform/docs/data-sources.md
 
 ---
 
-## 6. Suggested order of work
+## 5. Suggested order of work
 1. **Decisions:** home of the master; `A0` vs `PA1` naming; `use_domain` rename; one curriculum schema (sections 2.1, 2.2, 2.5).
 2. **COSYdata:** build `cefr/` and the descriptor schema; extend `themes.json`.
 3. **COSYplatform:** add `A0` to the schema, `descriptor_ids` to lessons, migrate `cando`.
