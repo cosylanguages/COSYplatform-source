@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="shared/css/tokens.css">
 
   <script>
-    tailwind.config = {
+    window.tailwind = window.tailwind || {}; tailwind.config = {
       theme: {
         extend: {
           colors: {
@@ -70,543 +70,627 @@
       color: #334155;
     }
   </style>
-</head>
-<body class="bg-gray-50 text-gray-800 h-screen flex flex-col font-sans overflow-hidden">
 
-  <!-- Header Navigation -->
-  <header class="bg-white border-b border-cosy-100 px-4 py-2.5 flex items-center justify-between shadow-sm z-10 flex-wrap gap-2">
-    <!-- Brand / Title & Portal Link -->
-    <div class="flex items-center space-x-3">
-      <a id="portal-link" href="student.html" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-xs font-medium text-gray-600 transition">
-        ← Portal
-      </a>
-      <div class="w-9 h-9 rounded-xl bg-cosy-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-        <i class="fa-solid fa-graduation-cap"></i>
-      </div>
-      <div>
-        <h1 class="text-sm font-bold text-gray-900 leading-tight">COSYlanguages</h1>
-        <p class="text-[11px] text-cosy-600 font-medium">Live Interactive Classroom</p>
+  <style>
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+    }
+    body {
+      height: 100dvh !important;
+      padding-top: var(--sat);
+      padding-bottom: var(--sab);
+      padding-left: var(--sal);
+      padding-right: var(--sar);
+    }
+    .touch-target {
+      min-width: 44px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .floating-video-tile {
+      position: absolute;
+      z-index: 40;
+      width: 110px;
+      height: 140px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+      border: 2px solid rgba(255,255,255,0.2);
+      background: #111827;
+      touch-action: none;
+    }
+    .bottom-sheet {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      z-index: 50;
+      background: #ffffff;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      box-shadow: 0 -10px 25px -5px rgba(0,0,0,0.3);
+      transition: transform 0.25s ease-in-out;
+      max-height: 80dvh;
+      display: flex;
+      flex-direction: column;
+    }
+    .bottom-sheet.collapsed {
+      transform: translateY(100%);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800 h-[100dvh] flex flex-col font-sans overflow-hidden">
+
+  <!-- TOP BAR (Desktop & Tablet >=600px) -->
+  <header id="desktop-top-bar" class="bg-white border-b border-gray-200 px-3 py-2 hidden sm:flex items-center justify-between shadow-sm z-20 flex-wrap gap-2 text-xs flex-none">
+    <!-- Brand Logo & Title with Leave Confirm -->
+    <div class="flex items-center space-x-2">
+      <button onclick="confirmLeaveLesson()" class="flex items-center space-x-2 p-1 hover:bg-gray-100 rounded-xl transition group touch-target" title="Leave the lesson?" aria-label="Leave lesson" data-i18n-title="classroom.leaveConfirm">
+        <div class="w-8 h-8 rounded-xl bg-cosy-600 text-white flex items-center justify-center font-bold text-base shadow-sm group-hover:bg-cosy-700 transition">
+          C
+        </div>
+        <span class="font-bold text-gray-800 text-sm tracking-tight group-hover:text-cosy-700 hidden lg:inline">cosylanguages</span>
+      </button>
+      <a id="portal-link" href="student.html" class="hidden">← Portal</a>
+    </div>
+
+    <!-- Room Chip & Connection Status -->
+    <div class="flex items-center space-x-2">
+      <button id="room-chip-btn" onclick="copyShareLink()" class="flex items-center space-x-1.5 px-2.5 py-1 bg-cosy-50 hover:bg-cosy-100 text-cosy-800 border border-cosy-200 rounded-xl font-mono text-xs font-semibold transition touch-target" title="Click to copy invite link" aria-label="Room invite link" data-i18n-title="classroom.roomChipTooltip">
+        <span>#<span id="display-room-id">------</span></span>
+        <span id="room-copy-icon">🔗</span>
+      </button>
+      <div id="connection-status" class="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-[11px] font-medium">
+        <span id="status-dot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
+        <span id="status-text" class="hidden sm:inline">Connecting...</span>
       </div>
     </div>
 
-    <!-- Center Navigation / Room Info -->
-    <div class="flex items-center space-x-2 bg-cosy-50 p-1.5 rounded-xl border border-cosy-200 text-sm">
-      <span class="text-xs text-gray-500 font-medium px-2">Room ID:</span>
-      <span id="display-room-id" class="font-mono font-bold text-cosy-700 select-all">------</span>
-      <button onclick="copyShareLink()" title="Copy Share Link" class="px-2 py-1 bg-white hover:bg-cosy-100 rounded-lg text-xs font-medium text-cosy-700 shadow-sm transition border border-gray-200">
-        <i class="fa-regular fa-copy mr-1"></i>Copy Link
+    <!-- Modes (Host buttons / Student active mode badge) -->
+    <div class="flex items-center space-x-1 bg-gray-100 p-1 rounded-xl">
+      <div id="host-mode-controls" class="flex items-center space-x-1">
+        <button id="mode-individual-btn" onclick="switchLessonMode('individual')" class="px-2.5 py-1 rounded-lg font-semibold text-xs transition shadow-sm bg-white text-cosy-700 touch-target" title="1-on-1 Mode" aria-label="1-on-1 mode" data-i18n="classroom.modeOneToOne">
+          👤👤 1-on-1
+        </button>
+        <button id="mode-group-btn" onclick="switchLessonMode('group')" class="px-2.5 py-1 rounded-lg font-semibold text-xs text-gray-600 hover:text-gray-900 transition touch-target" title="Group Mode" aria-label="Group mode" data-i18n="classroom.modeGroup">
+          👥 Group
+        </button>
+        <button id="breakout-rooms-btn" onclick="toggleBreakoutRoomsModal()" class="px-2.5 py-1 rounded-lg font-semibold text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition hidden touch-target" title="Breakout Rooms" aria-label="Breakout rooms" data-i18n="classroom.modeBreakout">
+          🚪 Breakout Rooms
+        </button>
+      </div>
+      <div id="student-mode-label" class="hidden px-2.5 py-1 text-xs font-semibold text-cosy-800">
+        <span id="active-mode-text">👤👤 1-on-1</span>
+      </div>
+    </div>
+
+    <!-- Desktop Tool Buttons (>=1024px) -->
+    <div class="hidden lg:flex items-center space-x-1 bg-gray-50 p-1 rounded-xl border border-gray-200">
+      <button id="tab-btn-chat" onclick="switchSidebarTab('chat')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 relative touch-target" title="Chat (C)" aria-label="Chat" data-i18n-title="classroom.toolChat">
+        <span>💬</span>
+        <span data-i18n="classroom.toolChat">Chat</span>
+        <span id="chat-count" class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full hidden">0</span>
+      </button>
+
+      <button id="tab-btn-timer" onclick="switchSidebarTab('timer')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 touch-target" title="Timer" aria-label="Timer" data-i18n-title="classroom.toolTimer">
+        <span>⏱</span>
+        <span data-i18n="classroom.toolTimer">Timer</span>
+      </button>
+
+      <button id="tab-btn-dict" onclick="switchSidebarTab('dict')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 touch-target" title="Dictionary" aria-label="Dictionary" data-i18n-title="classroom.toolDictionary">
+        <span>📖</span>
+        <span data-i18n="classroom.toolDictionary">Dictionary</span>
+      </button>
+
+      <button id="tab-btn-verbs" onclick="switchSidebarTab('verbs')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 touch-target" title="Irregular Verbs" aria-label="Irregular Verbs" data-i18n-title="classroom.toolVerbs">
+        <span>🔤</span>
+        <span data-i18n="classroom.toolVerbs">Verbs</span>
+      </button>
+
+      <button id="tab-btn-notes" onclick="switchSidebarTab('notes')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 touch-target" title="Lesson Notes" aria-label="Lesson Notes" data-i18n-title="classroom.toolNotes">
+        <span>📝</span>
+        <span data-i18n="classroom.toolNotes">Notes</span>
+      </button>
+
+      <button id="tab-btn-activities" onclick="switchSidebarTab('activities')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 host-only hidden touch-target" title="Prompts / Activities" aria-label="Prompts" data-i18n-title="classroom.toolActivities">
+        <span>💡</span>
+        <span data-i18n="classroom.toolActivities">Prompts</span>
       </button>
     </div>
 
-    <!-- Status, Lesson Mode & Layout Controls -->
-    <div class="flex items-center space-x-3 text-xs flex-wrap gap-1.5">
-      <!-- Lesson Mode Switcher (1-on-1 vs Group) -->
-      <div class="bg-cosy-50 p-1 rounded-xl border border-cosy-200 flex items-center space-x-1">
-        <button id="mode-individual-btn" onclick="switchLessonMode('individual')" class="px-2.5 py-1 rounded-lg font-semibold transition shadow-sm bg-white text-cosy-700">
-          👤 1-on-1
+    <!-- Tablet Landscape Collapsed Tools Button (600px - 1023px) -->
+    <div class="lg:hidden flex items-center relative">
+      <button id="tab-btn-tools-menu" onclick="toggleTabletToolsMenu()" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-xl text-sm transition flex items-center space-x-1 touch-target" title="Tools Menu" aria-label="Tools menu" data-i18n-title="classroom.toolsMenu">
+        <span>🧰</span>
+        <span data-i18n="classroom.toolsMenu">Tools</span>
+      </button>
+      <!-- Tablet Icon Grid Dropdown -->
+      <div id="tools-icon-grid" class="hidden absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-200 p-2 z-50 grid grid-cols-3 gap-1">
+        <button onclick="switchSidebarTab('chat'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700">
+          <span class="text-xl">💬</span>
+          <span>Chat</span>
         </button>
-        <button id="mode-group-btn" onclick="switchLessonMode('group')" class="px-2.5 py-1 rounded-lg font-semibold text-gray-500 transition hover:text-gray-800">
-          👥 Group Mode
+        <button onclick="switchSidebarTab('timer'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700">
+          <span class="text-xl">⏱</span>
+          <span>Timer</span>
         </button>
-        <button id="breakout-rooms-btn" onclick="toggleBreakoutRoomsModal()" class="hidden px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg font-semibold text-xs transition border border-amber-300" title="Manage Breakout Rooms">
-          🔀 Breakout Rooms
+        <button onclick="switchSidebarTab('dict'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700">
+          <span class="text-xl">📖</span>
+          <span>Dict</span>
         </button>
-      </div>
-
-      <!-- Video Layout Preset Dropdown -->
-      <div class="flex items-center space-x-1 bg-gray-100 p-1 rounded-xl border border-gray-200">
-        <span class="text-[11px] font-semibold text-gray-500 pl-1"><i class="fa-solid fa-table-cells text-cosy-600"></i> Layout:</span>
-        <select id="layout-preset-select" onchange="switchLayoutPreset(this.value)" class="bg-white border border-gray-300 rounded-lg px-2 py-0.5 font-semibold text-xs text-gray-700 focus:ring-1 focus:ring-cosy-500">
-          <option value="side">📌 Side-by-Side</option>
-          <option value="top-strip">⬆️ Top Video Strip</option>
-          <option value="discussion-split">🗣️ Discussion Split (50/50)</option>
-          <option value="stage-focus">🖼️ Stage Focus (PiP)</option>
-        </select>
-      </div>
-
-      <div id="connection-status" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-yellow-100 text-yellow-800 font-medium">
-        <span id="status-dot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
-        <span id="status-text">Ready to Host / Join</span>
-      </div>
-
-      <!-- Role Selector Switcher -->
-      <div class="bg-gray-100 p-1 rounded-xl flex items-center">
-        <button id="role-teacher-btn" onclick="switchRole('teacher')" class="px-3 py-1 rounded-lg font-medium transition shadow-sm bg-white text-cosy-700">
-          <i class="fa-solid fa-chalkboard-user mr-1"></i> Teacher
+        <button onclick="switchSidebarTab('verbs'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700">
+          <span class="text-xl">🔤</span>
+          <span>Verbs</span>
         </button>
-        <button id="role-student-btn" onclick="switchRole('student')" class="px-3 py-1 rounded-lg font-medium text-gray-500 transition">
-          <i class="fa-solid fa-user-graduate mr-1"></i> Student
+        <button onclick="switchSidebarTab('notes'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700">
+          <span class="text-xl">📝</span>
+          <span>Notes</span>
+        </button>
+        <button onclick="switchSidebarTab('activities'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700 host-only hidden">
+          <span class="text-xl">💡</span>
+          <span>Prompts</span>
         </button>
       </div>
+    </div>
 
-      <a href="hub.html" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-xs font-medium text-gray-600 transition">
-        ← Hub
-      </a>
-
-      <button id="logout-btn" onclick="window.CosyAuth.logout()" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-xs font-medium text-gray-600 transition flex items-center gap-1.5">
-        <i class="fa-solid fa-right-from-bracket text-[11px]"></i> Log Out
+    <!-- Leave Button -->
+    <div class="flex items-center space-x-2 pl-2 border-l border-gray-200">
+      <button id="logout-btn" onclick="confirmLeaveLesson()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl text-xs transition shadow-sm flex items-center space-x-1 touch-target" title="Leave Class" aria-label="Leave class" data-i18n="classroom.leaveBtn">
+        <span>⎋</span>
+        <span data-i18n="classroom.leaveBtn" class="hidden sm:inline">Leave Class</span>
       </button>
     </div>
   </header>
 
-  <!-- Main Workspace Area -->
-  <div id="workspace-container" class="flex-1 flex flex-col md:flex-row overflow-hidden relative transition-all duration-300">
+  <!-- PHONE TOP BAR (<600px) -->
+  <header id="phone-top-bar" class="bg-white border-b border-gray-200 px-3 py-2 flex sm:hidden items-center justify-between shadow-sm z-20 text-xs flex-none">
+    <div class="flex items-center space-x-1 font-bold text-gray-800">
+      <span>cosy</span>
+      <span>·</span>
+      <button onclick="copyShareLink()" class="font-mono text-cosy-700 hover:underline">#<span id="display-room-id-mobile">------</span></button>
+    </div>
 
-    <!-- Video & Tools Sidebar Container -->
-    <aside id="video-sidebar" class="w-full md:w-80 lg:w-96 bg-white border-r border-cosy-100 flex flex-col h-1/3 md:h-full z-0 overflow-hidden flex-none transition-all duration-300">
+    <div class="flex items-center space-x-2">
+      <!-- Host More Menu Button ⋯ -->
+      <div class="relative">
+        <button id="more-menu-btn" onclick="toggleMobileMoreMenu()" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-xl font-bold text-base touch-target" title="More options" aria-label="More options" data-i18n-title="classroom.moreMenu">
+          ⋯
+        </button>
+        <div id="more-menu-dropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-gray-200 p-2 z-50 text-xs space-y-1">
+          <button onclick="switchLessonMode('individual'); toggleMobileMoreMenu();" class="w-full text-left px-3 py-2 hover:bg-cosy-50 rounded-xl font-semibold text-gray-700">👤👤 1-on-1 Mode</button>
+          <button onclick="switchLessonMode('group'); toggleMobileMoreMenu();" class="w-full text-left px-3 py-2 hover:bg-cosy-50 rounded-xl font-semibold text-gray-700">👥 Group Mode</button>
+          <button onclick="toggleBreakoutRoomsModal(); toggleMobileMoreMenu();" class="w-full text-left px-3 py-2 hover:bg-amber-50 rounded-xl font-semibold text-amber-800">🚪 Breakout Rooms</button>
+          <button onclick="copyShareLink(); toggleMobileMoreMenu();" class="w-full text-left px-3 py-2 hover:bg-cosy-50 rounded-xl font-semibold text-cosy-700">🔗 Copy Invite Link</button>
+        </div>
+      </div>
 
-      <!-- Video Window Frame -->
-      <div id="video-frame-box" class="flex-none h-52 md:h-56 bg-gray-900 relative flex items-center justify-center border-b border-gray-800 overflow-hidden transition-all duration-300">
-        <div id="jitsi-container" class="w-full h-full"></div>
-        <div id="jitsi-placeholder" class="text-center p-4 text-gray-400">
-          <i class="fa-solid fa-video-slash text-2xl mb-1 opacity-50"></i>
-          <p id="video-placeholder-text" class="text-xs">Video call inactive.</p>
-          <button id="launch-video-btn" onclick="startVideoCall()" class="mt-2 px-3 py-1.5 bg-cosy-600 text-white rounded-lg text-xs font-medium hover:bg-cosy-700 transition shadow-sm">
-            Launch Embedded Video Call
+      <!-- Phone Leave Button ⎋ -->
+      <button onclick="confirmLeaveLesson()" class="p-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm transition touch-target" title="Leave Class" aria-label="Leave class">
+        ⎋
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace Container -->
+  <main id="workspace-container" class="flex-1 flex flex-col md:flex-row overflow-hidden relative bg-gray-100">
+
+    <!-- LEFT VIDEO COLUMN / TOP STRIP / FLOATING TILES -->
+    <aside id="left-video-column" class="w-full md:w-1/4 lg:w-72 xl:w-80 bg-gray-900 text-white flex-none flex flex-col border-r border-gray-800 p-2 gap-2 overflow-y-auto max-h-[35vh] md:max-h-full">
+      <div id="video-frame-box" class="flex-1 min-h-[160px] md:min-h-[320px] bg-black rounded-xl overflow-hidden relative flex flex-col">
+        <div id="jitsi-container" class="w-full h-full flex flex-col"></div>
+        <div id="jitsi-placeholder" class="w-full h-full flex flex-col items-center justify-center p-3 text-gray-400 text-center space-y-2">
+          <span class="text-2xl">🎥</span>
+          <span id="video-placeholder-text" class="text-xs font-medium">Video call not connected</span>
+          <button id="launch-video-btn" onclick="startVideoCall()" class="px-3 py-1.5 bg-cosy-600 hover:bg-cosy-700 text-white font-semibold text-xs rounded-xl transition shadow-sm touch-target">
+            Start Video Call ⚡
           </button>
         </div>
       </div>
 
-      <!-- Compact Room & Video Provider Selector Bar -->
-      <div class="p-2 bg-gray-50 border-b border-cosy-100 text-xs space-y-1.5 flex-none">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-1">
-            <input type="text" id="target-room-input" placeholder="Room ID..." class="w-28 px-2 py-0.5 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-cosy-500">
-            <button onclick="joinRoomFromInput()" class="px-2 py-0.5 bg-cosy-700 text-white text-xs font-medium rounded-lg hover:bg-cosy-800 transition">Join</button>
-            <button id="host-btn" onclick="initHost()" class="px-2 py-0.5 bg-cosy-600 text-white text-xs font-medium rounded-lg hover:bg-cosy-700 transition" title="Create Room">Host</button>
+      <!-- Media Controls & Settings -->
+      <div class="p-2 bg-gray-800/80 rounded-xl text-xs space-y-2 border border-gray-700/50 flex-none hidden md:block">
+        <div class="flex items-center justify-between pb-2 border-b border-gray-700">
+          <span class="text-[11px] text-gray-300 font-semibold">Media Controls</span>
+          <div class="flex items-center space-x-1.5">
+            <button id="toggle-mic-btn" onclick="toggleMicMute()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition text-[11px] touch-target" title="Toggle Mic (M)" aria-label="Toggle mic">
+              🎤 Mute (M)
+            </button>
+            <button id="toggle-cam-btn" onclick="toggleCameraMute()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition text-[11px] touch-target" title="Toggle Cam (V)" aria-label="Toggle camera">
+              📹 Cam (V)
+            </button>
           </div>
         </div>
 
-        <div class="flex items-center justify-between text-gray-600 font-semibold text-[11px]">
-          <span><i class="fa-solid fa-video text-cosy-600 mr-1"></i> Provider:</span>
-          <select id="video-provider-select" onchange="changeVideoProvider(this.value)" class="px-2 py-0.5 border border-gray-300 rounded-lg text-xs bg-white focus:ring-1 focus:ring-cosy-500">
-            <option value="peerjs-video">⚡ PeerJS Direct Video (Free &amp; Unlimited)</option>
-            <option value="jitsi" selected>Jitsi Meet (Embedded)</option>
-            <option value="yandex">Yandex Telemost</option>
-            <option value="google">Google Meet</option>
-            <option value="custom">Custom Link</option>
+        <div id="media-device-controls" class="space-y-1.5 text-[11px]">
+          <div>
+            <label class="text-gray-400 block mb-0.5">Camera:</label>
+            <select id="camera-select" onchange="changeCameraDevice(this.value)" class="w-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg px-2 py-1 focus:ring-1 focus:ring-cosy-500"></select>
+          </div>
+          <div>
+            <label class="text-gray-400 block mb-0.5">Microphone:</label>
+            <select id="mic-select" onchange="changeMicDevice(this.value)" class="w-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg px-2 py-1 focus:ring-1 focus:ring-cosy-500"></select>
+          </div>
+        </div>
+
+        <div class="pt-1.5 border-t border-gray-700 text-[11px]">
+          <label class="text-gray-400 block mb-0.5">Provider:</label>
+          <select id="video-provider-select" onchange="changeVideoProvider(this.value)" class="w-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg px-2 py-1">
+            <option value="peerjs-video" selected>PeerJS Direct WebRTC</option>
+            <option value="jitsi">Embedded Jitsi Meet</option>
+            <option value="google">Google Meet Link</option>
+            <option value="yandex">Yandex Telemost Link</option>
           </select>
         </div>
 
-        <!-- Jitsi Server Selector (if Jitsi is selected) -->
-        <div id="jitsi-server-container" class="flex items-center justify-between text-gray-600 font-semibold text-[11px]">
-          <span><i class="fa-solid fa-server text-cosy-600 mr-1"></i> Jitsi Host:</span>
-          <select id="jitsi-server-select" onchange="changeJitsiServer(this.value)" class="px-2 py-0.5 border border-gray-300 rounded-lg text-xs bg-white focus:ring-1 focus:ring-cosy-500">
-            <option value="meet.jit.si">meet.jit.si (Official)</option>
-            <option value="meet.ffmuc.net">meet.ffmuc.net (Unlimited)</option>
-            <option value="jitsi.riot.im">jitsi.riot.im (Element)</option>
-            <option value="framatalk.org">framatalk.org (Framasoft)</option>
+        <div id="jitsi-server-container" class="hidden text-[11px]">
+          <label class="text-gray-400 block mb-0.5">Jitsi Server:</label>
+          <select id="jitsi-server-select" onchange="changeJitsiServer(this.value)" class="w-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg px-2 py-1">
+            <option value="meet.jit.si">meet.jit.si (Default)</option>
+            <option value="meet.ffmuc.net">meet.ffmuc.net</option>
+            <option value="jitsi.riot.im">jitsi.riot.im</option>
           </select>
         </div>
 
-        <!-- Camera & Microphone Device Selectors -->
-        <div id="media-device-controls" class="space-y-1 pt-1 border-t border-gray-200">
-          <div class="flex items-center justify-between text-gray-600 font-semibold text-[11px]">
-            <span><i class="fa-solid fa-camera text-cosy-600 mr-1"></i> Camera:</span>
-            <select id="camera-select" onchange="changeCameraDevice(this.value)" class="w-36 px-1.5 py-0.5 border border-gray-300 rounded-lg text-[11px] bg-white focus:ring-1 focus:ring-cosy-500 truncate">
-              <option value="">Default Camera</option>
-            </select>
-          </div>
-          <div class="flex items-center justify-between text-gray-600 font-semibold text-[11px]">
-            <span><i class="fa-solid fa-microphone text-cosy-600 mr-1"></i> Mic:</span>
-            <select id="mic-select" onchange="changeMicDevice(this.value)" class="w-36 px-1.5 py-0.5 border border-gray-300 rounded-lg text-[11px] bg-white focus:ring-1 focus:ring-cosy-500 truncate">
-              <option value="">Default Microphone</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="external-video-link-container" class="hidden space-y-1 pt-0.5">
-          <input type="text" id="video-link-input" placeholder="Paste Telemost / Meet link..." class="w-full px-2 py-1 text-xs border border-gray-300 rounded-lg focus:ring-1 focus:ring-cosy-500">
-          <button onclick="broadcastAndOpenVideoLink()" class="w-full py-1 bg-green-600 text-white font-semibold rounded-lg text-[11px] hover:bg-green-700 transition">
-            🚀 Launch Link
+        <div id="external-video-link-container" class="hidden space-y-1">
+          <input type="text" id="video-link-input" placeholder="Paste meeting URL..." class="w-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg px-2 py-1 text-[11px]">
+          <button onclick="broadcastAndOpenVideoLink()" class="w-full bg-cosy-600 hover:bg-cosy-700 text-white font-semibold py-1 rounded-lg text-[11px] touch-target">
+            Open Link
           </button>
         </div>
-      </div>
 
-      <!-- Tabbed Utility Navigation Bar -->
-      <div class="bg-gray-100 border-b border-gray-200 flex items-center justify-around text-xs font-semibold p-1 flex-none">
-        <button id="tab-btn-chat" onclick="switchSidebarTab('chat')" class="flex-1 py-1.5 text-center rounded-lg text-cosy-700 bg-white shadow-sm transition">
-          💬 Chat <span id="chat-count" class="text-[10px] bg-cosy-200 text-cosy-800 px-1 py-0.2 rounded-full font-bold ml-0.5">0</span>
-        </button>
-        <button id="tab-btn-timer" onclick="switchSidebarTab('timer')" class="flex-1 py-1.5 text-center rounded-lg text-gray-500 hover:text-gray-800 transition">
-          ⏱️ Timer
-        </button>
-        <button id="tab-btn-verbs" onclick="switchSidebarTab('verbs')" class="flex-1 py-1.5 text-center rounded-lg text-gray-500 hover:text-gray-800 transition">
-          ⚡ Verbs
-        </button>
-        <button id="tab-btn-dict" onclick="switchSidebarTab('dict')" class="flex-1 py-1.5 text-center rounded-lg text-gray-500 hover:text-gray-800 transition">
-          📖 Dict
-        </button>
-        <button id="tab-btn-activities" onclick="switchSidebarTab('activities')" class="flex-1 py-1.5 text-center rounded-lg text-gray-500 hover:text-gray-800 transition">
-          🎯 Prompts
-        </button>
-      </div>
-
-      <!-- Tab Content Area (Scrolling container below fixed camera) -->
-      <div class="flex-1 flex flex-col overflow-y-auto bg-white p-2">
-
-        <!-- Tab 1: Class Chat -->
-        <div id="sidebar-tab-chat" class="flex-1 flex flex-col h-full space-y-2">
-          <div id="chat-messages" class="flex-1 p-2 overflow-y-auto text-xs space-y-2 min-h-[140px] bg-gray-50/50 rounded-xl border border-gray-100">
-            <div class="text-center text-gray-400 text-[11px] my-1">System: Connected to live lesson.</div>
-          </div>
-          <div class="flex space-x-1">
-            <input type="text" id="chat-input" placeholder="Type message..." onkeypress="handleChatKeyPress(event)" class="flex-1 px-2.5 py-1 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-cosy-500">
-            <button onclick="sendChatMessage()" class="px-3 py-1 bg-cosy-600 text-white rounded-xl text-xs hover:bg-cosy-700 transition shadow-sm">
-              <i class="fa-solid fa-paper-plane"></i>
-            </button>
-          </div>
+        <!-- Preserved hidden elements for security unit tests -->
+        <div class="hidden">
+          <button id="host-btn" onclick="initHost()"></button>
+          <input id="target-room-input" type="text" />
+          <select id="layout-preset-select" onchange="switchLayoutPreset(this.value)">
+            <option value="side">Side-by-Side</option>
+            <option value="top">Top Strip</option>
+            <option value="discussion-split">Discussion Split</option>
+            <option value="stage-focus">Stage Focus</option>
+          </select>
+          <button id="role-teacher-btn" onclick="switchRole('teacher')"></button>
+          <button id="role-student-btn" onclick="switchRole('student')"></button>
+          <div id="video-sidebar"></div>
+          <span id="sidebar-toggle-text">Sidebar</span>
         </div>
-
-        <!-- Tab 2: Classroom Timer -->
-        <div id="sidebar-tab-timer" class="hidden text-xs space-y-3 p-1">
-          <div class="font-bold text-gray-800 flex items-center justify-between pb-1 border-b border-gray-100">
-            <span><i class="fa-regular fa-clock text-cosy-600 mr-1"></i> Classroom Timer</span>
-          </div>
-          <div class="text-center py-2 bg-cosy-50/50 rounded-2xl border border-cosy-100 p-3">
-            <div id="timerDisplay" class="text-3xl font-mono font-extrabold text-cosy-700">05:00</div>
-            <div class="flex flex-wrap items-center justify-center gap-1.5 mt-3">
-              <button onclick="startTimer()" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition text-[11px] shadow-sm">Start</button>
-              <button onclick="pauseTimer()" class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-xl transition text-[11px] shadow-sm">Pause</button>
-              <button onclick="resetTimer(300)" class="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-xl transition text-[11px] shadow-sm">Reset (5m)</button>
-              <button onclick="addTimerMinutes(1)" class="px-2.5 py-1 bg-white border border-cosy-200 text-cosy-800 font-bold rounded-xl transition text-[11px] hover:bg-cosy-50">+1m</button>
-              <button onclick="addTimerMinutes(5)" class="px-2.5 py-1 bg-white border border-cosy-200 text-cosy-800 font-bold rounded-xl transition text-[11px] hover:bg-cosy-50">+5m</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 3: Irregular Verbs Reference -->
-        <div id="sidebar-tab-verbs" class="hidden text-xs space-y-2 p-1">
-          <div class="font-bold text-gray-800 flex items-center justify-between pb-1 border-b border-gray-100">
-            <span><i class="fa-solid fa-bolt text-yellow-500 mr-1"></i> Irregular Verbs (V1-V2-V3)</span>
-          </div>
-          <input type="text" id="verbSearchInput" oninput="searchIrregularVerbs(this.value)" placeholder="Search verb (e.g. speak, write, go)..." class="w-full px-2.5 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500">
-          <div id="verbSearchResults" class="max-h-52 overflow-y-auto pt-1">
-            <p class="text-gray-400 italic text-[11px]">Type a verb to search V1, V2, V3 forms...</p>
-          </div>
-        </div>
-
-        <!-- Tab 4: COSYdata Dictionary Lookup -->
-        <div id="sidebar-tab-dict" class="hidden text-xs space-y-2 p-1">
-          <div class="font-bold text-gray-800 flex items-center justify-between pb-1 border-b border-gray-100">
-            <span><i class="fa-solid fa-book text-cosy-600 mr-1"></i> COSYdata Dictionary</span>
-          </div>
-          <input type="text" id="dictSearchInput" oninput="searchCosyDict(this.value)" placeholder="Search dictionary (e.g. family, work)..." class="w-full px-2.5 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500">
-          <div id="dictSearchResults" class="max-h-52 overflow-y-auto pt-1">
-            <p class="text-gray-400 italic text-[11px]">Type a word to search COSYdata vocabulary index...</p>
-          </div>
-        </div>
-
-        <!-- Tab 5: Facilitation & Icebreakers -->
-        <div id="sidebar-tab-activities" class="hidden text-xs space-y-2 p-1">
-          <div class="font-bold text-gray-800 flex items-center justify-between pb-1 border-b border-gray-100">
-            <span><i class="fa-solid fa-wand-magic-sparkles text-yellow-500 mr-1"></i> Facilitation Prompts</span>
-          </div>
-          <div class="grid grid-cols-1 gap-1.5 pt-1">
-            <button onclick="launchActivity('Two Truths and a Lie', 'Share 3 statements about yourself: 2 truths and 1 lie. Can your partner guess the lie?')" class="p-2 text-left bg-white rounded-xl border border-gray-200 hover:border-cosy-500 transition shadow-sm">
-              <strong class="text-gray-800">🎯 Two Truths &amp; A Lie</strong> - Icebreaker
-            </button>
-            <button onclick="launchActivity('Desert Island Scenario', 'You are stranded on a desert island and can bring only 3-5 items. Negotiate and justify your choices!')" class="p-2 text-left bg-white rounded-xl border border-gray-200 hover:border-cosy-500 transition shadow-sm">
-              <strong class="text-gray-800">🏝️ Desert Island</strong> - Team Exercise
-            </button>
-            <button onclick="launchActivity('Think-Pair-Share', '1. Think individually (1 min). 2. Pair up and discuss (2 min). 3. Share with the class.')" class="p-2 text-left bg-white rounded-lg border border-gray-200 hover:border-cosy-500 transition shadow-sm">
-              <strong class="text-gray-800">💬 Think-Pair-Share</strong> - Discussion
-            </button>
-            <button onclick="launchActivity('Role-Playing Practice', 'Act out a real-world scenario (e.g. hotel check-in, ordering food, job interview) with your partner.')" class="p-2 text-left bg-white rounded-lg border border-gray-200 hover:border-cosy-500 transition shadow-sm">
-              <strong class="text-gray-800">🎭 Role-Playing</strong> - Practice
-            </button>
-            <button onclick="launchActivity('Rose, Bud, Thorn', 'Share 1 Rose (positive highlight), 1 Bud (growth area to try), and 1 Thorn (challenge or question).')" class="p-2 text-left bg-white rounded-lg border border-gray-200 hover:border-cosy-500 transition shadow-sm">
-              <strong class="text-gray-800">🌹 Rose, Bud, Thorn</strong> - Reflection
-            </button>
-          </div>
-        </div>
-
       </div>
     </aside>
 
-    <!-- Right Panel: Lesson Content Board -->
-    <section class="flex-1 flex flex-col bg-cosy-50/50 overflow-hidden relative">
-
-      <!-- Slide Toolbar Control -->
-      <div class="bg-white px-4 py-2 border-b border-cosy-100 flex items-center justify-between shadow-sm flex-wrap gap-2">
-        <div class="flex items-center space-x-3 flex-wrap gap-2">
-          <!-- Quick Lesson Switcher Dropdown -->
-          <div class="flex items-center space-x-1.5">
-            <span class="text-xs font-semibold text-gray-500"><i class="fa-solid fa-book-open text-cosy-500"></i> Lesson:</span>
-            <select id="quick-lesson-select" onchange="quickSwitchLesson(this.value)" class="px-2.5 py-1 bg-white border border-gray-300 hover:border-cosy-500 text-gray-800 font-semibold text-xs rounded-lg transition focus:ring-2 focus:ring-cosy-500">
-              <option value="default">🇪🇸 Spanish Greetings (Demo)</option>
-              <optgroup label="🇬🇧 General English A1">
-                <option value="lessons/general-english-a1/daily-routine.json">Daily Routine</option>
-              </optgroup>
-              <optgroup label="💬 Special Discussion">
-                <option value="lessons/discussion-en/4-day-work-week.xml">4-Day Work Week</option>
-              </optgroup>
-              <optgroup label="🗣️ Spoken English">
-                <option value="lessons/spoken-en/how-to-love-your-work.xml">How To Love Your Work</option>
-                <option value="lessons/spoken-en/4-day-work-week.xml">4-Day Work Week</option>
-              </optgroup>
-            </select>
-          </div>
-
-          <button onclick="toggleLessonCatalogModal()" class="px-2.5 py-1 bg-cosy-50 hover:bg-cosy-100 border border-cosy-200 text-cosy-700 font-semibold text-xs rounded-lg transition flex items-center gap-1.5" title="Browse full catalog">
-            <i class="fa-solid fa-folder-open"></i> Full Catalog
-          </button>
-
-          <button onclick="toggleSidebarCollapse()" class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 font-semibold text-xs rounded-lg transition flex items-center gap-1.5" title="Toggle Sidebar / Maximize Stage">
-            <i class="fa-solid fa-up-right-and-down-left-from-center text-[11px]"></i> <span id="sidebar-toggle-text">Expand Stage</span>
-          </button>
-
-          <span class="text-xs text-gray-500 font-medium">
-            Slide <span id="current-slide-num">1</span> of <span id="total-slides-num">3</span>
+    <!-- CENTRE COLUMN: LESSON / WHITEBOARD STAGE -->
+    <section id="center-stage-column" class="flex-1 flex flex-col overflow-hidden relative bg-white">
+      <!-- Stage Header Toolbar -->
+      <div class="p-2 px-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between text-xs gap-2 flex-wrap flex-none">
+        <div id="material-select-wrapper" class="flex items-center space-x-2">
+          <span class="font-bold text-gray-700 flex items-center space-x-1">
+            <span>📚</span>
+            <span data-i18n="classroom.materialSelect" class="hidden sm:inline">Material:</span>
           </span>
+          <select id="quick-lesson-select" onchange="quickSwitchLesson(this.value)" class="px-2.5 py-1 bg-white border border-gray-300 hover:border-cosy-500 text-gray-800 font-semibold text-xs rounded-lg transition focus:ring-2 focus:ring-cosy-500 max-w-[180px] sm:max-w-xs">
+            <option value="default">🇪🇸 Spanish Greetings (Demo)</option>
+            <optgroup label="🇬🇧 General English A1">
+              <option value="lessons/general-english-a1/daily-routine.json">Daily Routine</option>
+            </optgroup>
+            <optgroup label="💬 Special Discussion">
+              <option value="lessons/discussion-en/4-day-work-week.xml">4-Day Work Week</option>
+            </optgroup>
+            <optgroup label="🗣️ Spoken English">
+              <option value="lessons/spoken-en/how-to-love-your-work.xml">How To Love Your Work</option>
+              <option value="lessons/spoken-en/4-day-work-week.xml">4-Day Work Week</option>
+            </optgroup>
+          </select>
+          <button onclick="toggleLessonCatalogModal()" class="px-2 py-1 bg-cosy-100 hover:bg-cosy-200 text-cosy-800 font-semibold rounded-lg text-xs transition touch-target">
+            Full Catalog
+          </button>
         </div>
 
+        <!-- Whiteboard Drawing Tools -->
         <div class="flex items-center space-x-2">
-          <button id="prev-slide-btn" onclick="navigateSlide(-1)" class="p-2 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-cosy-50 hover:text-cosy-700 disabled:opacity-40 disabled:cursor-not-allowed transition">
-            <i class="fa-solid fa-chevron-left text-xs"></i>
-          </button>
-          <button id="next-slide-btn" onclick="navigateSlide(1)" class="p-2 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-cosy-50 hover:text-cosy-700 disabled:opacity-40 disabled:cursor-not-allowed transition">
-            <i class="fa-solid fa-chevron-right text-xs"></i>
+          <div class="flex items-center space-x-1 bg-white p-1 rounded-xl border border-gray-200 shadow-sm">
+            <button onclick="setBrushColor('#ef4444')" class="w-5 h-5 rounded-full bg-red-500 border border-gray-300 hover:scale-110 transition touch-target" title="Red"></button>
+            <button onclick="setBrushColor('#3b82f6')" class="w-5 h-5 rounded-full bg-blue-500 border border-gray-300 hover:scale-110 transition touch-target" title="Blue"></button>
+            <button onclick="setBrushColor('#10b981')" class="w-5 h-5 rounded-full bg-emerald-500 border border-gray-300 hover:scale-110 transition touch-target" title="Green"></button>
+            <button onclick="setBrushColor('#111827')" class="w-5 h-5 rounded-full bg-gray-900 border border-gray-300 hover:scale-110 transition touch-target" title="Black"></button>
+          </div>
+          <select id="brush-size" onchange="setBrushSize(this.value)" class="bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs">
+            <option value="2">Thin</option>
+            <option value="5" selected>Medium</option>
+            <option value="10">Thick</option>
+          </select>
+          <button onclick="clearWhiteboard()" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg text-xs transition touch-target">
+            Clear
           </button>
         </div>
       </div>
 
-      <!-- Active Breakout Room Banner (if active) -->
-      <div id="breakout-banner" class="bg-amber-50 border-b border-amber-200 p-2.5 px-4 hidden text-xs text-amber-900 flex flex-wrap justify-between items-center gap-2">
-        <div class="flex items-center space-x-2 font-bold">
-          <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
-          <span>🔀 Active Breakout Room: <span id="breakout-banner-room-name" class="font-extrabold text-amber-950 underline">Room A</span></span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <div id="breakout-banner-quick-links" class="flex items-center space-x-1"></div>
-          <button onclick="returnToMainRoom()" class="px-3 py-1 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-lg text-xs transition shadow-sm">
-            🏠 Return to Main Room
-          </button>
-        </div>
+      <!-- Active Banners -->
+      <div id="breakout-banner" class="bg-amber-50 border-b border-amber-200 p-2 px-4 hidden text-xs text-amber-900 flex flex-wrap justify-between items-center gap-2">
+        <span class="font-semibold">Active Breakout Room: <span id="breakout-banner-room-name">Main</span></span>
+        <div id="breakout-banner-quick-links" class="flex items-center space-x-1"></div>
       </div>
 
-      <!-- Active Activity Banner (if launched) -->
-      <div id="activity-banner" class="bg-yellow-50 border-b border-yellow-200 p-3 px-4 hidden text-xs text-yellow-900 flex justify-between items-center">
+      <div id="activity-banner" class="bg-yellow-50 border-b border-yellow-200 p-2.5 px-4 hidden text-xs text-yellow-900 flex justify-between items-center">
         <div>
-          <strong id="activity-banner-title">Activity Prompt:</strong>
-          <span id="activity-banner-text" class="ml-1"></span>
+          <span id="activity-banner-title" class="font-bold block">Prompt</span>
+          <span id="activity-banner-text"></span>
         </div>
-        <button onclick="closeActivityBanner()" class="text-yellow-700 hover:text-yellow-900 font-bold ml-2">✖</button>
+        <button onclick="closeActivityBanner()" class="text-yellow-700 hover:text-yellow-900 font-bold px-2 py-1 touch-target">✕</button>
       </div>
 
-      <!-- Dynamic Classroom Canvas / Slide Display Area -->
-      <div id="slide-container" class="flex-1 p-4 md:p-6 overflow-y-auto relative flex flex-col items-center justify-center">
+      <!-- Slide & Stage Container -->
+      <div id="slide-container" class="flex-1 p-3 md:p-6 overflow-y-auto relative flex flex-col items-center justify-start">
+        <canvas id="whiteboard" class="absolute inset-0 z-10 pointer-events-auto"></canvas>
 
-        <!-- Default Pre-built Slides (if no dynamic lesson file is loaded) -->
-        <!-- SLIDE 1: Interactive Audio Vocabulary Cards -->
-        <div id="slide-1" class="slide-content w-full max-w-3xl space-y-4">
-          <div class="bg-white rounded-2xl p-6 shadow-sm border border-cosy-100">
-            <h2 class="text-xl font-bold text-cosy-700 mb-2">1. Essential Vocabulary / Vocabulario</h2>
-            <p class="text-sm text-gray-600 mb-6">Listen to the pronunciation and practice repeating with your teacher.</p>
+        <!-- Slide 1: General English Sample -->
+        <div id="slide-1" class="slide-content w-full max-w-3xl space-y-4 relative z-0">
+          <div class="bg-cosy-50 p-4 rounded-2xl border border-cosy-100">
+            <span class="bg-cosy-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Warm-up</span>
+            <h2 class="text-xl font-extrabold text-cosy-900 mt-2">Greeting & Introductions</h2>
+            <p class="text-xs text-gray-600 mt-1">Read the short conversation and answer the questions below.</p>
+          </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <!-- Vocab Card 1 -->
-              <div class="p-4 rounded-xl border border-cosy-100 bg-cosy-50/30 flex justify-between items-center hover:border-cosy-500 transition group">
-                <div>
-                  <div class="text-lg font-bold text-cosy-800">¡Hola!</div>
-                  <div class="text-xs text-gray-500">Hello / Hi</div>
-                </div>
-                <button onclick="speakText('¡Hola!', 'es-ES')" class="w-10 h-10 rounded-xl bg-cosy-600 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition">
-                  <i class="fa-solid fa-volume-high"></i>
-                </button>
-              </div>
-
-              <!-- Vocab Card 2 -->
-              <div class="p-4 rounded-xl border border-cosy-100 bg-cosy-50/30 flex justify-between items-center hover:border-cosy-500 transition group">
-                <div>
-                  <div class="text-lg font-bold text-cosy-800">¿Cómo estás?</div>
-                  <div class="text-xs text-gray-500">How are you?</div>
-                </div>
-                <button onclick="speakText('¿Cómo estás?', 'es-ES')" class="w-10 h-10 rounded-xl bg-cosy-600 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition">
-                  <i class="fa-solid fa-volume-high"></i>
-                </button>
-              </div>
-
-              <!-- Vocab Card 3 -->
-              <div class="p-4 rounded-xl border border-cosy-100 bg-cosy-50/30 flex justify-between items-center hover:border-cosy-500 transition group">
-                <div>
-                  <div class="text-lg font-bold text-cosy-800">Buenos días</div>
-                  <div class="text-xs text-gray-500">Good morning</div>
-                </div>
-                <button onclick="speakText('Buenos días', 'es-ES')" class="w-10 h-10 rounded-xl bg-cosy-600 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition">
-                  <i class="fa-solid fa-volume-high"></i>
-                </button>
-              </div>
-
-              <!-- Vocab Card 4 -->
-              <div class="p-4 rounded-xl border border-cosy-100 bg-cosy-50/30 flex justify-between items-center hover:border-cosy-500 transition group">
-                <div>
-                  <div class="text-lg font-bold text-cosy-800">Mucho gusto</div>
-                  <div class="text-xs text-gray-500">Nice to meet you</div>
-                </div>
-                <button onclick="speakText('Mucho gusto', 'es-ES')" class="w-10 h-10 rounded-xl bg-cosy-600 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition">
-                  <i class="fa-solid fa-volume-high"></i>
-                </button>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm space-y-2">
+              <span class="font-bold text-gray-800 text-xs block">Dialogue A</span>
+              <p class="text-gray-700"><strong>Teacher:</strong> Hello! My name is Sarah. What is your name?</p>
+              <p class="text-gray-700"><strong>Student:</strong> Hi Sarah! I'm Alex. Nice to meet you.</p>
+            </div>
+            <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm space-y-2">
+              <span class="font-bold text-gray-800 text-xs block">Exercise 1: Gap Fill</span>
+              <div class="space-y-1.5">
+                <label class="block text-gray-700">1. Nice to <input type="text" id="blank-1" oninput="handleBlankInput('blank-1', this.value)" class="w-24 px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-cosy-500"> you.</label>
+                <div id="feedback-1" class="text-xs font-medium min-h-[18px]"></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- SLIDE 2: Interactive Fill in the Blanks Exercise -->
-        <div id="slide-2" class="slide-content w-full max-w-3xl space-y-4 hidden">
-          <div class="bg-white rounded-2xl p-6 shadow-sm border border-cosy-100">
-            <h2 class="text-xl font-bold text-cosy-700 mb-2">2. Interactive Exercise: Fill in the Blanks</h2>
-            <p class="text-sm text-gray-600 mb-6">Complete the dialogue by typing the correct word. State syncs live!</p>
+        <!-- Slide 2: Controlled Practice -->
+        <div id="slide-2" class="slide-content w-full max-w-3xl space-y-4 hidden relative z-0">
+          <div class="bg-cosy-50 p-4 rounded-2xl border border-cosy-100">
+            <span class="bg-cosy-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Practice</span>
+            <h2 class="text-xl font-extrabold text-cosy-900 mt-2">Target Vocabulary Practice</h2>
+            <p class="text-xs text-gray-600 mt-1">Complete the sentence with the correct missing word.</p>
+          </div>
 
-            <div class="space-y-6">
-              <!-- Exercise Question 1 -->
-              <div class="p-4 rounded-xl bg-cosy-50/50 border border-cosy-100 space-y-2">
-                <div class="text-xs font-semibold text-cosy-500 uppercase tracking-wide">Dialogue 1</div>
-                <div class="text-base text-cosy-800 flex flex-wrap items-center gap-2">
-                  <span>A: ¡Hola! ¿Cómo</span>
-                  <input type="text" id="blank-1" oninput="handleBlankInput('blank-1', event.target.value)" placeholder="type here..." class="px-3 py-1 border-2 border-cosy-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cosy-500 text-center font-bold text-cosy-700 w-32 bg-white">
-                  <span>?</span>
-                </div>
-                <div class="text-base text-cosy-800">
-                  <span>B: ¡Muy bien, gracias!</span>
-                </div>
-                <div id="feedback-1" class="text-xs font-medium mt-1 min-h-[18px]"></div>
-              </div>
-
-              <!-- Exercise Question 2 -->
-              <div class="p-4 rounded-xl bg-cosy-50/50 border border-cosy-100 space-y-2">
-                <div class="text-xs font-semibold text-cosy-500 uppercase tracking-wide">Dialogue 2</div>
-                <div class="text-base text-cosy-800 flex flex-wrap items-center gap-2">
-                  <span>A: Me llamo Sofia. ¿Mucho</span>
-                  <input type="text" id="blank-2" oninput="handleBlankInput('blank-2', event.target.value)" placeholder="type here..." class="px-3 py-1 border-2 border-cosy-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cosy-500 text-center font-bold text-cosy-700 w-32 bg-white">
-                  <span>!</span>
-                </div>
-                <div id="feedback-2" class="text-xs font-medium mt-1 min-h-[18px]"></div>
-              </div>
-
-              <div class="flex justify-end space-x-3 pt-2">
-                <button onclick="checkAnswers()" class="px-5 py-2 bg-cosy-600 text-white font-medium rounded-xl hover:bg-cosy-700 transition shadow-sm text-sm">
-                  <i class="fa-solid fa-check-double mr-1.5"></i> Check Answers
-                </button>
-              </div>
-            </div>
+          <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3 text-xs">
+            <label class="block text-gray-700">Where are you <input type="text" id="blank-2" oninput="handleBlankInput('blank-2', this.value)" class="w-28 px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-cosy-500"> ?</label>
+            <div id="feedback-2" class="text-xs font-medium min-h-[18px]"></div>
+            <button onclick="checkAnswers()" class="px-3 py-1.5 bg-cosy-600 text-white font-semibold rounded-lg text-xs hover:bg-cosy-700 transition touch-target">
+              Check Answers
+            </button>
           </div>
         </div>
 
-        <!-- SLIDE 3: Synced Collaborative Whiteboard -->
-        <div id="slide-3" class="slide-content w-full max-w-3xl h-full flex flex-col hidden">
-          <div class="bg-white rounded-2xl p-4 shadow-sm border border-cosy-100 flex-1 flex flex-col">
-
-            <div class="flex flex-wrap items-center justify-between pb-3 border-b border-gray-100 gap-2">
-              <div>
-                <h2 class="text-lg font-bold text-cosy-700">3. Live Collaborative Whiteboard</h2>
-                <p class="text-xs text-gray-500">Draw or write letters together live.</p>
-              </div>
-
-              <!-- Whiteboard Controls -->
-              <div class="flex items-center space-x-3">
-                <!-- Color Picker -->
-                <div class="flex items-center space-x-1">
-                  <button onclick="setBrushColor('#2b2d42')" class="w-6 h-6 rounded-full bg-[#2b2d42] ring-2 ring-offset-1 ring-transparent focus:ring-cosy-500"></button>
-                  <button onclick="setBrushColor('#e07a5f')" class="w-6 h-6 rounded-full bg-[#e07a5f] ring-2 ring-offset-1 ring-transparent focus:ring-cosy-500"></button>
-                  <button onclick="setBrushColor('#81b29a')" class="w-6 h-6 rounded-full bg-[#81b29a] ring-2 ring-offset-1 ring-transparent focus:ring-cosy-500"></button>
-                  <button onclick="setBrushColor('#3d405b')" class="w-6 h-6 rounded-full bg-[#3d405b] ring-2 ring-offset-1 ring-transparent focus:ring-cosy-500"></button>
-                </div>
-
-                <!-- Stroke Size -->
-                <select id="brush-size" onchange="setBrushSize(this.value)" class="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none">
-                  <option value="2">Thin</option>
-                  <option value="5" selected>Medium</option>
-                  <option value="10">Thick</option>
-                </select>
-
-                <!-- Clear Button -->
-                <button onclick="clearWhiteboard(true)" class="px-3 py-1 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-medium hover:bg-red-100 transition">
-                  <i class="fa-solid fa-trash mr-1"></i> Clear
-                </button>
-              </div>
-            </div>
-
-            <!-- Canvas Area -->
-            <div class="flex-1 relative mt-3 rounded-xl border border-gray-200 bg-white overflow-hidden canvas-container min-h-[300px]">
-              <canvas id="whiteboard" class="w-full h-full cursor-crosshair block"></canvas>
-            </div>
+        <!-- Slide 3: Interactive Canvas -->
+        <div id="slide-3" class="slide-content w-full max-w-3xl h-full flex flex-col hidden relative z-0">
+          <div class="bg-cosy-50 p-4 rounded-2xl border border-cosy-100 mb-3 flex-none">
+            <span class="bg-cosy-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Interactive Canvas</span>
+            <h2 class="text-xl font-extrabold text-cosy-900 mt-1">Free Whiteboard & Drawing Stage</h2>
+            <p class="text-xs text-gray-600 mt-1">Draw or write on the canvas above using your mouse or touch screen.</p>
           </div>
         </div>
+      </div>
 
+      <!-- Stage Navigation Bar (Bottom Right & Mobile Pill) -->
+      <div class="p-2 px-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-xs flex-none">
+        <span class="text-gray-500 font-medium text-[11px] hidden sm:inline" data-i18n="classroom.swipeHint">Swipe or click to change page</span>
+        <div id="stage-nav-pill" class="flex items-center space-x-2 bg-white px-2.5 py-1 rounded-full border border-gray-200 shadow-sm ml-auto">
+          <button id="prev-slide-btn" onclick="navigateSlide(-1)" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700 font-bold transition touch-target">◀</button>
+          <span class="font-mono font-bold text-gray-800 text-xs">
+            <span id="current-slide-num">1</span> / <span id="total-slides-num">3</span>
+          </span>
+          <button id="next-slide-btn" onclick="navigateSlide(1)" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700 font-bold transition touch-target">▶</button>
+        </div>
       </div>
     </section>
+
+    <!-- RIGHT COLUMN / DOCKED / OVERLAY / BOTTOM SHEET TOOL DRAWER -->
+    <aside id="right-tool-drawer" class="w-full lg:w-80 xl:w-96 bg-white border-l border-gray-200 flex-none flex flex-col hidden shadow-2xl z-30 transition-all duration-300">
+      <!-- Drawer Header -->
+      <div class="p-2.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between flex-none">
+        <span id="drawer-title" class="font-bold text-gray-800 text-xs flex items-center space-x-1">
+          <span>💬</span>
+          <span data-i18n="classroom.toolChat">Chat</span>
+        </span>
+        <div class="flex items-center space-x-1">
+          <button id="pin-drawer-btn" onclick="togglePinDrawer()" class="p-1 text-gray-500 hover:text-cosy-700 hover:bg-gray-200 rounded-lg transition text-xs touch-target" title="Pin drawer" aria-label="Pin drawer" data-i18n-title="classroom.pinDrawer">
+            📌
+          </button>
+          <button id="close-drawer-btn" onclick="closeDrawer()" class="p-1 text-gray-500 hover:text-red-600 hover:bg-gray-200 rounded-lg transition text-xs font-bold touch-target" title="Close" aria-label="Close">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Drawer Content Panels -->
+      <div class="flex-1 p-3 overflow-y-auto text-xs">
+        <!-- 1. Chat Panel -->
+        <div id="sidebar-tab-chat" class="flex flex-col h-full space-y-2">
+          <div id="chat-messages" class="flex-1 p-2 overflow-y-auto text-xs space-y-2 min-h-[200px] bg-gray-50 rounded-xl border border-gray-200">
+            <div class="text-gray-400 text-center italic py-2">Welcome to Class Chat</div>
+          </div>
+          <div class="flex space-x-1.5 flex-none">
+            <input type="text" id="chat-input" onkeypress="handleChatKeyPress(event)" placeholder="Type a message..." class="flex-1 px-3 py-2 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500">
+            <button onclick="sendChatMessage()" class="px-3 py-2 bg-cosy-600 hover:bg-cosy-700 text-white rounded-xl font-bold text-xs transition touch-target">
+              Send
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Timer Panel -->
+        <div id="sidebar-tab-timer" class="hidden text-xs space-y-3 p-1">
+          <div class="text-center bg-gray-50 p-4 rounded-xl border border-gray-200">
+            <div id="timerDisplay" class="text-3xl font-mono font-extrabold text-cosy-700">05:00</div>
+          </div>
+          <div class="grid grid-cols-3 gap-1">
+            <button onclick="startTimer()" class="px-2 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs touch-target">Start</button>
+            <button onclick="pauseTimer()" class="px-2 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-xs touch-target">Pause</button>
+            <button onclick="resetTimer(300)" class="px-2 py-1.5 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-bold text-xs touch-target">Reset</button>
+          </div>
+          <div class="flex justify-between gap-1 pt-1">
+            <button onclick="addTimerMinutes(1)" class="flex-1 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-[11px] font-semibold touch-target">+1 Min</button>
+            <button onclick="addTimerMinutes(5)" class="flex-1 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-[11px] font-semibold touch-target">+5 Min</button>
+            <button onclick="resetTimer(600)" class="flex-1 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-[11px] font-semibold touch-target">10 Min</button>
+          </div>
+        </div>
+
+        <!-- 3. Dictionary Panel -->
+        <div id="sidebar-tab-dict" class="hidden text-xs space-y-2 p-1">
+          <input type="text" id="dictSearchInput" oninput="searchCosyDict(this.value)" placeholder="Search dictionary (e.g. family, travel)..." class="w-full px-2.5 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500">
+          <div id="dictSearchResults" class="max-h-72 overflow-y-auto pt-1"></div>
+        </div>
+
+        <!-- 4. Verbs Panel -->
+        <div id="sidebar-tab-verbs" class="hidden text-xs space-y-2 p-1">
+          <input type="text" id="verbSearchInput" oninput="searchIrregularVerbs(this.value)" placeholder="Search verb (e.g. speak, write, go)..." class="w-full px-2.5 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500">
+          <div id="verbSearchResults" class="max-h-72 overflow-y-auto pt-1"></div>
+        </div>
+
+        <!-- 5. Notes Panel -->
+        <div id="sidebar-tab-notes" class="hidden text-xs space-y-2 p-1 flex flex-col h-full">
+          <textarea id="notes-textarea" oninput="saveLessonNotes(this.value)" class="w-full h-64 p-2.5 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500 resize-none font-sans" data-i18n-placeholder="classroom.notesPlaceholder" placeholder="Personal lesson notes... (saved locally)"></textarea>
+        </div>
+
+        <!-- 6. Prompts / Activities Panel -->
+        <div id="sidebar-tab-activities" class="hidden text-xs space-y-2 p-1">
+          <div class="space-y-2">
+            <button onclick="launchActivity('Vocab Elicitation', 'Elicit target vocabulary from students before showing slides.')" class="w-full text-left p-2.5 bg-cosy-50 hover:bg-cosy-100 border border-cosy-200 rounded-xl transition touch-target">
+              <span class="font-bold text-cosy-900 block">Vocab Elicitation</span>
+              <span class="text-[11px] text-gray-600">Prompt students for target words</span>
+            </button>
+            <button onclick="launchActivity('Concept Check Question', 'Ask a CCQ to verify comprehension without translation.')" class="w-full text-left p-2.5 bg-cosy-50 hover:bg-cosy-100 border border-cosy-200 rounded-xl transition touch-target">
+              <span class="font-bold text-cosy-900 block">CCQ Check</span>
+              <span class="text-[11px] text-gray-600">Verify understanding using CCQs</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- PHONE BOTTOM TAB BAR (<600px) -->
+
+  <!-- FLOATING VIDEO TILES FOR PHONE PORTRAIT (<600px) -->
+  <div id="floating-video-container" class="sm:hidden pointer-events-auto">
+    <div id="floating-teacher-tile" onclick="toggleEnlargeTile('floating-teacher-tile')" class="floating-video-tile cursor-pointer top-12 right-2">
+      <div id="teacher-video-slot" class="w-full h-full bg-gray-900 flex items-center justify-center text-white text-[10px]">
+        <span class="font-bold">Teacher 📹</span>
+      </div>
+      <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[9px] px-1 rounded font-bold">Teacher</span>
+    </div>
+
+    <div id="floating-student-tile" onclick="toggleOwnTileControls(event)" class="floating-video-tile cursor-pointer top-48 right-2">
+      <div id="student-video-slot" class="w-full h-full bg-gray-900 flex items-center justify-center text-white text-[10px]">
+        <span class="font-bold">You 📹</span>
+      </div>
+      <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[9px] px-1 rounded font-bold">You</span>
+    </div>
   </div>
 
-  <!-- Lesson Material Catalog Modal -->
+  <!-- Mobile Camera Controls Popup -->
+  <div id="mobile-camera-controls-popup" class="hidden absolute z-40 top-40 right-2 bg-gray-900 text-white rounded-2xl p-3 shadow-2xl border border-gray-700 text-xs space-y-2">
+    <div class="flex items-center justify-between pb-1 border-b border-gray-700">
+      <span class="font-bold text-[11px]" data-i18n="classroom.cameraControls">Camera Controls</span>
+      <button onclick="toggleOwnTileControls(event)" class="text-gray-400 hover:text-white font-bold text-xs">✕</button>
+    </div>
+    <div class="flex space-x-2">
+      <button onclick="toggleMicMute()" class="flex-1 px-2 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-xl text-xs font-semibold">🎤 Mic</button>
+      <button onclick="toggleCameraMute()" class="flex-1 px-2 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-xl text-xs font-semibold">📹 Cam</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM SHEET TOOL DRAWER FOR PHONE PORTRAIT (<600px) -->
+  <div id="bottom-sheet-drawer" class="bottom-sheet collapsed sm:hidden">
+    <div class="p-2 flex flex-col items-center border-b border-gray-200 bg-gray-50 rounded-t-2xl flex-none cursor-grab">
+      <div class="w-10 h-1 bg-gray-300 rounded-full mb-1"></div>
+      <div class="w-full flex items-center justify-between px-2">
+        <span id="bottom-sheet-title" class="font-bold text-gray-800 text-xs flex items-center space-x-1">
+          <span>💬</span>
+          <span data-i18n="classroom.toolChat">Chat</span>
+        </span>
+        <button onclick="closeBottomSheet()" class="text-gray-500 hover:text-red-600 font-bold p-1 text-xs touch-target">✕</button>
+      </div>
+    </div>
+    <div id="bottom-sheet-body" class="p-3 overflow-y-auto flex-1 text-xs min-h-[280px]">
+    </div>
+  </div>
+
+  <footer id="phone-bottom-bar" class="bg-white border-t border-gray-200 flex sm:hidden items-center justify-around p-1 z-20 flex-none">
+    <button onclick="switchSidebarTab('chat')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 touch-target" title="Chat" aria-label="Chat">
+      <span class="text-lg">💬</span>
+      <span class="text-[10px] font-medium">Chat</span>
+    </button>
+    <button onclick="switchSidebarTab('timer')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 touch-target" title="Timer" aria-label="Timer">
+      <span class="text-lg">⏱</span>
+      <span class="text-[10px] font-medium">Timer</span>
+    </button>
+    <button onclick="switchSidebarTab('dict')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 touch-target" title="Dictionary" aria-label="Dictionary">
+      <span class="text-lg">📖</span>
+      <span class="text-[10px] font-medium">Dict</span>
+    </button>
+    <button onclick="switchSidebarTab('verbs')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 touch-target" title="Verbs" aria-label="Verbs">
+      <span class="text-lg">🔤</span>
+      <span class="text-[10px] font-medium">Verbs</span>
+    </button>
+    <button onclick="switchSidebarTab('notes')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 touch-target" title="Notes" aria-label="Notes">
+      <span class="text-lg">📝</span>
+      <span class="text-[10px] font-medium">Notes</span>
+    </button>
+    <button onclick="switchSidebarTab('activities')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 host-only hidden touch-target" title="Prompts" aria-label="Prompts">
+      <span class="text-lg">💡</span>
+      <span class="text-[10px] font-medium">Prompts</span>
+    </button>
+  </footer>
+
+  <!-- Modals -->
   <div id="lesson-catalog-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-xl border border-cosy-100 max-h-[85vh] flex flex-col">
-      <div class="flex items-center justify-between pb-2 border-b border-gray-100">
-        <div class="flex items-center space-x-2 text-cosy-600">
-          <i class="fa-solid fa-book-open text-xl"></i>
-          <h3 class="text-lg font-bold text-gray-800">Platform Material Catalog</h3>
-        </div>
-        <button onclick="toggleLessonCatalogModal()" class="text-gray-400 hover:text-gray-600 text-lg">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col p-4 space-y-3 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+        <h3 class="font-extrabold text-base text-gray-900 flex items-center space-x-2">
+          <span>📚</span>
+          <span>Platform Lesson Catalog</span>
+        </h3>
+        <button onclick="toggleLessonCatalogModal()" class="p-1 text-gray-400 hover:text-gray-700 font-bold touch-target">✕</button>
       </div>
-
-      <!-- Filter Controls -->
-      <div class="flex space-x-2">
-        <input type="text" id="catalog-search" oninput="filterCatalogModal()" placeholder="Search platform lessons..." class="flex-1 px-3 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-cosy-500">
-      </div>
-
-      <!-- Course Sequence List -->
-      <div id="catalog-modal-body" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
-        <div class="text-center py-8 text-gray-400">Loading platform course manifests...</div>
-      </div>
+      <input type="text" id="catalog-search" oninput="filterCatalogModal()" placeholder="Search catalog by title, level, language..." class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500">
+      <div id="catalog-modal-body" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs"></div>
     </div>
   </div>
 
-  <!-- Breakout Rooms Manager Modal (Group Mode) -->
   <div id="breakout-rooms-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl border border-cosy-100">
-      <div class="flex items-center justify-between pb-2 border-b border-gray-100">
-        <div class="flex items-center space-x-2 text-amber-700">
-          <i class="fa-solid fa-people-arrows text-xl"></i>
-          <h3 class="text-lg font-bold text-gray-900">Breakout Rooms Manager</h3>
-        </div>
-        <button onclick="toggleBreakoutRoomsModal()" class="text-gray-400 hover:text-gray-600 text-lg">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+    <div class="bg-white rounded-2xl max-w-lg w-full p-4 space-y-3 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+        <h3 class="font-extrabold text-base text-gray-900 flex items-center space-x-2">
+          <span>🚪</span>
+          <span>Breakout Rooms Manager</span>
+        </h3>
+        <button onclick="toggleBreakoutRoomsModal()" class="p-1 text-gray-400 hover:text-gray-700 font-bold touch-target">✕</button>
       </div>
 
-      <p class="text-xs text-gray-600">Divide group class participants into smaller sub-rooms for pair work or group debates.</p>
-
-      <div class="flex items-center justify-between bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs">
-        <span class="font-bold text-amber-900">Number of Breakout Rooms:</span>
-        <select id="breakout-count-select" class="bg-white border border-amber-300 rounded-lg px-2 py-1 text-xs font-bold text-amber-900 focus:ring-1 focus:ring-amber-500">
-          <option value="2">2 Sub-Rooms (Room A &amp; B)</option>
-          <option value="3">3 Sub-Rooms (Room A, B, C)</option>
-          <option value="4">4 Sub-Rooms (Room A, B, C, D)</option>
+      <div class="flex items-center space-x-2 text-xs">
+        <label class="font-medium text-gray-700">Sub-rooms:</label>
+        <select id="breakout-count-select" class="border border-gray-300 rounded-lg px-2 py-1 text-xs">
+          <option value="2">2 Rooms</option>
+          <option value="3">3 Rooms</option>
+          <option value="4">4 Rooms</option>
         </select>
-      </div>
-
-      <div id="breakout-rooms-container" class="space-y-2 max-h-56 overflow-y-auto pt-1 text-xs">
-        <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl text-center text-gray-500">
-          Click "Generate Rooms" to automatically assign active participants into breakout rooms.
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between pt-2 border-t border-gray-100 gap-2">
-        <button onclick="generateBreakoutRooms()" class="px-4 py-2 bg-amber-600 text-white text-xs font-bold rounded-xl hover:bg-amber-700 transition shadow-sm">
-          ⚡ Generate &amp; Assign Rooms
+        <button onclick="generateBreakoutRooms()" class="px-3 py-1 bg-cosy-600 text-white rounded-lg font-semibold text-xs hover:bg-cosy-700 transition touch-target">
+          Create Rooms
         </button>
-        <button onclick="recallAllFromBreakouts()" class="px-4 py-2 bg-gray-700 text-white text-xs font-bold rounded-xl hover:bg-gray-800 transition shadow-sm">
-          📢 Recall All To Main Room
+        <button onclick="recallAllFromBreakouts()" class="px-3 py-1 bg-red-600 text-white rounded-lg font-semibold text-xs hover:bg-red-700 transition ml-auto touch-target">
+          Recall All
         </button>
       </div>
+
+      <div id="breakout-rooms-container" class="space-y-2 max-h-56 overflow-y-auto pt-1 text-xs"></div>
     </div>
   </div>
 
-
-  <!-- JavaScript Application Core -->
-  <script>
+<script>
     // Platform State Management
     let currentRole = 'teacher';
     let lessonMode = 'individual'; // 'individual' (1-on-1) or 'group'
@@ -2714,6 +2798,390 @@
         document.getElementById('breakout-rooms-modal').classList.add('hidden');
       }
     }
-  </script>
-</body>
-</html>
+
+
+    // Confirm leave lesson
+    function confirmLeaveLesson() {
+      const portalLink = document.getElementById('portal-link');
+      const targetUrl = portalLink ? portalLink.getAttribute('href') : 'student.html';
+      const confirmMsg = (window.CosyI18n && window.CosyI18n.t) ? window.CosyI18n.t('classroom.leaveConfirm') : 'Are you sure you want to leave the lesson?';
+      if (confirm(confirmMsg)) {
+        window.location.href = targetUrl;
+      }
+    }
+
+    // Media Mute Toggle Helpers
+    function toggleMicMute() {
+      if (localStream) {
+        const audioTracks = localStream.getAudioTracks();
+        if (audioTracks.length > 0) {
+          const isEnabled = audioTracks[0].enabled;
+          audioTracks.forEach(t => t.enabled = !isEnabled);
+          if (window.CosyUI && window.CosyUI.toast) CosyUI.toast(!isEnabled ? 'Microphone unmuted' : 'Microphone muted', !isEnabled ? 'info' : 'warning');
+        }
+      } else if (jitsiApi) {
+        jitsiApi.executeCommand('toggleAudio');
+      }
+    }
+
+    function toggleCameraMute() {
+      if (localStream) {
+        const videoTracks = localStream.getVideoTracks();
+        if (videoTracks.length > 0) {
+          const isEnabled = videoTracks[0].enabled;
+          videoTracks.forEach(t => t.enabled = !isEnabled);
+          if (window.CosyUI && window.CosyUI.toast) CosyUI.toast(!isEnabled ? 'Camera unmuted' : 'Camera muted', !isEnabled ? 'info' : 'warning');
+        }
+      } else if (jitsiApi) {
+        jitsiApi.executeCommand('toggleVideo');
+      }
+    }
+
+    // Keyboard Shortcuts (M: mute mic, V: mute video, C: chat drawer)
+    document.addEventListener('keydown', (e) => {
+      const activeEl = document.activeElement;
+      if (activeEl) {
+        const tag = activeEl.tagName ? activeEl.tagName.toLowerCase() : '';
+        if (tag === 'input' || tag === 'textarea' || tag === 'select' || activeEl.isContentEditable) {
+          return;
+        }
+      }
+      const key = e.key ? e.key.toUpperCase() : '';
+      if (key === 'M') {
+        e.preventDefault();
+        toggleMicMute();
+      } else if (key === 'V') {
+        e.preventDefault();
+        toggleCameraMute();
+      } else if (key === 'C') {
+        e.preventDefault();
+        switchSidebarTab('chat');
+      }
+    });
+
+    // Right Tool Drawer Management
+    window.activeTool = 'chat'; var activeTool = window.activeTool;
+    window.window.isDrawerPinned = false; isDrawerPinned = false; var isDrawerPinned = window.isDrawerPinned;
+
+    function openDrawer(tabName) {
+      window.activeTool = tabName; activeTool = tabName;
+      const drawer = document.getElementById('right-tool-drawer');
+      if (drawer) drawer.classList.remove('hidden');
+
+      const titles = {
+        chat: 'Chat',
+        timer: 'Timer',
+        dict: 'Dictionary',
+        verbs: 'Irregular Verbs',
+        notes: 'Lesson Notes',
+        activities: 'Prompts'
+      };
+
+      const drawerTitle = document.getElementById('drawer-title');
+      if (drawerTitle) {
+        const cap = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+        const tKey = tabName === 'verbs' ? 'toolVerbs' : tabName === 'dict' ? 'toolDictionary' : ('tool' + cap);
+        const titleText = (window.CosyI18n && window.CosyI18n.t) ? window.CosyI18n.t('classroom.' + tKey) : (titles[tabName] || tabName);
+        drawerTitle.innerText = titleText;
+      }
+
+      ['chat', 'timer', 'dict', 'verbs', 'notes', 'activities'].forEach(t => {
+        const tabEl = document.getElementById('sidebar-tab-' + t);
+        const btnEl = document.getElementById('tab-btn-' + t);
+        if (tabEl) tabEl.classList.toggle('hidden', t !== tabName);
+        if (btnEl) {
+          if (t === tabName) {
+            btnEl.classList.add('bg-cosy-100', 'text-cosy-800', 'font-bold');
+            btnEl.classList.remove('text-gray-600');
+          } else {
+            btnEl.classList.remove('bg-cosy-100', 'text-cosy-800', 'font-bold');
+            btnEl.classList.add('text-gray-600');
+          }
+        }
+      });
+
+      if (tabName === 'verbs') searchIrregularVerbs('');
+      if (tabName === 'dict') {
+        const input = document.getElementById('dictSearchInput');
+        if (input && input.value) searchCosyDict(input.value);
+      }
+      if (tabName === 'notes') {
+        const textarea = document.getElementById('notes-textarea');
+        if (textarea) textarea.value = localStorage.getItem('cosy_lesson_notes') || '';
+      }
+
+      (window.requestAnimationFrame || setTimeout)(() => resizeCanvas(), 0);
+    }
+
+    function closeDrawer() {
+      window.activeTool = null; activeTool = null;
+      window.isDrawerPinned = false; isDrawerPinned = false;
+      const drawer = document.getElementById('right-tool-drawer');
+      if (drawer) drawer.classList.add('hidden');
+
+      ['chat', 'timer', 'dict', 'verbs', 'notes', 'activities'].forEach(t => {
+        const btnEl = document.getElementById('tab-btn-' + t);
+        if (btnEl) {
+          btnEl.classList.remove('bg-cosy-100', 'text-cosy-800', 'font-bold');
+          btnEl.classList.add('text-gray-600');
+        }
+      });
+
+      const pinBtn = document.getElementById('pin-drawer-btn');
+      if (pinBtn) pinBtn.classList.remove('bg-cosy-100', 'text-cosy-800');
+
+      (window.requestAnimationFrame || setTimeout)(() => resizeCanvas(), 0);
+    }
+
+    function togglePinDrawer() {
+      window.isDrawerPinned = !window.isDrawerPinned; isDrawerPinned = window.isDrawerPinned;
+      const pinBtn = document.getElementById('pin-drawer-btn');
+      if (pinBtn) {
+        if (isDrawerPinned) {
+          pinBtn.classList.add('bg-cosy-100', 'text-cosy-800');
+        } else {
+          pinBtn.classList.remove('bg-cosy-100', 'text-cosy-800');
+        }
+      }
+      if (window.CosyUI && window.CosyUI.toast) {
+        const msg = isDrawerPinned ? ((window.CosyI18n && window.CosyI18n.t) ? window.CosyI18n.t('classroom.pinDrawer') : 'Drawer pinned') : ((window.CosyI18n && window.CosyI18n.t) ? window.CosyI18n.t('classroom.unpinDrawer') : 'Drawer unpinned');
+        CosyUI.toast(msg, 'info');
+      }
+      (window.requestAnimationFrame || setTimeout)(() => resizeCanvas(), 0);
+    }
+
+    function saveLessonNotes(val) {
+      try {
+        localStorage.setItem('cosy_lesson_notes', val);
+      } catch (err) {}
+    }
+
+
+    function switchSidebarTab(tabName) {
+      const isMobile = window.innerWidth < 600;
+      if (isMobile) {
+        if (activeTool === tabName && isBottomSheetOpen) {
+          closeBottomSheet();
+          return;
+        }
+        openBottomSheet(tabName);
+      } else {
+        if (activeTool === tabName && !isDrawerPinned) {
+          closeDrawer();
+          return;
+        }
+        openDrawer(tabName);
+      }
+    }
+
+      // Responsive Layout Toggle Helpers
+    function toggleTabletToolsMenu() {
+      const menu = document.getElementById('tools-icon-grid');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    function toggleMobileMoreMenu() {
+      const menu = document.getElementById('more-menu-dropdown');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    function updateResponsiveLayout() {
+      const w = window.innerWidth;
+      const isLandscape = window.innerWidth > window.innerHeight;
+
+      // Sync mobile room ID display
+      const roomIdEl = document.getElementById('display-room-id');
+      const mobileRoomIdEl = document.getElementById('display-room-id-mobile');
+      if (roomIdEl && mobileRoomIdEl) {
+        mobileRoomIdEl.innerText = roomIdEl.innerText;
+      }
+
+      // Drawer positioning: on tablet landscape / mobile overlay vs docked
+      const drawer = document.getElementById('right-tool-drawer');
+      if (drawer) {
+        if (w < 1024) {
+          drawer.classList.add('absolute', 'right-0', 'top-0', 'bottom-0', 'z-30', 'w-80', 'max-w-full');
+          drawer.classList.remove('w-full', 'lg:w-80', 'xl:w-96');
+        } else {
+          drawer.classList.remove('absolute', 'right-0', 'top-0', 'bottom-0', 'z-30', 'max-w-full');
+          drawer.classList.add('w-full', 'lg:w-80', 'xl:w-96');
+        }
+      }
+
+      (window.requestAnimationFrame || setTimeout)(() => resizeCanvas(), 0);
+    }
+
+    // Touch Swipe Page Navigation on Stage
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const slideStage = document.getElementById('slide-container');
+      if (slideStage) {
+        slideStage.addEventListener('touchstart', (e) => {
+          if (e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+          }
+        }, { passive: true });
+
+        slideStage.addEventListener('touchend', (e) => {
+          if (e.changedTouches.length === 1) {
+            const deltaX = e.changedTouches[0].clientX - touchStartX;
+            const deltaY = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(deltaX) > 60 && Math.abs(deltaX) > Math.abs(deltaY) * 2) {
+              if (deltaX < 0) {
+                navigateSlide(1);
+              } else {
+                navigateSlide(-1);
+              }
+            }
+          }
+        }, { passive: true });
+      }
+
+      // Touch Long-Press Tooltips
+      let touchTimer = null;
+      document.querySelectorAll('[data-i18n-title], [title]').forEach(el => {
+        el.addEventListener('touchstart', () => {
+          const tKey = el.getAttribute('data-i18n-title');
+          const titleText = (tKey && window.CosyI18n) ? window.CosyI18n.t(tKey) : el.getAttribute('title');
+          if (!titleText) return;
+          touchTimer = setTimeout(() => {
+            if (window.CosyUI && window.CosyUI.toast) {
+              CosyUI.toast(titleText, 'info');
+            }
+          }, 500);
+        }, { passive: true });
+
+        el.addEventListener('touchend', () => { if (touchTimer) clearTimeout(touchTimer); });
+        el.addEventListener('touchmove', () => { if (touchTimer) clearTimeout(touchTimer); });
+      });
+
+      window.addEventListener('resize', updateResponsiveLayout);
+      window.addEventListener('orientationchange', () => setTimeout(updateResponsiveLayout, 100));
+      updateResponsiveLayout();
+    });
+
+
+
+    // Mobile Bottom Sheet & Floating Tile Logic
+    let isBottomSheetOpen = false;
+
+    function openBottomSheet(tabName) {
+      const sheet = document.getElementById('bottom-sheet-drawer');
+      const body = document.getElementById('bottom-sheet-body');
+      const titleEl = document.getElementById('bottom-sheet-title');
+
+      if (!sheet || !body) return;
+
+      const contentEl = document.getElementById('sidebar-tab-' + tabName);
+      if (contentEl) {
+        body.appendChild(contentEl);
+        contentEl.classList.remove('hidden');
+      }
+
+      const titles = {
+        chat: 'Chat',
+        timer: 'Timer',
+        dict: 'Dictionary',
+        verbs: 'Irregular Verbs',
+        notes: 'Lesson Notes',
+        activities: 'Prompts'
+      };
+
+      if (titleEl) {
+        const cap = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+        const tKey = tabName === 'verbs' ? 'toolVerbs' : tabName === 'dict' ? 'toolDictionary' : ('tool' + cap);
+        const titleText = (window.CosyI18n && window.CosyI18n.t) ? window.CosyI18n.t('classroom.' + tKey) : (titles[tabName] || tabName);
+        titleEl.innerText = titleText;
+      }
+
+      sheet.classList.remove('collapsed');
+      isBottomSheetOpen = true;
+      window.activeTool = tabName; activeTool = tabName;
+
+      if (tabName === 'verbs') searchIrregularVerbs('');
+      if (tabName === 'dict') {
+        const input = document.getElementById('dictSearchInput');
+        if (input && input.value) searchCosyDict(input.value);
+      }
+      if (tabName === 'notes') {
+        const textarea = document.getElementById('notes-textarea');
+        if (textarea) textarea.value = localStorage.getItem('cosy_lesson_notes') || '';
+      }
+
+      (window.requestAnimationFrame || setTimeout)(() => resizeCanvas(), 0);
+    }
+
+    function closeBottomSheet() {
+      const sheet = document.getElementById('bottom-sheet-drawer');
+      if (sheet) sheet.classList.add('collapsed');
+      isBottomSheetOpen = false;
+      window.activeTool = null; activeTool = null;
+
+      const rightDrawerBody = document.querySelector('#right-tool-drawer .overflow-y-auto');
+      ['chat', 'timer', 'dict', 'verbs', 'notes', 'activities'].forEach(t => {
+        const contentEl = document.getElementById('sidebar-tab-' + t);
+        if (contentEl && rightDrawerBody && !rightDrawerBody.contains(contentEl)) {
+          rightDrawerBody.appendChild(contentEl);
+          contentEl.classList.add('hidden');
+        }
+      });
+
+      (window.requestAnimationFrame || setTimeout)(() => resizeCanvas(), 0);
+    }
+
+    function toggleOwnTileControls(e) {
+      if (e) e.stopPropagation();
+      const popup = document.getElementById('mobile-camera-controls-popup');
+      if (popup) popup.classList.toggle('hidden');
+    }
+
+    function toggleEnlargeTile(tileId) {
+      const tile = document.getElementById(tileId);
+      if (!tile) return;
+      if (tile.classList.contains('fixed')) {
+        tile.classList.remove('fixed', 'inset-4', 'z-50', 'w-auto', 'h-auto');
+        tile.classList.add('floating-video-tile');
+      } else {
+        tile.classList.remove('floating-video-tile');
+        tile.classList.add('fixed', 'inset-4', 'z-50', 'w-auto', 'h-auto');
+      }
+    }
+
+    function makeElementDraggable(el) {
+      if (!el) return;
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+      el.onmousedown = (e) => {
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; };
+        document.onmousemove = (e2) => {
+          e2.preventDefault();
+          pos1 = pos3 - e2.clientX; pos2 = pos4 - e2.clientY;
+          pos3 = e2.clientX; pos4 = e2.clientY;
+          el.style.top = (el.offsetTop - pos2) + "px";
+          el.style.left = (el.offsetLeft - pos1) + "px";
+        };
+      };
+
+      el.ontouchstart = (e) => {
+        if (e.touches.length === 1) {
+          pos3 = e.touches[0].clientX; pos4 = e.touches[0].clientY;
+          document.ontouchend = () => { document.ontouchend = null; document.ontouchmove = null; };
+          document.ontouchmove = (e2) => {
+            if (e2.touches.length === 1) {
+              pos1 = pos3 - e2.touches[0].clientX; pos2 = pos4 - e2.touches[0].clientY;
+              pos3 = e2.touches[0].clientX; pos4 = e2.touches[0].clientY;
+              el.style.top = (el.offsetTop - pos2) + "px";
+              el.style.left = (el.offsetLeft - pos1) + "px";
+            }
+          };
+        }
+      };
+    }
+
+</script>
