@@ -79,3 +79,24 @@ RLS is enabled on `public.lesson_notes`. Client operations respect the following
 - **Client-Enforced Handshake**: The room key handshake is evaluated client-side on the WebRTC host instance. A malicious client bypass or modified PeerJS client could bypass host-side WebRTC packet filtering.
 - **Supabase Authorization Boundary**: Access to `lesson_notes` at the database level is protected by RLS and RPC caller checks (`auth.uid() = ANY(participants)`). A signed-in user who acquires the `room_key` and `lesson_id` can invoke `join_lesson_note` to add themselves as a participant.
 - **Data Isolation**: Peer-to-peer live state synchronization (drawing, slide navigation, chat) uses the PeerJS data channel and does not use Supabase Realtime. Supabase database interactions are restricted to RPC calls (`join_lesson_note`, `save_lesson_note`) for persistence.
+
+---
+
+## 5. PeerJS WebRTC ICE Server Configuration
+
+PeerJS WebRTC call initialization in `classroom.html` uses STUN/TURN server configurations specified in `shared/js/config.js` (`window.COSY_CONFIG.ICE_SERVERS`):
+
+```javascript
+window.COSY_CONFIG = {
+  SUPABASE_URL: "...",
+  SUPABASE_ANON_KEY: "...",
+  ICE_SERVERS: [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" }
+    // TURN server placeholder:
+    // { urls: "turn:turn.example.com:3478", username: "user", credential: "password" }
+  ]
+};
+```
+
+When PeerJS video calling starts (`startPeerJsVideoCall`), `window.COSY_CONFIG.ICE_SERVERS` is passed directly into the PeerJS Peer options (`{ config: { iceServers: ... } }`) to ensure consistent NAT traversal across client environments.

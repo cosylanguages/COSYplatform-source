@@ -706,6 +706,66 @@ async function runSecurityTests() {
 
 
     // -------------------------------------------------------------
+    // Test (h): PeerJS Video Controls, ICE Config, and Timeout Banner
+    // -------------------------------------------------------------
+    console.log('\n🔹 Test (h): PeerJS Video Controls, ICE Config, and Timeout Banner...');
+    const { dom: domH } = createMockDom(port, 'teacher');
+    await new Promise(r => setTimeout(r, 800));
+
+    // 1. ICE Servers in config
+    if (!domH.window.COSY_CONFIG || !Array.isArray(domH.window.COSY_CONFIG.ICE_SERVERS)) {
+      console.error('❌ FAIL: ICE_SERVERS array missing in window.COSY_CONFIG');
+      failures++;
+    } else {
+      console.log('  ✅ PASS: ICE_SERVERS array is configured in window.COSY_CONFIG.');
+    }
+
+    // 2. Video Control Strip buttons existence and aria-labels
+    const stripMicBtn = domH.window.document.getElementById('strip-mic-btn');
+    const stripCamBtn = domH.window.document.getElementById('strip-cam-btn');
+    const stripDeviceBtn = domH.window.document.getElementById('strip-device-btn');
+    const stripMirrorBtn = domH.window.document.getElementById('strip-mirror-btn');
+    const stripLayoutBtn = domH.window.document.getElementById('strip-layout-btn');
+
+    if (!stripMicBtn || !stripCamBtn || !stripDeviceBtn || !stripMirrorBtn || !stripLayoutBtn) {
+      console.error('❌ FAIL: One or more video control strip buttons missing!');
+      failures++;
+    } else if (stripMicBtn.getAttribute('aria-label') !== 'Toggle microphone' || stripCamBtn.getAttribute('aria-label') !== 'Toggle camera') {
+      console.error('❌ FAIL: Video control strip button aria-labels are incorrect!');
+      failures++;
+    } else {
+      console.log('  ✅ PASS: Video control strip buttons render with proper aria-labels and tooltips.');
+    }
+
+    // 3. Provider Switching disables control strip with tooltip
+    domH.window.changeVideoProvider('jitsi');
+    if (!stripMicBtn.disabled || !stripCamBtn.disabled || !stripDeviceBtn.disabled) {
+      console.error('❌ FAIL: Control strip buttons were not disabled when provider switched to Jitsi!');
+      failures++;
+    } else if (!stripMicBtn.title.includes('Jitsi')) {
+      console.error(`❌ FAIL: Control strip disabled tooltip incorrect. Got: "${stripMicBtn.title}"`);
+      failures++;
+    } else {
+      domH.window.changeVideoProvider('peerjs-video');
+      if (stripMicBtn.disabled) {
+        console.error('❌ FAIL: Control strip buttons remained disabled for peerjs-video!');
+        failures++;
+      } else {
+        console.log('  ✅ PASS: Control strip disabled with explanatory tooltip for external providers and re-enabled for PeerJS.');
+      }
+    }
+
+    // 4. Timeout trouble banner trigger
+    domH.window.triggerPeerJsTimeoutBanner();
+    const timeoutBanner = domH.window.document.getElementById('peer-timeout-banner');
+    if (!timeoutBanner || timeoutBanner.classList.contains('hidden')) {
+      console.error('❌ FAIL: Peer timeout trouble banner did not render!');
+      failures++;
+    } else {
+      console.log('  ✅ PASS: 12-second PeerJS timeout trouble banner rendered as expected.');
+    }
+
+    // -------------------------------------------------------------
     // Test (e2): Multi-viewport responsive controls check at 1280px, 768px, and 390px
     // -------------------------------------------------------------
     console.log('\n🔹 Test (e2): Multi-viewport responsive controls check (1280px, 768px, 390px)...');
