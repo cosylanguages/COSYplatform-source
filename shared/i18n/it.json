@@ -208,5 +208,10 @@
   "classroom.toolsMenu": "Menu strumenti",
   "classroom.moreMenu": "Altre opzioni",
   "classroom.swipeHint": "Scorri per cambiare pagina",
-  "classroom.cameraControls": "Controlli fotocamera"
+  "classroom.cameraControls": "Controlli fotocamera",
+  "classroom.providerSelectHeader": "Cambia provider video",
+  "classroom.copyInviteLink": "Copia link di invito",
+  "classroom.openExternalCall": "Apri link riunione",
+  "classroom.callTeacher": "Chiama insegnante",
+  "classroom.peerLimitNotice": "Rilevati più di 4 partecipanti P2P. Si consiglia di passare a Jitsi per prestazioni ottimali."
 }

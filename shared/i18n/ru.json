@@ -208,5 +208,10 @@
   "classroom.toolsMenu": "Меню инструментов",
   "classroom.moreMenu": "Дополнительно",
   "classroom.swipeHint": "Смахните для смены страницы",
-  "classroom.cameraControls": "Управление камерой"
+  "classroom.cameraControls": "Управление камерой",
+  "classroom.providerSelectHeader": "Переключить видеосвязь",
+  "classroom.copyInviteLink": "Скопировать ссылку-приглашение",
+  "classroom.openExternalCall": "Открыть ссылку на встречу",
+  "classroom.callTeacher": "Позвать преподавателя",
+  "classroom.peerLimitNotice": "Обнаружено более 4 участников P2P. Рекомендуется переключиться на Jitsi для оптимальной работы."
 }

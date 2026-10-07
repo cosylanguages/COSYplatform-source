@@ -208,5 +208,10 @@
   "classroom.toolsMenu": "Μενού εργαλείων",
   "classroom.moreMenu": "Περισσότερα",
   "classroom.swipeHint": "Σύρετε για αλλαγή σελίδας",
-  "classroom.cameraControls": "Χειριστήρια κάμερας"
+  "classroom.cameraControls": "Στοιχεία ελέγχου κάμερας",
+  "classroom.providerSelectHeader": "Αλλαγή παρόχου βίντεο",
+  "classroom.copyInviteLink": "Αντιγραφή συνδέσμου πρόσκλησης",
+  "classroom.openExternalCall": "Άνοιγμα συνδέσμου σύσκεψης",
+  "classroom.callTeacher": "Κλήση καθηγητή",
+  "classroom.peerLimitNotice": "Εντοπίστηκαν πάνω από 4 συμμετέχοντες P2P. Εξετάστε το ενδεχόμενο αλλαγής σε Jitsi για βέλτιστη απόδοση."
 }

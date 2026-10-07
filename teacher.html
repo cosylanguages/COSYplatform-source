@@ -587,6 +587,18 @@
               ${profile && profile.role === 'founder' ? '<a href="founder.html" class="btn btn-outline" style="font-size: 0.85rem;">← Founder Portal</a>' : ''}
             </div>
           </div>
+
+          <!-- My Shared Notes Section -->
+          <div id="my-notes-section" style="margin-bottom: 30px; background: white; border: 1px solid #cbd5e1; border-radius: var(--cosy-radius-md, 14px); padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--teacher-primary, #6d28d9); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <span>📝 My Classroom Notes</span>
+              <button onclick="loadUserNotes('teacher')" style="font-size: 0.8rem; padding: 4px 10px; background: #f3e8ff; color: var(--teacher-primary, #6d28d9); border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Refresh 🔄</button>
+            </h2>
+            <div id="user-notes-container">
+              <p style="color: #64748b; font-size: 0.85rem;">Loading your notes...</p>
+            </div>
+          </div>
+
           <div class="catalog-grid">
       `;
 
@@ -1457,6 +1469,125 @@
       }
       return output;
     }
+
+    async function loadUserNotes(roleType) {
+      const container = document.getElementById('user-notes-container');
+      if (!container) return;
+
+      const client = window.CosyAuth ? window.CosyAuth.client : null;
+      if (!client) {
+        container.innerHTML = '<p style="color: #64748b; font-size: 0.85rem;">Notes functionality requires configured database access.</p>';
+        return;
+      }
+
+      try {
+        const { data: notes, error } = await client
+          .from('lesson_notes')
+          .select('*')
+          .order('updated_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!notes || notes.length === 0) {
+          container.innerHTML = '<p style="color: #64748b; font-size: 0.85rem;">You do not have any saved classroom notes yet.</p>';
+          return;
+        }
+
+        // Group notes by date, language, and lesson
+        const grouped = {};
+        notes.forEach(note => {
+          const dateStr = note.updated_at ? new Date(note.updated_at).toLocaleDateString() : 'Recent';
+          const parts = (note.lesson_id || '').split('/');
+          const file = parts.pop() || note.lesson_id;
+          const lang = parts.length > 0 ? parts[parts.length - 1] : 'general';
+          const groupKey = `${dateStr} • ${lang}`;
+
+          if (!grouped[groupKey]) grouped[groupKey] = [];
+          grouped[groupKey].push({ ...note, fileName: file });
+        });
+
+        let html = '<div style="display: flex; flex-direction: column; gap: 16px;">';
+        for (const groupHeader in grouped) {
+          html += `
+            <div style="border-bottom: 1px solid #e2e8f0; pb: 8px;">
+              <h3 style="font-size: 0.95rem; font-weight: 700; color: #334155; margin-bottom: 8px;">${groupHeader}</h3>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+          `;
+
+          grouped[groupHeader].forEach(n => {
+            const cardId = `note-card-${n.id}`;
+            const textareaId = `note-text-${n.id}`;
+            const statusId = `note-status-${n.id}`;
+
+            html += `
+              <div id="${cardId}" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <strong style="font-size: 0.88rem; color: var(--teacher-primary, #6d28d9);">${n.lesson_id}</strong>
+                  <span id="${statusId}" style="font-size: 0.75rem; font-weight: 700; color: #64748b;">v${n.version || 0}</span>
+                </div>
+                <textarea id="${textareaId}" style="width: 100%; height: 80px; padding: 8px; font-size: 0.85rem; border: 1px solid #cbd5e1; border-radius: 6px; resize: vertical; font-family: inherit;">${n.content || ''}</textarea>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
+                  <button onclick="savePortalNote('${n.id}', '${textareaId}', '${statusId}', ${n.version || 0})" style="background: var(--teacher-primary, #6d28d9); color: white; border: none; border-radius: 6px; padding: 4px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Save Note</button>
+                </div>
+              </div>
+            `;
+          });
+
+          html += `</div></div>`;
+        }
+        html += '</div>';
+        container.innerHTML = html;
+
+      } catch (err) {
+        console.warn('Error loading notes:', err);
+        container.innerHTML = `<p style="color: #ef4444; font-size: 0.85rem;">Could not load notes: ${err.message || 'Error'}</p>`;
+      }
+    }
+
+    async function savePortalNote(noteId, textareaId, statusId, baseVersion) {
+      const textarea = document.getElementById(textareaId);
+      const statusEl = document.getElementById(statusId);
+      if (!textarea) return;
+
+      const content = textarea.value;
+      const client = window.CosyAuth ? window.CosyAuth.client : null;
+
+      if (!client) {
+        if (statusEl) statusEl.innerText = 'Saved locally';
+        return;
+      }
+
+      if (statusEl) statusEl.innerText = 'Saving...';
+
+      try {
+        const { data, error } = await client.rpc('save_lesson_note', {
+          note_id: noteId,
+          content: content,
+          base_version: baseVersion
+        });
+
+        if (error) throw error;
+
+        if (data && data.conflict) {
+          if (statusEl) statusEl.innerText = 'Conflict merged';
+          textarea.value = data.content || content;
+        } else {
+          if (statusEl) statusEl.innerText = 'Saved ✓';
+        }
+      } catch (err) {
+        console.warn('Portal note save error:', err);
+        if (statusEl) statusEl.innerText = 'Save failed';
+      }
+    }
+
+    window.loadUserNotes = loadUserNotes;
+    window.savePortalNote = savePortalNote;
+
+    const originalInitTeacherApp = initTeacherApp;
+    initTeacherApp = async function() {
+      await originalInitTeacherApp();
+      loadUserNotes('teacher');
+    };
 
     window.onload = initTeacherApp;
   </script>

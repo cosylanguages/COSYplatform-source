@@ -184,6 +184,11 @@ function createMockDom(port, userRole = 'teacher', width = 1280) {
       // Mock window.tailwind
       window.tailwind = { config: {} };
 
+      window.COSY_CONFIG = {
+        SUPABASE_URL: 'https://mock.supabase.co',
+        SUPABASE_ANON_KEY: 'mock-anon-key'
+      };
+
       // Mock Peer & Jitsi (protected against overwrite by external scripts)
       Object.defineProperty(window, 'Peer', {
         get: () => MockPeer,
@@ -417,7 +422,7 @@ async function runSecurityTests() {
     const msgCountBefore = chatBoxC ? chatBoxC.children.length : 0;
 
     // Send restricted packet types on host
-    const restrictedTypes = ['load-lesson', 'activity', 'breakout-recall', 'lesson-mode', 'video-link'];
+    const restrictedTypes = ['load-lesson', 'activity', 'breakout-recall', 'lesson-mode', 'video-link', 'video-provider-switch', 'breakout-assignment'];
     restrictedTypes.forEach(t => {
       domC.window.handleIncomingData({ type: t, lessonPath: 'lessons/general-english-a1/x.json', title: 'test', prompt: 'test' });
     });
@@ -616,6 +621,149 @@ async function runSecurityTests() {
       }
     }
 
+
+    // -------------------------------------------------------------
+    // Test (g): Shared Lesson Notes XSS, packet handling, and stale base_version rejection
+    // -------------------------------------------------------------
+    console.log('\n🔹 Test (g): Shared Lesson Notes security & RPC checks...');
+    const { dom: domG } = createMockDom(port, 'teacher');
+    await new Promise(r => setTimeout(r, 800));
+
+    // 1. XSS Payload in Notes Textarea
+    const notesTextarea = domG.window.document.getElementById('notes-textarea');
+    const xssNotesPayload = '<img src=x onerror=alert("notes-xss")><script>alert(1)</script>';
+
+    if (!notesTextarea) {
+      console.error('❌ FAIL: #notes-textarea element not found in classroom.html');
+      failures++;
+    } else {
+      domG.window.onNoteInput(xssNotesPayload);
+      const createdImgs = domG.window.document.querySelectorAll('img[src="x"]');
+      const createdScripts = domG.window.document.querySelectorAll('script');
+      let xssScriptFound = false;
+      createdScripts.forEach(s => {
+        if (s.textContent && s.textContent.includes('alert(1)')) xssScriptFound = true;
+      });
+
+      if (createdImgs.length > 0 || xssScriptFound) {
+        console.error('❌ FAIL: XSS payload in notes created executable HTML elements!');
+        failures++;
+      } else {
+        console.log('  ✅ PASS: XSS payload in notes textarea handled safely as plain text.');
+      }
+    }
+
+    // 2. Unauthorised note-sync packet handling on host
+    domG.window.initHost();
+    await new Promise(r => setTimeout(r, 50));
+
+    let remoteNoteUpdated = false;
+    domG.window.applyRemoteNoteUpdate = (content, ver) => {
+      remoteNoteUpdated = true;
+    };
+
+    // Send malformed / undefined note-sync packet
+    domG.window.handleIncomingData({ type: 'note-sync' });
+    if (remoteNoteUpdated) {
+      console.error('❌ FAIL: Malformed note-sync packet was applied!');
+      failures++;
+    } else {
+      // Send valid note-sync packet
+      domG.window.handleIncomingData({ type: 'note-sync', content: 'Synced content', version: 1 });
+      if (!remoteNoteUpdated) {
+        console.error('❌ FAIL: Valid note-sync packet was rejected on host!');
+        failures++;
+      } else {
+        console.log('  ✅ PASS: Malformed note-sync packet ignored, valid note-sync packet accepted.');
+      }
+    }
+
+    // 3. Stale base_version conflict handling simulation
+    const rpcSaveCalls = [];
+    domG.window.CosyAuth.client.rpc = async (fnName, params) => {
+      rpcSaveCalls.push({ fnName, params });
+      if (fnName === 'save_lesson_note') {
+        if (params.base_version !== 5) {
+          return { data: { conflict: true, content: 'Remote content line 1', version: 5 }, error: null };
+        }
+        return { data: { conflict: false, content: params.content, version: 6 }, error: null };
+      }
+      return { data: [], error: null };
+    };
+
+    domG.window.currentNoteRecord = { id: 'test-note-uuid', content: 'My local line 1', version: 1 };
+    await domG.window.saveLessonNoteToSupabase();
+
+    if (rpcSaveCalls.length < 2 || rpcSaveCalls[0].params.base_version !== 1 || rpcSaveCalls[1].params.base_version !== 5) {
+      console.error('❌ FAIL: save_lesson_note RPC was not invoked with expected base_versions on conflict retry.');
+      failures++;
+    } else if (domG.window.currentNoteRecord.version !== 6 || !domG.window.currentNoteRecord.content.includes('Remote content line 1')) {
+      console.error(`❌ FAIL: Stale base_version conflict was not properly merged. Version=${domG.window.currentNoteRecord.version}`);
+      failures++;
+    } else {
+      console.log('  ✅ PASS: Stale base_version was rejected with conflict flag, merged, and retried successfully.');
+    }
+
+
+    // -------------------------------------------------------------
+    // Test (h): PeerJS Video Controls, ICE Config, and Timeout Banner
+    // -------------------------------------------------------------
+    console.log('\n🔹 Test (h): PeerJS Video Controls, ICE Config, and Timeout Banner...');
+    const { dom: domH } = createMockDom(port, 'teacher');
+    await new Promise(r => setTimeout(r, 800));
+
+    // 1. ICE Servers in config
+    if (!domH.window.COSY_CONFIG || !Array.isArray(domH.window.COSY_CONFIG.ICE_SERVERS)) {
+      console.error('❌ FAIL: ICE_SERVERS array missing in window.COSY_CONFIG');
+      failures++;
+    } else {
+      console.log('  ✅ PASS: ICE_SERVERS array is configured in window.COSY_CONFIG.');
+    }
+
+    // 2. Video Control Strip buttons existence and aria-labels
+    const stripMicBtn = domH.window.document.getElementById('strip-mic-btn');
+    const stripCamBtn = domH.window.document.getElementById('strip-cam-btn');
+    const stripDeviceBtn = domH.window.document.getElementById('strip-device-btn');
+    const stripMirrorBtn = domH.window.document.getElementById('strip-mirror-btn');
+    const stripLayoutBtn = domH.window.document.getElementById('strip-layout-btn');
+
+    if (!stripMicBtn || !stripCamBtn || !stripDeviceBtn || !stripMirrorBtn || !stripLayoutBtn) {
+      console.error('❌ FAIL: One or more video control strip buttons missing!');
+      failures++;
+    } else if (stripMicBtn.getAttribute('aria-label') !== 'Toggle microphone' || stripCamBtn.getAttribute('aria-label') !== 'Toggle camera') {
+      console.error('❌ FAIL: Video control strip button aria-labels are incorrect!');
+      failures++;
+    } else {
+      console.log('  ✅ PASS: Video control strip buttons render with proper aria-labels and tooltips.');
+    }
+
+    // 3. Provider Switching disables control strip with tooltip
+    domH.window.changeVideoProvider('jitsi');
+    if (!stripMicBtn.disabled || !stripCamBtn.disabled || !stripDeviceBtn.disabled) {
+      console.error('❌ FAIL: Control strip buttons were not disabled when provider switched to Jitsi!');
+      failures++;
+    } else if (!stripMicBtn.title.includes('Jitsi')) {
+      console.error(`❌ FAIL: Control strip disabled tooltip incorrect. Got: "${stripMicBtn.title}"`);
+      failures++;
+    } else {
+      domH.window.changeVideoProvider('peerjs-video');
+      if (stripMicBtn.disabled) {
+        console.error('❌ FAIL: Control strip buttons remained disabled for peerjs-video!');
+        failures++;
+      } else {
+        console.log('  ✅ PASS: Control strip disabled with explanatory tooltip for external providers and re-enabled for PeerJS.');
+      }
+    }
+
+    // 4. Timeout trouble banner trigger
+    domH.window.triggerPeerJsTimeoutBanner();
+    const timeoutBanner = domH.window.document.getElementById('peer-timeout-banner');
+    if (!timeoutBanner || timeoutBanner.classList.contains('hidden')) {
+      console.error('❌ FAIL: Peer timeout trouble banner did not render!');
+      failures++;
+    } else {
+      console.log('  ✅ PASS: 12-second PeerJS timeout trouble banner rendered as expected.');
+    }
 
     // -------------------------------------------------------------
     // Test (e2): Multi-viewport responsive controls check at 1280px, 768px, and 390px

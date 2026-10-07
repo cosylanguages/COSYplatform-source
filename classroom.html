@@ -138,12 +138,39 @@
       <a id="portal-link" href="student.html" class="hidden">← Portal</a>
     </div>
 
-    <!-- Room Chip & Connection Status -->
+    <!-- Unified Room Chip & Provider Selector Dropdown -->
     <div class="flex items-center space-x-2">
-      <button id="room-chip-btn" onclick="copyShareLink()" class="flex items-center space-x-1.5 px-2.5 py-1 bg-cosy-50 hover:bg-cosy-100 text-cosy-800 border border-cosy-200 rounded-xl font-mono text-xs font-semibold transition touch-target" title="Click to copy invite link" aria-label="Room invite link" data-i18n-title="classroom.roomChipTooltip">
-        <span>#<span id="display-room-id">------</span></span>
-        <span id="room-copy-icon">🔗</span>
-      </button>
+      <div class="relative flex items-center">
+        <button id="room-chip-btn" onclick="toggleProviderMenu()" class="flex items-center space-x-1.5 px-2.5 py-1 bg-cosy-50 hover:bg-cosy-100 text-cosy-800 border border-cosy-200 rounded-xl font-mono text-xs font-semibold transition touch-target" title="Click to manage video provider or copy link" aria-label="Room invite link and provider selector" data-i18n-title="classroom.roomChipTooltip">
+          <span>#<span id="display-room-id">------</span> · <span id="display-provider-name">Cosy</span></span>
+          <span id="provider-chevron" class="host-only text-[10px]">▼</span>
+        </button>
+        <div id="provider-dropdown-menu" class="hidden absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-1.5 text-xs space-y-1">
+          <div class="px-2 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider" data-i18n="classroom.providerSelectHeader">Switch Video Provider</div>
+          <button onclick="switchVideoProviderAndNotify('peerjs-video')" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-cosy-50 text-gray-800 font-medium flex items-center justify-between">
+            <span>⚡ Cosy Direct WebRTC</span>
+            <span class="text-[10px] text-gray-400">PeerJS</span>
+          </button>
+          <button onclick="switchVideoProviderAndNotify('jitsi')" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-cosy-50 text-gray-800 font-medium flex items-center justify-between">
+            <span>📹 Embedded Jitsi</span>
+            <span class="text-[10px] text-gray-400">Jitsi</span>
+          </button>
+          <button onclick="switchVideoProviderAndNotify('google')" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-cosy-50 text-gray-800 font-medium flex items-center justify-between">
+            <span>🟢 Google Meet</span>
+            <span class="text-[10px] text-gray-400">Meet</span>
+          </button>
+          <button onclick="switchVideoProviderAndNotify('yandex')" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-cosy-50 text-gray-800 font-medium flex items-center justify-between">
+            <span>🟡 Yandex Telemost</span>
+            <span class="text-[10px] text-gray-400">Telemost</span>
+          </button>
+          <div class="border-t border-gray-100 pt-1 mt-1">
+            <button onclick="copyShareLink(); toggleProviderMenu();" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-gray-100 text-cosy-700 font-semibold flex items-center gap-1.5">
+              <span>📋</span>
+              <span data-i18n="classroom.copyInviteLink">Copy Invite Link</span>
+            </button>
+          </div>
+        </div>
+      </div>
       <div id="connection-status" class="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-[11px] font-medium">
         <span id="status-dot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
         <span id="status-text" class="hidden sm:inline">Connecting...</span>
@@ -291,6 +318,58 @@
         </div>
       </div>
 
+      <!-- Timeout Trouble Banner -->
+      <div id="peer-timeout-banner" class="hidden p-2 bg-amber-900/90 border border-amber-500/80 rounded-xl text-amber-100 text-xs flex flex-col gap-1.5 shadow-lg">
+        <div class="flex items-center gap-1.5 font-bold text-amber-200 text-[11px]">
+          <span>⚠️</span>
+          <span>Having trouble? Switch to Jitsi / Google Meet / Yandex Telemost</span>
+        </div>
+        <div id="timeout-host-controls" class="hidden flex flex-wrap gap-1 mt-0.5">
+          <button onclick="changeVideoProvider('jitsi'); startVideoCall();" class="px-2 py-0.5 bg-amber-800 hover:bg-amber-700 text-white rounded text-[10px] font-semibold border border-amber-600">Switch to Jitsi</button>
+          <button onclick="changeVideoProvider('google');" class="px-2 py-0.5 bg-amber-800 hover:bg-amber-700 text-white rounded text-[10px] font-semibold border border-amber-600">Google Meet</button>
+          <button onclick="changeVideoProvider('yandex');" class="px-2 py-0.5 bg-amber-800 hover:bg-amber-700 text-white rounded text-[10px] font-semibold border border-amber-600">Yandex Telemost</button>
+        </div>
+        <span id="timeout-student-notice" class="hidden text-[10px] text-amber-300">Your host has been notified to switch video provider if needed.</span>
+      </div>
+
+      <!-- Video Control Strip (Between / Below Video Frame) -->
+      <div id="video-control-strip" class="p-1.5 bg-gray-800/90 rounded-xl border border-gray-700/60 flex items-center justify-around text-xs text-white relative flex-none gap-1">
+        <button id="strip-mic-btn" onclick="toggleMicMute()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition text-[11px] touch-target flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" title="Toggle Microphone (M)" aria-label="Toggle microphone">
+          🎤 Mic
+        </button>
+        <button id="strip-cam-btn" onclick="toggleCameraMute()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition text-[11px] touch-target flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" title="Toggle Camera (V)" aria-label="Toggle camera">
+          📷 Cam
+        </button>
+        <div class="relative">
+          <button id="strip-device-btn" onclick="toggleDeviceListModal()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition text-[11px] touch-target flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" title="Switch camera/microphone device" aria-label="Switch camera or microphone">
+            🔄 Switch
+          </button>
+          <div id="strip-device-menu" class="hidden absolute bottom-full mb-1 left-1/2 -translate-x-1/2 w-56 bg-gray-900 border border-gray-700 rounded-xl p-2 shadow-2xl z-50 text-[11px] space-y-2">
+            <div>
+              <label class="text-gray-400 block mb-0.5 font-bold">Camera</label>
+              <select id="strip-camera-select" onchange="changeCameraDevice(this.value)" class="w-full bg-black border border-gray-700 text-gray-200 rounded-lg px-2 py-1"></select>
+            </div>
+            <div>
+              <label class="text-gray-400 block mb-0.5 font-bold">Microphone</label>
+              <select id="strip-mic-select" onchange="changeMicDevice(this.value)" class="w-full bg-black border border-gray-700 text-gray-200 rounded-lg px-2 py-1"></select>
+            </div>
+          </div>
+        </div>
+        <button id="strip-mirror-btn" onclick="toggleMirrorLocalVideo()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition text-[11px] touch-target flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" title="Mirror my video tile" aria-label="Mirror my view">
+          🪞 Mirror
+        </button>
+        <div class="relative">
+          <button id="strip-layout-btn" onclick="toggleVideoLayoutMenu()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition text-[11px] touch-target flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" title="Toggle layout (50/50, video over lesson, video only)" aria-label="Layout toggle">
+            ⇆ Layout
+          </button>
+          <div id="strip-layout-menu" class="hidden absolute bottom-full mb-1 right-0 w-44 bg-gray-900 border border-gray-700 rounded-xl p-1.5 shadow-2xl z-50 text-[11px] space-y-1">
+            <button onclick="switchLayoutPreset('side'); toggleVideoLayoutMenu();" class="w-full text-left px-2 py-1 rounded hover:bg-gray-800 text-gray-200 font-medium">📐 50/50 Split</button>
+            <button onclick="switchLayoutPreset('video-over-lesson'); toggleVideoLayoutMenu();" class="w-full text-left px-2 py-1 rounded hover:bg-gray-800 text-gray-200 font-medium">🖼️ Video Over Lesson</button>
+            <button onclick="switchLayoutPreset('video-only'); toggleVideoLayoutMenu();" class="w-full text-left px-2 py-1 rounded hover:bg-gray-800 text-gray-200 font-medium">📺 Video Only</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Media Controls & Settings -->
       <div class="p-2 bg-gray-800/80 rounded-xl text-xs space-y-2 border border-gray-700/50 flex-none hidden md:block">
         <div class="flex items-center justify-between pb-2 border-b border-gray-700">
@@ -408,8 +487,15 @@
 
       <!-- Active Banners -->
       <div id="breakout-banner" class="bg-amber-50 border-b border-amber-200 p-2 px-4 hidden text-xs text-amber-900 flex flex-wrap justify-between items-center gap-2">
-        <span class="font-semibold">Active Breakout Room: <span id="breakout-banner-room-name">Main</span></span>
+        <div class="flex items-center gap-2">
+          <span>🚪</span>
+          <span class="font-semibold">Active Breakout Room: <span id="breakout-banner-room-name">Main</span></span>
+        </div>
         <div id="breakout-banner-quick-links" class="flex items-center space-x-1"></div>
+        <button id="call-teacher-btn" onclick="callTeacherHelp()" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs transition flex items-center gap-1 shadow-sm touch-target" title="Ask teacher for help in this sub-room">
+          <span>✋</span>
+          <span data-i18n="classroom.callTeacher">Call Teacher</span>
+        </button>
       </div>
 
       <div id="activity-banner" class="bg-yellow-50 border-b border-yellow-200 p-2.5 px-4 hidden text-xs text-yellow-900 flex justify-between items-center">
@@ -552,7 +638,11 @@
 
         <!-- 5. Notes Panel -->
         <div id="sidebar-tab-notes" class="hidden text-xs space-y-2 p-1 flex flex-col h-full">
-          <textarea id="notes-textarea" oninput="saveLessonNotes(this.value)" class="w-full h-64 p-2.5 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500 resize-none font-sans" data-i18n-placeholder="classroom.notesPlaceholder" placeholder="Personal lesson notes... (saved locally)"></textarea>
+          <div class="flex items-center justify-between px-1">
+            <span class="text-[11px] font-bold text-gray-700">Shared Class Notes</span>
+            <span id="notes-status" class="text-[11px] text-gray-500 font-medium">saved</span>
+          </div>
+          <textarea id="notes-textarea" oninput="onNoteInput(this.value)" class="w-full h-64 p-2.5 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500 resize-none font-sans" data-i18n-placeholder="classroom.notesPlaceholder" placeholder="Type shared notes here... Everyone in class sees and edits this note."></textarea>
         </div>
 
         <!-- 6. Prompts / Activities Panel -->
@@ -691,6 +781,11 @@
   </div>
 
 <script>
+    // Shared Lesson Notes State
+    window.currentNoteRecord = null; // { id, room_key, lesson_id, content, version, participants }
+    window.noteDebounceTimer = null;
+    window.localUnsavedNote = false;
+
     // Platform State Management
     let currentRole = 'teacher';
     let lessonMode = 'individual'; // 'individual' (1-on-1) or 'group'
@@ -813,25 +908,37 @@
         const devices = await navigator.mediaDevices.enumerateDevices();
         const camSelect = document.getElementById('camera-select');
         const micSelect = document.getElementById('mic-select');
+        const stripCamSelect = document.getElementById('strip-camera-select');
+        const stripMicSelect = document.getElementById('strip-mic-select');
 
         if (camSelect) camSelect.innerHTML = '';
         if (micSelect) micSelect.innerHTML = '';
+        if (stripCamSelect) stripCamSelect.innerHTML = '';
+        if (stripMicSelect) stripMicSelect.innerHTML = '';
 
         let camCount = 1;
         let micCount = 1;
 
         devices.forEach(d => {
-          const opt = document.createElement('option');
-          opt.value = d.deviceId;
-
           if (d.kind === 'videoinput') {
-            opt.textContent = d.label || `Camera ${camCount++}`;
-            if (camSelect) camSelect.appendChild(opt);
+            const label = d.label || `Camera ${camCount++}`;
+            if (camSelect) camSelect.appendChild(new Option(label, d.deviceId));
+            if (stripCamSelect) stripCamSelect.appendChild(new Option(label, d.deviceId));
           } else if (d.kind === 'audioinput') {
-            opt.textContent = d.label || `Microphone ${micCount++}`;
-            if (micSelect) micSelect.appendChild(opt);
+            const label = d.label || `Microphone ${micCount++}`;
+            if (micSelect) micSelect.appendChild(new Option(label, d.deviceId));
+            if (stripMicSelect) stripMicSelect.appendChild(new Option(label, d.deviceId));
           }
         });
+
+        if (selectedCamDeviceId) {
+          if (camSelect) camSelect.value = selectedCamDeviceId;
+          if (stripCamSelect) stripCamSelect.value = selectedCamDeviceId;
+        }
+        if (selectedMicDeviceId) {
+          if (micSelect) micSelect.value = selectedMicDeviceId;
+          if (stripMicSelect) stripMicSelect.value = selectedMicDeviceId;
+        }
       } catch (err) {
         console.warn("Could not enumerate media devices:", err);
       }
@@ -839,6 +946,11 @@
 
     async function changeCameraDevice(deviceId) {
       selectedCamDeviceId = deviceId;
+      const camSelect = document.getElementById('camera-select');
+      const stripCamSelect = document.getElementById('strip-camera-select');
+      if (camSelect) camSelect.value = deviceId;
+      if (stripCamSelect) stripCamSelect.value = deviceId;
+
       if (currentVideoProvider === 'peerjs-video' && localStream) {
         await updatePeerJsMediaStream();
       }
@@ -846,6 +958,11 @@
 
     async function changeMicDevice(deviceId) {
       selectedMicDeviceId = deviceId;
+      const micSelect = document.getElementById('mic-select');
+      const stripMicSelect = document.getElementById('strip-mic-select');
+      if (micSelect) micSelect.value = deviceId;
+      if (stripMicSelect) stripMicSelect.value = deviceId;
+
       if (currentVideoProvider === 'peerjs-video' && localStream) {
         await updatePeerJsMediaStream();
       }
@@ -863,7 +980,21 @@
           audio: audioConstraints
         });
 
-        // Replace tracks on existing local stream
+        // Preserve previous track enablement states
+        const prevVideoTrack = localStream ? localStream.getVideoTracks()[0] : null;
+        const prevAudioTrack = localStream ? localStream.getAudioTracks()[0] : null;
+
+        const newVideoTrack = newStream.getVideoTracks()[0];
+        const newAudioTrack = newStream.getAudioTracks()[0];
+
+        if (newVideoTrack && prevVideoTrack) {
+          newVideoTrack.enabled = prevVideoTrack.enabled;
+        }
+        if (newAudioTrack && prevAudioTrack) {
+          newAudioTrack.enabled = prevAudioTrack.enabled;
+        }
+
+        // Replace tracks on existing localStream and stop previous tracks
         if (localStream) {
           localStream.getTracks().forEach(track => track.stop());
         }
@@ -872,18 +1003,37 @@
         const localVid = document.getElementById('local-video');
         if (localVid) localVid.srcObject = newStream;
 
-        // Replace video/audio sender tracks in active PeerJS calls
+        // Replace tracks via RTCRtpSender.replaceTrack without renegotiating call
         peerMediaCalls.forEach(call => {
           if (call.peerConnection) {
             const senders = call.peerConnection.getSenders();
             newStream.getTracks().forEach(track => {
               const sender = senders.find(s => s.track && s.track.kind === track.kind);
-              if (sender) sender.replaceTrack(track);
+              if (sender) {
+                sender.replaceTrack(track).catch(e => console.warn('replaceTrack failed:', e));
+              }
             });
           }
         });
       } catch (err) {
         console.error("Error switching media device:", err);
+        handleMediaError(err);
+      }
+    }
+
+    function handleMediaError(err) {
+      let message = "Could not access camera or microphone.";
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        message = "Permission denied: Please grant camera/microphone access in browser settings.";
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        message = "No camera or microphone device found on this system.";
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        message = "Device is currently in use by another application.";
+      }
+      if (window.CosyUI && window.CosyUI.toast) {
+        CosyUI.toast(message, 'error');
+      } else {
+        alert(message);
       }
     }
 
@@ -981,11 +1131,21 @@
         workspace.classList.add('flex-col');
         sidebar.classList.add('w-full', 'h-64', 'border-b', 'border-r-0');
         videoFrame.classList.add('h-40');
-      } else if (preset === 'discussion-split') {
+      } else if (preset === 'discussion-split' || preset === '50/50') {
         // Equal 50/50 split for group discussions and debates
         workspace.classList.add('flex-col', 'md:flex-row');
         sidebar.classList.add('w-full', 'md:w-1/2', 'h-1/2', 'md:h-full');
         videoFrame.classList.add('h-64', 'md:h-1/2');
+      } else if (preset === 'video-over-lesson') {
+        // Floating overlay video over lesson workspace
+        workspace.classList.add('relative', 'flex-col');
+        sidebar.className = "absolute top-2 right-2 w-80 h-64 z-30 bg-gray-900/90 rounded-2xl border border-gray-700 shadow-2xl overflow-hidden flex flex-col p-2";
+        videoFrame.classList.add('h-full', 'w-full');
+      } else if (preset === 'video-only') {
+        // Full screen video mode
+        workspace.classList.add('flex-col');
+        sidebar.className = "w-full h-full bg-gray-900 flex flex-col z-20 overflow-hidden flex-1";
+        videoFrame.classList.add('h-full', 'w-full', 'flex-1');
       } else if (preset === 'stage-focus') {
         // Compact Picture-in-Picture video window focus
         workspace.classList.add('flex-col', 'md:flex-row');
@@ -1008,6 +1168,8 @@
     let currentJitsiDomain = 'meet.jit.si';
     let localStream = null;
     let peerMediaCalls = [];
+    let peerCallTimeoutTimer = null;
+    let isLocalVideoMirrored = false;
 
     function changeJitsiServer(domain) {
       currentJitsiDomain = domain;
@@ -1016,9 +1178,135 @@
       }
     }
 
+    function toggleDeviceListModal() {
+      const menu = document.getElementById('strip-device-menu');
+      if (menu) {
+        menu.classList.toggle('hidden');
+        if (!menu.classList.contains('hidden')) {
+          populateMediaDevices();
+        }
+      }
+    }
+
+    function toggleVideoLayoutMenu() {
+      const menu = document.getElementById('strip-layout-menu');
+      if (menu) {
+        menu.classList.toggle('hidden');
+      }
+    }
+
+    function toggleMirrorLocalVideo() {
+      const localVid = document.getElementById('local-video');
+      if (localVid) {
+        isLocalVideoMirrored = !isLocalVideoMirrored;
+        localVid.style.transform = isLocalVideoMirrored ? 'scaleX(-1)' : 'none';
+        if (window.CosyUI && window.CosyUI.toast) {
+          CosyUI.toast(isLocalVideoMirrored ? 'Local view mirrored' : 'Local view unmirrored', 'info');
+        }
+      }
+    }
+
+    function handlePeerJsCallSuccess() {
+      if (peerCallTimeoutTimer) {
+        clearTimeout(peerCallTimeoutTimer);
+        peerCallTimeoutTimer = null;
+      }
+      const banner = document.getElementById('peer-timeout-banner');
+      if (banner) banner.classList.add('hidden');
+    }
+
+    function triggerPeerJsTimeoutBanner() {
+      const banner = document.getElementById('peer-timeout-banner');
+      if (!banner) return;
+      banner.classList.remove('hidden');
+      const isHostOrTeacher = isHost || currentRole === 'teacher' || (userProfile && userProfile.role === 'founder');
+      const hostCtrls = document.getElementById('timeout-host-controls');
+      const studentNotice = document.getElementById('timeout-student-notice');
+      if (isHostOrTeacher) {
+        if (hostCtrls) hostCtrls.classList.remove('hidden');
+        if (studentNotice) studentNotice.classList.add('hidden');
+      } else {
+        if (hostCtrls) hostCtrls.classList.add('hidden');
+        if (studentNotice) studentNotice.classList.remove('hidden');
+      }
+    }
+
+    function updateVideoControlStripState(provider) {
+      const isPeer = (provider === 'peerjs-video');
+      const buttons = ['strip-mic-btn', 'strip-cam-btn', 'strip-device-btn', 'strip-mirror-btn', 'strip-layout-btn'];
+
+      const providerLabel = provider === 'jitsi' ? 'Jitsi' : provider === 'google' ? 'Google Meet' : provider === 'yandex' ? 'Yandex Telemost' : 'video provider';
+      const disabledTooltip = `Controls are managed inside ${providerLabel} window`;
+
+      buttons.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          btn.disabled = !isPeer;
+          if (!isPeer) {
+            btn.title = disabledTooltip;
+          } else {
+            if (id === 'strip-mic-btn') btn.title = "Toggle Microphone (M)";
+            if (id === 'strip-cam-btn') btn.title = "Toggle Camera (V)";
+            if (id === 'strip-device-btn') btn.title = "Switch camera/microphone device";
+            if (id === 'strip-mirror-btn') btn.title = "Mirror my video tile";
+            if (id === 'strip-layout-btn') btn.title = "Toggle layout (50/50, video over lesson, video only)";
+          }
+        }
+      });
+    }
+
+    function toggleProviderMenu() {
+      const isHostOrTeacher = isHost || currentRole === 'teacher' || (userProfile && userProfile.role === 'founder');
+      const menu = document.getElementById('provider-dropdown-menu');
+      if (menu) {
+        if (isHostOrTeacher) {
+          menu.classList.toggle('hidden');
+        } else {
+          copyShareLink();
+        }
+      }
+    }
+
+    function switchVideoProviderAndNotify(provider, url = null) {
+      const isHostOrTeacher = isHost || currentRole === 'teacher' || (userProfile && userProfile.role === 'founder');
+      if (!isHostOrTeacher) {
+        console.warn('Student attempted to change video provider.');
+        return;
+      }
+
+      changeVideoProvider(provider);
+      const menu = document.getElementById('provider-dropdown-menu');
+      if (menu) menu.classList.add('hidden');
+
+      if (url && isValidVideoUrl(url)) {
+        activeVideoLink = url;
+        sendData({ type: 'video-link', provider: provider, link: url });
+        renderExternalVideoBanner(provider, url);
+      } else if (provider === 'jitsi' || provider === 'peerjs-video') {
+        sendData({ type: 'video-provider-switch', provider: provider });
+        startVideoCall();
+      } else {
+        // External link requested without explicit URL yet
+        const defaultUrl = provider === 'google' ? 'https://meet.google.com/new' : 'https://telemost.yandex.ru';
+        activeVideoLink = defaultUrl;
+        sendData({ type: 'video-link', provider: provider, link: defaultUrl });
+        renderExternalVideoBanner(provider, defaultUrl);
+      }
+    }
+
     // Video Provider Switching Logic
     function changeVideoProvider(provider) {
       currentVideoProvider = provider;
+      updateVideoControlStripState(provider);
+
+      const providerNameSpan = document.getElementById('display-provider-name');
+      if (providerNameSpan) {
+        providerNameSpan.textContent = provider === 'jitsi' ? 'Jitsi' : provider === 'google' ? 'Meet' : provider === 'yandex' ? 'Telemost' : 'Cosy';
+      }
+
+      const selectEl = document.getElementById('video-provider-select');
+      if (selectEl) selectEl.value = provider;
+
       const linkContainer = document.getElementById('external-video-link-container');
       const jitsiServerContainer = document.getElementById('jitsi-server-container');
       const btn = document.getElementById('launch-video-btn');
@@ -1046,14 +1334,17 @@
         if (btn) btn.classList.add('hidden');
 
         if (provider === 'yandex') {
-          document.getElementById('video-link-input').placeholder = 'Paste Yandex Telemost URL (e.g. https://telemost.yandex.ru/j/...)';
-          placeholderText.innerText = 'Yandex Telemost selected (Яндекс Телемост).';
+          const input = document.getElementById('video-link-input');
+          if (input) input.placeholder = 'Paste Yandex Telemost URL (e.g. https://telemost.yandex.ru/j/...)';
+          if (placeholderText) placeholderText.innerText = 'Yandex Telemost selected (Яндекс Телемост).';
         } else if (provider === 'google') {
-          document.getElementById('video-link-input').placeholder = 'Paste Google Meet URL (e.g. https://meet.google.com/...)';
-          placeholderText.innerText = 'Google Meet selected.';
+          const input = document.getElementById('video-link-input');
+          if (input) input.placeholder = 'Paste Google Meet URL (e.g. https://meet.google.com/...)';
+          if (placeholderText) placeholderText.innerText = 'Google Meet selected.';
         } else {
-          document.getElementById('video-link-input').placeholder = 'Paste custom video meeting link...';
-          placeholderText.innerText = 'Custom Meeting Link selected.';
+          const input = document.getElementById('video-link-input');
+          if (input) input.placeholder = 'Paste custom video meeting link...';
+          if (placeholderText) placeholderText.innerText = 'Custom Meeting Link selected.';
         }
       }
     }
@@ -1975,7 +2266,8 @@
       updateStatus('Connecting Host...', 'yellow');
 
       if (peer) peer.destroy();
-      peer = new Peer(roomId);
+      const iceServersConfig = (window.COSY_CONFIG && window.COSY_CONFIG.ICE_SERVERS) ? window.COSY_CONFIG.ICE_SERVERS : [{ urls: "stun:stun.l.google.com:19302" }];
+      peer = new Peer(roomId, { config: { iceServers: iceServersConfig } });
       window.peer = peer;
 
       peer.on('open', (id) => {
@@ -1995,6 +2287,12 @@
         setupConnection(c);
         addChatMessage('System', 'A student connected to the session.');
         updateStatus('Student Connected', 'green');
+
+        // Check PeerJS soft limit (4 participants)
+        if (connections.length > 4) {
+          const softNotice = document.getElementById('peer-soft-limit-notice');
+          if (softNotice) softNotice.classList.remove('hidden');
+        }
 
         // Sync active lesson material, mode, layout, and current slide to newly connected student
         c.send({ type: 'lesson-mode', mode: lessonMode, layout: currentLayoutPreset });
@@ -2046,7 +2344,8 @@
       updateStatus('Joining Room...', 'yellow');
 
       if (peer) peer.destroy();
-      peer = new Peer();
+      const iceServersConfig = (window.COSY_CONFIG && window.COSY_CONFIG.ICE_SERVERS) ? window.COSY_CONFIG.ICE_SERVERS : [{ urls: "stun:stun.l.google.com:19302" }];
+      peer = new Peer({ config: { iceServers: iceServersConfig } });
       window.peer = peer;
 
       peer.on('open', () => {
@@ -2092,7 +2391,7 @@
       if (!data) return;
 
       if (isHost) {
-        const allowedTypesOnHost = ['chat', 'blank', 'whiteboard-draw', 'role'];
+        const allowedTypesOnHost = ['chat', 'blank', 'whiteboard-draw', 'role', 'note-sync', 'call-teacher', 'breakout-move'];
         if (!allowedTypesOnHost.includes(data.type)) {
           console.warn(`Ignored unauthorized packet type '${data.type}' from participant on host.`);
           return;
@@ -2176,6 +2475,17 @@
           closeActivityBanner();
           addChatMessage('System', `📢 Teacher recalled all participants back to the main room.`);
           if (window.CosyUI && window.CosyUI.toast) CosyUI.toast('📢 All participants recalled to the main room!', 'info');
+          break;
+        case 'call-teacher':
+          if (isHost || currentRole === 'teacher' || (userProfile && userProfile.role === 'founder')) {
+            addChatMessage('System', `✋ Student in ${data.roomName || 'breakout'} requested help!`);
+            if (window.CosyUI && window.CosyUI.toast) CosyUI.toast(`✋ Student in ${data.roomName || 'breakout'} requested help!`, 'warning');
+          }
+          break;
+        case 'note-sync':
+          if (data.content !== undefined) {
+            applyRemoteNoteUpdate(data.content, data.version);
+          }
           break;
       }
     }
@@ -2265,23 +2575,59 @@
       const videoConstraints = selectedCamDeviceId ? { deviceId: { exact: selectedCamDeviceId } } : true;
       const audioConstraints = selectedMicDeviceId ? { deviceId: { exact: selectedMicDeviceId } } : true;
 
+      // Start 12-second timeout timer for video call establishment
+      if (peerCallTimeoutTimer) clearTimeout(peerCallTimeoutTimer);
+      peerCallTimeoutTimer = setTimeout(() => {
+        const remoteVid = document.getElementById('remote-video');
+        if (!remoteVid || !remoteVid.srcObject) {
+          triggerPeerJsTimeoutBanner();
+        }
+      }, 12000);
+
       try {
         localStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: audioConstraints });
         populateMediaDevices(); // Refresh device names now that permission is granted
 
         placeholder.classList.add('hidden');
-        container.innerHTML = `
-          <div class="w-full h-full relative grid grid-cols-1 md:grid-cols-2 gap-1 bg-black p-1">
-            <div class="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border border-gray-800">
-              <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
-              <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">${currentRole === 'teacher' ? 'Teacher (You)' : 'Student (You)'}</span>
+
+        const isGroup = (lessonMode === 'group');
+        const activeSpeakerBorder = 'border-2 border-cosy-500 shadow-md ring-2 ring-cosy-400';
+
+        if (isGroup) {
+          // Group Mode: Scrollable grid with Teacher pinned on top and active speaker highlight
+          container.innerHTML = `
+            <div id="video-grid-container" class="w-full h-full flex flex-col gap-1.5 bg-black p-1 overflow-y-auto">
+              <div id="peer-soft-limit-notice" class="hidden bg-amber-900/90 border border-amber-500/80 text-amber-100 text-[10px] p-1.5 rounded-lg flex items-center justify-between" data-i18n="classroom.peerLimitNotice">
+                <span>⚠️ More than 4 P2P participants detected. Consider switching to Jitsi for optimal performance.</span>
+                <button onclick="switchVideoProviderAndNotify('jitsi')" class="px-2 py-0.5 bg-amber-800 hover:bg-amber-700 text-white font-bold rounded">Switch Jitsi</button>
+              </div>
+              <div id="pinned-teacher-tile" class="relative w-full h-40 bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border-2 border-amber-400/80 shadow-lg flex-none">
+                <video id="${currentRole === 'teacher' ? 'local-video' : 'remote-video'}" autoplay playsinline ${currentRole === 'teacher' ? 'muted' : ''} class="w-full h-full object-cover" style="${currentRole === 'teacher' && isLocalVideoMirrored ? 'transform: scaleX(-1);' : ''}"></video>
+                <span class="absolute bottom-1 left-1 bg-amber-900/80 text-amber-200 text-[10px] px-2 py-0.5 rounded font-bold">📌 Teacher ${currentRole === 'teacher' ? '(You)' : ''}</span>
+              </div>
+              <div id="student-tiles-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 flex-1 min-h-[120px]">
+                <div class="relative w-full h-32 bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border border-gray-800">
+                  <video id="${currentRole === 'teacher' ? 'remote-video' : 'local-video'}" autoplay playsinline ${currentRole === 'student' ? 'muted' : ''} class="w-full h-full object-cover" style="${currentRole === 'student' && isLocalVideoMirrored ? 'transform: scaleX(-1);' : ''}"></video>
+                  <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">${currentRole === 'student' ? 'Student (You)' : 'Student'}</span>
+                </div>
+              </div>
             </div>
-            <div class="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border border-gray-800">
-              <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
-              <span id="remote-video-label" class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">${currentRole === 'teacher' ? 'Student' : 'Teacher'}</span>
+          `;
+        } else {
+          // 1-on-1 Mode: Stacked/Side-by-side 2-tile view
+          container.innerHTML = `
+            <div class="w-full h-full relative grid grid-cols-1 md:grid-cols-2 gap-1 bg-black p-1">
+              <div class="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border border-gray-800">
+                <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover" style="${isLocalVideoMirrored ? 'transform: scaleX(-1);' : ''}"></video>
+                <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">${currentRole === 'teacher' ? 'Teacher (You)' : 'Student (You)'}</span>
+              </div>
+              <div class="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border border-gray-800">
+                <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
+                <span id="remote-video-label" class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">${currentRole === 'teacher' ? 'Student' : 'Teacher'}</span>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        }
 
         const localVid = document.getElementById('local-video');
         if (localVid) localVid.srcObject = localStream;
@@ -2294,6 +2640,7 @@
             call.on('stream', (remoteStream) => {
               const remoteVid = document.getElementById('remote-video');
               if (remoteVid) remoteVid.srcObject = remoteStream;
+              handlePeerJsCallSuccess();
             });
           });
 
@@ -2304,12 +2651,13 @@
             mediaCall.on('stream', (remoteStream) => {
               const remoteVid = document.getElementById('remote-video');
               if (remoteVid) remoteVid.srcObject = remoteStream;
+              handlePeerJsCallSuccess();
             });
           }
         }
       } catch (err) {
         console.error("Camera/Mic access error:", err);
-        if (window.CosyUI && window.CosyUI.toast) CosyUI.toast("Camera and Microphone permission required for PeerJS Direct Video Call.", 'warning');
+        handleMediaError(err);
       }
     }
 
@@ -2799,6 +3147,12 @@
       }
     }
 
+    function callTeacherHelp() {
+      sendData({ type: 'call-teacher', roomName: currentBreakoutRoom || 'Main Room' });
+      addChatMessage('System', '✋ Teacher notified that you need help in your room.');
+      if (window.CosyUI && window.CosyUI.toast) CosyUI.toast('✋ Teacher notified of your help request!', 'info');
+    }
+
 
     // Confirm leave lesson
     function confirmLeaveLesson() {
@@ -2806,6 +3160,7 @@
       const targetUrl = portalLink ? portalLink.getAttribute('href') : 'student.html';
       const confirmMsg = (window.CosyI18n && window.CosyI18n.t) ? window.CosyI18n.t('classroom.leaveConfirm') : 'Are you sure you want to leave the lesson?';
       if (confirm(confirmMsg)) {
+        saveLessonNoteToSupabase();
         window.location.href = targetUrl;
       }
     }
@@ -2859,6 +3214,256 @@
       }
     });
 
+    // Shared Lesson Notes Functions
+    async function joinAndLoadLessonNote() {
+      const client = window.CosyAuth ? window.CosyAuth.client : null;
+      const keyToUse = roomKey || participantKey || 'default-room-key';
+      const lessonToUse = currentLessonPath || 'default';
+
+      updateNoteStatus('loading...');
+
+      if (client) {
+        try {
+          const { data, error } = await client.rpc('join_lesson_note', {
+            room_key: keyToUse,
+            lesson_id: lessonToUse
+          });
+
+          if (!error && data && data.length > 0) {
+            currentNoteRecord = data[0];
+            const textarea = document.getElementById('notes-textarea');
+            if (textarea && !localUnsavedNote) {
+              textarea.value = currentNoteRecord.content || '';
+            }
+            updateNoteStatus('saved');
+            try {
+              localStorage.setItem(`cosy_note_${currentNoteRecord.id}`, currentNoteRecord.content || '');
+            } catch (e) {}
+            return;
+          }
+        } catch (e) {
+          console.warn('join_lesson_note RPC failed, using local note cache:', e);
+        }
+      }
+
+      // Fallback local note record if offline/unconfigured
+      if (!currentNoteRecord) {
+        currentNoteRecord = {
+          id: `local-${keyToUse}-${lessonToUse}`,
+          room_key: keyToUse,
+          lesson_id: lessonToUse,
+          content: localStorage.getItem('cosy_lesson_notes') || '',
+          version: 0
+        };
+        const textarea = document.getElementById('notes-textarea');
+        if (textarea && !localUnsavedNote) {
+          textarea.value = currentNoteRecord.content;
+        }
+      }
+      updateNoteStatus('saved locally');
+    }
+
+    function updateNoteStatus(status) {
+      const statusEl = document.getElementById('notes-status');
+      if (statusEl) {
+        statusEl.textContent = status;
+        if (status === 'saving...' || status === 'loading...') {
+          statusEl.className = 'text-[11px] text-amber-600 font-bold';
+        } else if (status === 'saved') {
+          statusEl.className = 'text-[11px] text-emerald-600 font-bold';
+        } else if (status === 'saved locally') {
+          statusEl.className = 'text-[11px] text-sky-600 font-bold';
+        } else {
+          statusEl.className = 'text-[11px] text-gray-500 font-medium';
+        }
+      }
+    }
+
+    function onNoteInput(val) {
+      localUnsavedNote = true;
+      updateNoteStatus('saving...');
+
+      if (currentNoteRecord) {
+        currentNoteRecord.content = val;
+      }
+
+      // Broadcast live sync over PeerJS data channel
+      sendData({
+        type: 'note-sync',
+        content: val,
+        version: currentNoteRecord ? currentNoteRecord.version : 0
+      });
+
+      // Local storage backup
+      try {
+        localStorage.setItem('cosy_lesson_notes', val);
+        if (currentNoteRecord && currentNoteRecord.id) {
+          localStorage.setItem(`cosy_note_${currentNoteRecord.id}`, val);
+        }
+      } catch (e) {}
+
+      // Debounce autosave (2s after typing stops)
+      if (noteDebounceTimer) clearTimeout(noteDebounceTimer);
+      noteDebounceTimer = setTimeout(() => {
+        saveLessonNoteToSupabase();
+      }, 2000);
+    }
+
+    function applyRemoteNoteUpdate(newContent, remoteVersion) {
+      const textarea = document.getElementById('notes-textarea');
+      if (!textarea) return;
+
+      const isFocused = document.activeElement === textarea;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+
+      if (currentNoteRecord) {
+        currentNoteRecord.content = newContent;
+        if (typeof remoteVersion === 'number' && remoteVersion > currentNoteRecord.version) {
+          currentNoteRecord.version = remoteVersion;
+        }
+      }
+
+      if (textarea.value !== newContent) {
+        textarea.value = newContent;
+        if (isFocused && typeof start === 'number' && typeof end === 'number') {
+          const maxLen = newContent.length;
+          textarea.setSelectionRange(Math.min(start, maxLen), Math.min(end, maxLen));
+        }
+      }
+      updateNoteStatus('saved');
+    }
+
+    function mergeNoteLines(localText, remoteText) {
+      const localLines = (localText || '').split('\n');
+      const remoteLines = (remoteText || '').split('\n');
+      const maxLen = Math.max(localLines.length, remoteLines.length);
+      const merged = [];
+
+      for (let i = 0; i < maxLen; i++) {
+        const l = localLines[i];
+        const r = remoteLines[i];
+        if (l === undefined) merged.push(r);
+        else if (r === undefined) merged.push(l);
+        else if (l === r) merged.push(l);
+        else merged.push(r + '\n' + l);
+      }
+      return merged.join('\n');
+    }
+
+    async function saveLessonNoteToSupabase() {
+      if (noteDebounceTimer) {
+        clearTimeout(noteDebounceTimer);
+        noteDebounceTimer = null;
+      }
+
+      const textarea = document.getElementById('notes-textarea');
+      const content = textarea ? textarea.value : (currentNoteRecord ? currentNoteRecord.content : '');
+
+      if (!currentNoteRecord || !currentNoteRecord.id || currentNoteRecord.id.startsWith('local-')) {
+        updateNoteStatus('saved locally');
+        return;
+      }
+
+      const client = window.CosyAuth ? window.CosyAuth.client : null;
+      if (!client) {
+        updateNoteStatus('saved locally');
+        return;
+      }
+
+      updateNoteStatus('saving...');
+
+      try {
+        const { data, error } = await client.rpc('save_lesson_note', {
+          note_id: currentNoteRecord.id,
+          content: content,
+          base_version: currentNoteRecord.version
+        });
+
+        if (error) {
+          console.warn('save_lesson_note RPC error:', error);
+          updateNoteStatus('saved locally');
+          return;
+        }
+
+        if (data && data.conflict) {
+          // Handle version conflict: merge incoming text and retry once
+          const remoteContent = data.content || '';
+          const merged = mergeNoteLines(content, remoteContent);
+
+          currentNoteRecord.version = data.version;
+          currentNoteRecord.content = merged;
+          if (textarea) textarea.value = merged;
+
+          // Retry once with new version
+          const retryRes = await client.rpc('save_lesson_note', {
+            note_id: currentNoteRecord.id,
+            content: merged,
+            base_version: currentNoteRecord.version
+          });
+
+          if (!retryRes.error && retryRes.data && !retryRes.data.conflict) {
+            currentNoteRecord.version = retryRes.data.version;
+            currentNoteRecord.content = retryRes.data.content;
+            localUnsavedNote = false;
+            updateNoteStatus('saved');
+          } else {
+            updateNoteStatus('saved locally');
+          }
+        } else if (data && !data.conflict) {
+          currentNoteRecord.version = data.version;
+          currentNoteRecord.content = data.content;
+          localUnsavedNote = false;
+          updateNoteStatus('saved');
+        }
+      } catch (err) {
+        console.warn('Error saving note:', err);
+        updateNoteStatus('saved locally');
+      }
+    }
+
+    // Auto-save on visibility change (tab hidden) and return sync + PeerJS auto-reconnect
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'hidden') {
+        saveLessonNoteToSupabase();
+      } else if (document.visibilityState === 'visible') {
+        if (localUnsavedNote || !currentNoteRecord) {
+          joinAndLoadLessonNote();
+        }
+        await checkAndReconnectPeerSession();
+      }
+    });
+
+    window.addEventListener('orientationchange', async () => {
+      setTimeout(async () => {
+        resizeCanvas();
+        await checkAndReconnectPeerSession();
+      }, 300);
+    });
+
+    async function checkAndReconnectPeerSession() {
+      // Re-establish WebRTC connection if disconnected on tab return, rotation, or unlock
+      if (peer && peer.disconnected && !peer.destroyed) {
+        try {
+          peer.reconnect();
+        } catch (e) {
+          console.warn('Peer reconnect failed:', e);
+        }
+      }
+      if (!isHost && roomId && (!conn || !conn.open)) {
+        if (peer && !peer.destroyed) {
+          conn = peer.connect(roomId, { metadata: { k: roomKey } });
+          setupConnection(conn);
+        }
+      }
+      if (currentVideoProvider === 'peerjs-video' && localStream) {
+        const localVid = document.getElementById('local-video');
+        if (localVid && !localVid.srcObject) {
+          localVid.srcObject = localStream;
+        }
+      }
+    }
+
     // Right Tool Drawer Management
     window.activeTool = 'chat'; var activeTool = window.activeTool;
     window.window.isDrawerPinned = false; isDrawerPinned = false; var isDrawerPinned = window.isDrawerPinned;
@@ -2906,8 +3511,7 @@
         if (input && input.value) searchCosyDict(input.value);
       }
       if (tabName === 'notes') {
-        const textarea = document.getElementById('notes-textarea');
-        if (textarea) textarea.value = localStorage.getItem('cosy_lesson_notes') || '';
+        joinAndLoadLessonNote();
       }
 
       (window.requestAnimationFrame || setTimeout)(() => resizeCanvas(), 0);
