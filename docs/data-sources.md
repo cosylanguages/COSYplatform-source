@@ -1,6 +1,6 @@
 # COSYplatform External Data Dependencies & Integration Architecture
 
-This document details the external data integrations wired into **COSYplatform**. Per ecosystem rules, COSYplatform extracts data from all principal repositories in the CosyLanguages ecosystem except COSYworld.
+This document details the external data integrations wired into **COSYplatform**. Per ecosystem rules, COSYplatform extracts data from all principal repositories in the CosyLanguages ecosystem.
 
 ---
 
@@ -67,11 +67,3 @@ This document details the external data integrations wired into **COSYplatform**
 - **Data Resolution Mechanism**:
   - Converts past speaking club sessions and event materials into permanent interactive platform lessons (`lessons/<course>/<lesson-id>.xml` or `.json`).
   - Automatically structures sessions into 8 standardized live slides (warm-up, 2 discussion rounds, interactive task, error correction) and registers the lesson entry into the corresponding roadmap in `roadmaps/`.
-
----
-
-## 5. Ecosystem Exclusion Policy: COSYworld
-
-Per ecosystem rules:
-- **COSYplatform extracts data from every repository EXCEPT COSYworld.**
-- Zero code, API calls, or data references point to COSYworld from this repository.

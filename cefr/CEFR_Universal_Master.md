@@ -823,7 +823,6 @@ The repos' existing `domain` (course track), `theme` (lexical field) and `sub_th
 | **cosymanuals** | Manual skeletons per language and level: chapters organised by theme, function and can-do; grammar sequence from the language layer. |
 | **cosyevents** | Sessions tagged with level range, theme, use_domain, skill focus; converted into lessons with same tags; vocabulary duplicated to cosydata under correct level folder. |
 | **cosygames** | Games tagged by level, skill, theme, function so teachers can filter (e.g. "B1 listening, travel"). |
-| **cosyworld** | Not used; remove references. |
 
 ### 9.3 Suggested data model
 ```json
