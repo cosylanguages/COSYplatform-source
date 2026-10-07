@@ -422,7 +422,7 @@ async function runSecurityTests() {
     const msgCountBefore = chatBoxC ? chatBoxC.children.length : 0;
 
     // Send restricted packet types on host
-    const restrictedTypes = ['load-lesson', 'activity', 'breakout-recall', 'lesson-mode', 'video-link'];
+    const restrictedTypes = ['load-lesson', 'activity', 'breakout-recall', 'lesson-mode', 'video-link', 'video-provider-switch', 'breakout-assignment'];
     restrictedTypes.forEach(t => {
       domC.window.handleIncomingData({ type: t, lessonPath: 'lessons/general-english-a1/x.json', title: 'test', prompt: 'test' });
     });

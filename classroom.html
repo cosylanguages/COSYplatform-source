@@ -138,12 +138,39 @@
       <a id="portal-link" href="student.html" class="hidden">← Portal</a>
     </div>
 
-    <!-- Room Chip & Connection Status -->
+    <!-- Unified Room Chip & Provider Selector Dropdown -->
     <div class="flex items-center space-x-2">
-      <button id="room-chip-btn" onclick="copyShareLink()" class="flex items-center space-x-1.5 px-2.5 py-1 bg-cosy-50 hover:bg-cosy-100 text-cosy-800 border border-cosy-200 rounded-xl font-mono text-xs font-semibold transition touch-target" title="Click to copy invite link" aria-label="Room invite link" data-i18n-title="classroom.roomChipTooltip">
-        <span>#<span id="display-room-id">------</span></span>
-        <span id="room-copy-icon">🔗</span>
-      </button>
+      <div class="relative flex items-center">
+        <button id="room-chip-btn" onclick="toggleProviderMenu()" class="flex items-center space-x-1.5 px-2.5 py-1 bg-cosy-50 hover:bg-cosy-100 text-cosy-800 border border-cosy-200 rounded-xl font-mono text-xs font-semibold transition touch-target" title="Click to manage video provider or copy link" aria-label="Room invite link and provider selector" data-i18n-title="classroom.roomChipTooltip">
+          <span>#<span id="display-room-id">------</span> · <span id="display-provider-name">Cosy</span></span>
+          <span id="provider-chevron" class="host-only text-[10px]">▼</span>
+        </button>
+        <div id="provider-dropdown-menu" class="hidden absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-1.5 text-xs space-y-1">
+          <div class="px-2 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider" data-i18n="classroom.providerSelectHeader">Switch Video Provider</div>
+          <button onclick="switchVideoProviderAndNotify('peerjs-video')" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-cosy-50 text-gray-800 font-medium flex items-center justify-between">
+            <span>⚡ Cosy Direct WebRTC</span>
+            <span class="text-[10px] text-gray-400">PeerJS</span>
+          </button>
+          <button onclick="switchVideoProviderAndNotify('jitsi')" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-cosy-50 text-gray-800 font-medium flex items-center justify-between">
+            <span>📹 Embedded Jitsi</span>
+            <span class="text-[10px] text-gray-400">Jitsi</span>
+          </button>
+          <button onclick="switchVideoProviderAndNotify('google')" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-cosy-50 text-gray-800 font-medium flex items-center justify-between">
+            <span>🟢 Google Meet</span>
+            <span class="text-[10px] text-gray-400">Meet</span>
+          </button>
+          <button onclick="switchVideoProviderAndNotify('yandex')" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-cosy-50 text-gray-800 font-medium flex items-center justify-between">
+            <span>🟡 Yandex Telemost</span>
+            <span class="text-[10px] text-gray-400">Telemost</span>
+          </button>
+          <div class="border-t border-gray-100 pt-1 mt-1">
+            <button onclick="copyShareLink(); toggleProviderMenu();" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-gray-100 text-cosy-700 font-semibold flex items-center gap-1.5">
+              <span>📋</span>
+              <span data-i18n="classroom.copyInviteLink">Copy Invite Link</span>
+            </button>
+          </div>
+        </div>
+      </div>
       <div id="connection-status" class="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-[11px] font-medium">
         <span id="status-dot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
         <span id="status-text" class="hidden sm:inline">Connecting...</span>
@@ -460,8 +487,15 @@
 
       <!-- Active Banners -->
       <div id="breakout-banner" class="bg-amber-50 border-b border-amber-200 p-2 px-4 hidden text-xs text-amber-900 flex flex-wrap justify-between items-center gap-2">
-        <span class="font-semibold">Active Breakout Room: <span id="breakout-banner-room-name">Main</span></span>
+        <div class="flex items-center gap-2">
+          <span>🚪</span>
+          <span class="font-semibold">Active Breakout Room: <span id="breakout-banner-room-name">Main</span></span>
+        </div>
         <div id="breakout-banner-quick-links" class="flex items-center space-x-1"></div>
+        <button id="call-teacher-btn" onclick="callTeacherHelp()" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs transition flex items-center gap-1 shadow-sm touch-target" title="Ask teacher for help in this sub-room">
+          <span>✋</span>
+          <span data-i18n="classroom.callTeacher">Call Teacher</span>
+        </button>
       </div>
 
       <div id="activity-banner" class="bg-yellow-50 border-b border-yellow-200 p-2.5 px-4 hidden text-xs text-yellow-900 flex justify-between items-center">
@@ -1221,10 +1255,57 @@
       });
     }
 
+    function toggleProviderMenu() {
+      const isHostOrTeacher = isHost || currentRole === 'teacher' || (userProfile && userProfile.role === 'founder');
+      const menu = document.getElementById('provider-dropdown-menu');
+      if (menu) {
+        if (isHostOrTeacher) {
+          menu.classList.toggle('hidden');
+        } else {
+          copyShareLink();
+        }
+      }
+    }
+
+    function switchVideoProviderAndNotify(provider, url = null) {
+      const isHostOrTeacher = isHost || currentRole === 'teacher' || (userProfile && userProfile.role === 'founder');
+      if (!isHostOrTeacher) {
+        console.warn('Student attempted to change video provider.');
+        return;
+      }
+
+      changeVideoProvider(provider);
+      const menu = document.getElementById('provider-dropdown-menu');
+      if (menu) menu.classList.add('hidden');
+
+      if (url && isValidVideoUrl(url)) {
+        activeVideoLink = url;
+        sendData({ type: 'video-link', provider: provider, link: url });
+        renderExternalVideoBanner(provider, url);
+      } else if (provider === 'jitsi' || provider === 'peerjs-video') {
+        sendData({ type: 'video-provider-switch', provider: provider });
+        startVideoCall();
+      } else {
+        // External link requested without explicit URL yet
+        const defaultUrl = provider === 'google' ? 'https://meet.google.com/new' : 'https://telemost.yandex.ru';
+        activeVideoLink = defaultUrl;
+        sendData({ type: 'video-link', provider: provider, link: defaultUrl });
+        renderExternalVideoBanner(provider, defaultUrl);
+      }
+    }
+
     // Video Provider Switching Logic
     function changeVideoProvider(provider) {
       currentVideoProvider = provider;
       updateVideoControlStripState(provider);
+
+      const providerNameSpan = document.getElementById('display-provider-name');
+      if (providerNameSpan) {
+        providerNameSpan.textContent = provider === 'jitsi' ? 'Jitsi' : provider === 'google' ? 'Meet' : provider === 'yandex' ? 'Telemost' : 'Cosy';
+      }
+
+      const selectEl = document.getElementById('video-provider-select');
+      if (selectEl) selectEl.value = provider;
 
       const linkContainer = document.getElementById('external-video-link-container');
       const jitsiServerContainer = document.getElementById('jitsi-server-container');
@@ -1253,14 +1334,17 @@
         if (btn) btn.classList.add('hidden');
 
         if (provider === 'yandex') {
-          document.getElementById('video-link-input').placeholder = 'Paste Yandex Telemost URL (e.g. https://telemost.yandex.ru/j/...)';
-          placeholderText.innerText = 'Yandex Telemost selected (Яндекс Телемост).';
+          const input = document.getElementById('video-link-input');
+          if (input) input.placeholder = 'Paste Yandex Telemost URL (e.g. https://telemost.yandex.ru/j/...)';
+          if (placeholderText) placeholderText.innerText = 'Yandex Telemost selected (Яндекс Телемост).';
         } else if (provider === 'google') {
-          document.getElementById('video-link-input').placeholder = 'Paste Google Meet URL (e.g. https://meet.google.com/...)';
-          placeholderText.innerText = 'Google Meet selected.';
+          const input = document.getElementById('video-link-input');
+          if (input) input.placeholder = 'Paste Google Meet URL (e.g. https://meet.google.com/...)';
+          if (placeholderText) placeholderText.innerText = 'Google Meet selected.';
         } else {
-          document.getElementById('video-link-input').placeholder = 'Paste custom video meeting link...';
-          placeholderText.innerText = 'Custom Meeting Link selected.';
+          const input = document.getElementById('video-link-input');
+          if (input) input.placeholder = 'Paste custom video meeting link...';
+          if (placeholderText) placeholderText.innerText = 'Custom Meeting Link selected.';
         }
       }
     }
@@ -2204,6 +2288,12 @@
         addChatMessage('System', 'A student connected to the session.');
         updateStatus('Student Connected', 'green');
 
+        // Check PeerJS soft limit (4 participants)
+        if (connections.length > 4) {
+          const softNotice = document.getElementById('peer-soft-limit-notice');
+          if (softNotice) softNotice.classList.remove('hidden');
+        }
+
         // Sync active lesson material, mode, layout, and current slide to newly connected student
         c.send({ type: 'lesson-mode', mode: lessonMode, layout: currentLayoutPreset });
         if (currentLessonPath && currentLessonPath !== 'default') {
@@ -2301,7 +2391,7 @@
       if (!data) return;
 
       if (isHost) {
-        const allowedTypesOnHost = ['chat', 'blank', 'whiteboard-draw', 'role', 'note-sync'];
+        const allowedTypesOnHost = ['chat', 'blank', 'whiteboard-draw', 'role', 'note-sync', 'call-teacher', 'breakout-move'];
         if (!allowedTypesOnHost.includes(data.type)) {
           console.warn(`Ignored unauthorized packet type '${data.type}' from participant on host.`);
           return;
@@ -2385,6 +2475,12 @@
           closeActivityBanner();
           addChatMessage('System', `📢 Teacher recalled all participants back to the main room.`);
           if (window.CosyUI && window.CosyUI.toast) CosyUI.toast('📢 All participants recalled to the main room!', 'info');
+          break;
+        case 'call-teacher':
+          if (isHost || currentRole === 'teacher' || (userProfile && userProfile.role === 'founder')) {
+            addChatMessage('System', `✋ Student in ${data.roomName || 'breakout'} requested help!`);
+            if (window.CosyUI && window.CosyUI.toast) CosyUI.toast(`✋ Student in ${data.roomName || 'breakout'} requested help!`, 'warning');
+          }
           break;
         case 'note-sync':
           if (data.content !== undefined) {
@@ -2493,18 +2589,45 @@
         populateMediaDevices(); // Refresh device names now that permission is granted
 
         placeholder.classList.add('hidden');
-        container.innerHTML = `
-          <div class="w-full h-full relative grid grid-cols-1 md:grid-cols-2 gap-1 bg-black p-1">
-            <div class="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border border-gray-800">
-              <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover" style="${isLocalVideoMirrored ? 'transform: scaleX(-1);' : ''}"></video>
-              <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">${currentRole === 'teacher' ? 'Teacher (You)' : 'Student (You)'}</span>
+
+        const isGroup = (lessonMode === 'group');
+        const activeSpeakerBorder = 'border-2 border-cosy-500 shadow-md ring-2 ring-cosy-400';
+
+        if (isGroup) {
+          // Group Mode: Scrollable grid with Teacher pinned on top and active speaker highlight
+          container.innerHTML = `
+            <div id="video-grid-container" class="w-full h-full flex flex-col gap-1.5 bg-black p-1 overflow-y-auto">
+              <div id="peer-soft-limit-notice" class="hidden bg-amber-900/90 border border-amber-500/80 text-amber-100 text-[10px] p-1.5 rounded-lg flex items-center justify-between" data-i18n="classroom.peerLimitNotice">
+                <span>⚠️ More than 4 P2P participants detected. Consider switching to Jitsi for optimal performance.</span>
+                <button onclick="switchVideoProviderAndNotify('jitsi')" class="px-2 py-0.5 bg-amber-800 hover:bg-amber-700 text-white font-bold rounded">Switch Jitsi</button>
+              </div>
+              <div id="pinned-teacher-tile" class="relative w-full h-40 bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border-2 border-amber-400/80 shadow-lg flex-none">
+                <video id="${currentRole === 'teacher' ? 'local-video' : 'remote-video'}" autoplay playsinline ${currentRole === 'teacher' ? 'muted' : ''} class="w-full h-full object-cover" style="${currentRole === 'teacher' && isLocalVideoMirrored ? 'transform: scaleX(-1);' : ''}"></video>
+                <span class="absolute bottom-1 left-1 bg-amber-900/80 text-amber-200 text-[10px] px-2 py-0.5 rounded font-bold">📌 Teacher ${currentRole === 'teacher' ? '(You)' : ''}</span>
+              </div>
+              <div id="student-tiles-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 flex-1 min-h-[120px]">
+                <div class="relative w-full h-32 bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border border-gray-800">
+                  <video id="${currentRole === 'teacher' ? 'remote-video' : 'local-video'}" autoplay playsinline ${currentRole === 'student' ? 'muted' : ''} class="w-full h-full object-cover" style="${currentRole === 'student' && isLocalVideoMirrored ? 'transform: scaleX(-1);' : ''}"></video>
+                  <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">${currentRole === 'student' ? 'Student (You)' : 'Student'}</span>
+                </div>
+              </div>
             </div>
-            <div class="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border border-gray-800">
-              <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
-              <span id="remote-video-label" class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">${currentRole === 'teacher' ? 'Student' : 'Teacher'}</span>
+          `;
+        } else {
+          // 1-on-1 Mode: Stacked/Side-by-side 2-tile view
+          container.innerHTML = `
+            <div class="w-full h-full relative grid grid-cols-1 md:grid-cols-2 gap-1 bg-black p-1">
+              <div class="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border border-gray-800">
+                <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover" style="${isLocalVideoMirrored ? 'transform: scaleX(-1);' : ''}"></video>
+                <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">${currentRole === 'teacher' ? 'Teacher (You)' : 'Student (You)'}</span>
+              </div>
+              <div class="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center border border-gray-800">
+                <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
+                <span id="remote-video-label" class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded font-bold">${currentRole === 'teacher' ? 'Student' : 'Teacher'}</span>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        }
 
         const localVid = document.getElementById('local-video');
         if (localVid) localVid.srcObject = localStream;
@@ -3022,6 +3145,12 @@
       if (document.getElementById('breakout-rooms-modal')) {
         document.getElementById('breakout-rooms-modal').classList.add('hidden');
       }
+    }
+
+    function callTeacherHelp() {
+      sendData({ type: 'call-teacher', roomName: currentBreakoutRoom || 'Main Room' });
+      addChatMessage('System', '✋ Teacher notified that you need help in your room.');
+      if (window.CosyUI && window.CosyUI.toast) CosyUI.toast('✋ Teacher notified of your help request!', 'info');
     }
 
 
