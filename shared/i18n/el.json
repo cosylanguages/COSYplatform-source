@@ -37,7 +37,6 @@
   "common.taughtLiveSummary.few": "Διδάσκεται ζωντανά με τον καθηγητή σας · {count} μαθήματα",
   "common.taughtLiveSummary.many": "Διδάσκεται ζωντανά με τον καθηγητή σας · {count} μαθήματα",
   "common.taughtLiveSummary.other": "Διδάσκεται ζωντανά με τον καθηγητή σας · {count} μαθήματα",
-
   "login.title": "Σύνδεση",
   "login.metaDescription": "Συνδεθείτε στον λογαριασμό μαθητή, καθηγητή ή ιδρυτή του COSYlanguages.",
   "login.heading": "COSYlanguages",
@@ -52,14 +51,12 @@
   "login.errNotConfigured": "Η πλατφόρμα δεν έχει διαμορφωθεί. Ζητήστε από έναν διαχειριστή να ορίσει τις λεπτομέρειες Supabase στο shared/js/config.js.",
   "login.errInvalidCredentials": "Μη έγκυρα διαπιστευτήρια. Παρακαλούμε ελέγξτε το email και τον κωδικό πρόσβασής σας.",
   "login.errUnexpected": "Προέκυψε ένα μη αναμενόμενο σφάλμα κατά τη σύνδεση.",
-
   "notfound.title": "Η σελίδα δεν βρέθηκε",
   "notfound.metaDescription": "Η σελίδα που ζητήθηκε δεν βρέθηκε ή απαιτεί διαφορετικά δικαιώματα πρόσβασης.",
   "notfound.heading": "Η σελίδα δεν βρέθηκε",
   "notfound.message": "Αυτή η σελίδα δεν υπάρχει ή δεν έχετε πρόσβαση σε αυτήν.",
   "notfound.signIn": "Σύνδεση",
   "notfound.backToWorkspace": "Επιστροφή στον χώρο εργασίας σας",
-
   "index.title": "Κατάλογος μαθημάτων",
   "index.metaDescription": "Περιηγηθείτε στα διαθέσιμα μαθήματα γλωσσών και τα εκπαιδευτικά προγράμματα.",
   "index.badgePublic": "Δωρεάν δημόσιος κατάλογος 🌐",
@@ -87,7 +84,6 @@
   "index.stageAim": "💡 Στόχος σταδίου",
   "index.roadmapErr": "Το πρόγραμμα για το {id} δεν βρέθηκε",
   "index.roadmapTitle": "Πρόγραμμα μαθήματος",
-
   "hub.title": "Κέντρο μάθησης",
   "hub.metaDescription": "Αποκτήστε πρόσβαση στις κατευθύνσεις μαθημάτων, τους εκπαιδευτικούς πόρους και τη πλοήγηση της πύλης.",
   "hub.badge": "Ενιαία πύλη κέντρου",
@@ -97,7 +93,6 @@
   "hub.trackLabel": "Κατεύθυνση: {track}",
   "hub.openCourseRoadmap": "Άνοιγμα προγράμματος μαθήματος 📚",
   "hub.error": "Σφάλμα",
-
   "founder.title": "Πύλη Ιδρυτή",
   "founder.metaDescription": "Διαχειριστείτε τους χρήστες της πλατφόρμας, τα δικαιώματα γλωσσικής πρόσβασης και τις διοικητικές ρυθμίσεις.",
   "founder.badge": "Πύλη Ιδρυτή & Διοίκησης",
@@ -181,14 +176,33 @@
   "founder.studentCardTitle": "🧑‍🎓 Χώρος Εργασίας Μαθητή",
   "founder.studentCardDesc": "Προεπισκόπηση προβολής μαθητή με πιστοποιημένη συνεδρία",
   "founder.studentCardBtn": "Προβολή Χώρου Μαθητή 📚",
-
   "footer.partOfEcosystem": "🌐 Μέρος του οικοσυστήματος COSY •",
   "footer.cosylanguages": "COSYlanguages 🏠",
   "footer.cosydata": "COSYdata 📚",
   "footer.cosytools": "COSYtools 🔎",
   "footer.cosygames": "COSYgames 🎮",
   "footer.cosyevents": "COSYevents 🎉",
-
   "switcher.ariaLabel": "Επιλογή γλώσσας",
-  "switcher.auto": "Αυτόματο"
+  "switcher.auto": "Αυτόματο",
+  "classroom.leaveConfirm": "Είστε βέβαιοι ότι θέλετε να αποχωρήσετε από το μάθημα;",
+  "classroom.leave": "Αποχώρηση",
+  "classroom.leaveBtn": "Έξοδος από την τάξη",
+  "classroom.roomChipTooltip": "Κάντε κλικ για αντιγραφή του συνδέσμου",
+  "classroom.linkCopied": "Ο σύνδεσμος πρόσκλησης αντιγράφηκε στο πρόχειρο!",
+  "classroom.modeOneToOne": "1-προς-1",
+  "classroom.modeGroup": "Ομάδα",
+  "classroom.modeBreakout": "Δωμάτια ομάδων",
+  "classroom.toolChat": "Συνομιλία",
+  "classroom.toolTimer": "Χρονόμετρο",
+  "classroom.toolDictionary": "Λεξικό",
+  "classroom.toolVerbs": "Ανώμαλα ρήματα",
+  "classroom.toolNotes": "Σημειώσεις",
+  "classroom.toolActivities": "Υποδείξεις",
+  "classroom.teacherVideo": "Βίντεο καθηγητή",
+  "classroom.studentVideo": "Βίντεο μαθητή",
+  "classroom.materialSelect": "Υλικό",
+  "classroom.pinDrawer": "Κάρφωμα πίνακα",
+  "classroom.unpinDrawer": "Ξεκάρφωμα πίνακα",
+  "classroom.notesTitle": "Σημειώσεις μαθήματος",
+  "classroom.notesPlaceholder": "Προσωπικές σημειώσεις... (αποθηκεύονται τοπικά)"
 }

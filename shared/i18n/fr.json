@@ -37,7 +37,6 @@
   "common.taughtLiveSummary.few": "Enseigné en direct avec votre professeur · {count} leçons",
   "common.taughtLiveSummary.many": "Enseigné en direct avec votre professeur · {count} de leçons",
   "common.taughtLiveSummary.other": "Enseigné en direct avec votre professeur · {count} leçons",
-
   "login.title": "Connexion",
   "login.metaDescription": "Connectez-vous à votre compte élève, professeur ou fondateur COSYlanguages.",
   "login.heading": "COSYlanguages",
@@ -52,14 +51,12 @@
   "login.errNotConfigured": "Plateforme non configurée. Demandez à un administrateur de définir les détails Supabase dans shared/js/config.js.",
   "login.errInvalidCredentials": "Identifiants invalides. Veuillez vérifier votre e-mail et votre mot de passe.",
   "login.errUnexpected": "Une erreur inattendue est survenue lors de la connexion.",
-
   "notfound.title": "Page non trouvée",
   "notfound.metaDescription": "La page demandée est introuvable ou nécessite des autorisations d'accès différentes.",
   "notfound.heading": "Page non trouvée",
   "notfound.message": "Cette page n'existe pas ou vous n'y avez pas accès.",
   "notfound.signIn": "Connexion",
   "notfound.backToWorkspace": "Retour à votre espace de travail",
-
   "index.title": "Catalogue des cours",
   "index.metaDescription": "Parcourez les cours de langues disponibles et les programmes d'apprentissage.",
   "index.badgePublic": "Catalogue public gratuit 🌐",
@@ -87,7 +84,6 @@
   "index.stageAim": "💡 Objectif de l'étape",
   "index.roadmapErr": "Programme pour {id} introuvable",
   "index.roadmapTitle": "Programme du cours",
-
   "hub.title": "Centre d'apprentissage",
   "hub.metaDescription": "Accédez à vos parcours de cours, ressources d'apprentissage et navigation du portail.",
   "hub.badge": "Portail central unifié",
@@ -97,7 +93,6 @@
   "hub.trackLabel": "Parcours : {track}",
   "hub.openCourseRoadmap": "Ouvrir le programme du cours 📚",
   "hub.error": "Erreur",
-
   "founder.title": "Portail Fondateur",
   "founder.metaDescription": "Gérez les utilisateurs de la plateforme, les autorisations d'accès linguistique et les paramètres administratifs.",
   "founder.badge": "Portail Fondateur & Direction",
@@ -181,14 +176,33 @@
   "founder.studentCardTitle": "🧑‍🎓 Espace Élève",
   "founder.studentCardDesc": "Aperçu de la vue élève avec session authentifiée",
   "founder.studentCardBtn": "Voir l'espace élève 📚",
-
   "footer.partOfEcosystem": "🌐 Fait partie de l'écosystème COSY •",
   "footer.cosylanguages": "COSYlanguages 🏠",
   "footer.cosydata": "COSYdata 📚",
   "footer.cosytools": "COSYtools 🔎",
   "footer.cosygames": "COSYgames 🎮",
   "footer.cosyevents": "COSYevents 🎉",
-
   "switcher.ariaLabel": "Sélectionner la langue",
-  "switcher.auto": "Auto"
+  "switcher.auto": "Auto",
+  "classroom.leaveConfirm": "Voulez-vous vraiment quitter la leçon ?",
+  "classroom.leave": "Quitter",
+  "classroom.leaveBtn": "Quitter le cours",
+  "classroom.roomChipTooltip": "Cliquer pour copier le lien d'invitation",
+  "classroom.linkCopied": "Lien d'invitation copié dans le presse-papiers !",
+  "classroom.modeOneToOne": "1-à-1",
+  "classroom.modeGroup": "Groupe",
+  "classroom.modeBreakout": "Salles de sous-groupe",
+  "classroom.toolChat": "Discussion",
+  "classroom.toolTimer": "Minuteur",
+  "classroom.toolDictionary": "Dictionnaire",
+  "classroom.toolVerbs": "Verbes irréguliers",
+  "classroom.toolNotes": "Notes",
+  "classroom.toolActivities": "Propositions",
+  "classroom.teacherVideo": "Vidéo professeur",
+  "classroom.studentVideo": "Vidéo élève",
+  "classroom.materialSelect": "Matériel",
+  "classroom.pinDrawer": "Épingler le volet",
+  "classroom.unpinDrawer": "Désépingler le volet",
+  "classroom.notesTitle": "Notes de cours",
+  "classroom.notesPlaceholder": "Notes personnelles... (enregistrées localement)"
 }

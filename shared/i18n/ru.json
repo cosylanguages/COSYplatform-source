@@ -37,7 +37,6 @@
   "common.taughtLiveSummary.few": "Проводится вживую с преподавателем · {count} урока",
   "common.taughtLiveSummary.many": "Проводится вживую с преподавателем · {count} уроков",
   "common.taughtLiveSummary.other": "Проводится вживую с преподавателем · {count} урока",
-
   "login.title": "Вход в систему",
   "login.metaDescription": "Войдите в свою учетную запись студента, преподавателя или основателя COSYlanguages.",
   "login.heading": "COSYlanguages",
@@ -52,14 +51,12 @@
   "login.errNotConfigured": "Платформа не настроена. Попросите администратора указать данные Supabase в shared/js/config.js.",
   "login.errInvalidCredentials": "Неверные учетные данные. Пожалуйста, проверьте адрес электронной почты и пароль.",
   "login.errUnexpected": "При входе в систему произошла непредвиденная ошибка.",
-
   "notfound.title": "Страница не найдена",
   "notfound.metaDescription": "Запрошенная страница не найдена или требуются другие права доступа.",
   "notfound.heading": "Страница не найдена",
   "notfound.message": "Эта страница не существует или у вас нет к ней доступа.",
   "notfound.signIn": "Войти",
   "notfound.backToWorkspace": "Вернуться в рабочее пространство",
-
   "index.title": "Каталог курсов",
   "index.metaDescription": "Просмотр доступных курсов изучения языков и учебных программ.",
   "index.badgePublic": "Бесплатный публичный каталог 🌐",
@@ -87,7 +84,6 @@
   "index.stageAim": "💡 Цель этапа",
   "index.roadmapErr": "Программа для {id} не найдена",
   "index.roadmapTitle": "Программа курса",
-
   "hub.title": "Учебный центр",
   "hub.metaDescription": "Доступ к направлениям курсов, учебным ресурсам и навигации по порталу.",
   "hub.badge": "Единый портал центра",
@@ -97,7 +93,6 @@
   "hub.trackLabel": "Направление: {track}",
   "hub.openCourseRoadmap": "Открыть программу курса 📚",
   "hub.error": "Ошибка",
-
   "founder.title": "Портал основателя",
   "founder.metaDescription": "Управление пользователями платформы, правами языкового доступа и административными настройками.",
   "founder.badge": "Портал основателя и руководства",
@@ -181,14 +176,33 @@
   "founder.studentCardTitle": "🧑‍🎓 Рабочее пространство студента",
   "founder.studentCardDesc": "Предварительный просмотр вида студента с аутентифицированной сессией",
   "founder.studentCardBtn": "Просмотреть пространство студента 📚",
-
   "footer.partOfEcosystem": "🌐 Часть экосистемы COSY •",
   "footer.cosylanguages": "COSYlanguages 🏠",
   "footer.cosydata": "COSYdata 📚",
   "footer.cosytools": "COSYtools 🔎",
   "footer.cosygames": "COSYgames 🎮",
   "footer.cosyevents": "COSYevents 🎉",
-
   "switcher.ariaLabel": "Выберите язык",
-  "switcher.auto": "Авто"
+  "switcher.auto": "Авто",
+  "classroom.leaveConfirm": "Вы уверены, что хотите покинуть урок?",
+  "classroom.leave": "Выйти",
+  "classroom.leaveBtn": "Выйти из класса",
+  "classroom.roomChipTooltip": "Нажмите, чтобы скопировать ссылку",
+  "classroom.linkCopied": "Ссылка-приглашение скопирована в буфер обмена!",
+  "classroom.modeOneToOne": "1-на-1",
+  "classroom.modeGroup": "Группа",
+  "classroom.modeBreakout": "Сессионные залы",
+  "classroom.toolChat": "Чат",
+  "classroom.toolTimer": "Таймер",
+  "classroom.toolDictionary": "Словарь",
+  "classroom.toolVerbs": "Неправильные глаголы",
+  "classroom.toolNotes": "Заметки",
+  "classroom.toolActivities": "Подсказки",
+  "classroom.teacherVideo": "Видео преподавателя",
+  "classroom.studentVideo": "Видео студента",
+  "classroom.materialSelect": "Материал",
+  "classroom.pinDrawer": "Закрепить панель",
+  "classroom.unpinDrawer": "Открепить панель",
+  "classroom.notesTitle": "Заметки к уроку",
+  "classroom.notesPlaceholder": "Личные заметки... (сохраняются локально)"
 }
