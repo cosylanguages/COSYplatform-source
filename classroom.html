@@ -552,7 +552,11 @@
 
         <!-- 5. Notes Panel -->
         <div id="sidebar-tab-notes" class="hidden text-xs space-y-2 p-1 flex flex-col h-full">
-          <textarea id="notes-textarea" oninput="saveLessonNotes(this.value)" class="w-full h-64 p-2.5 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500 resize-none font-sans" data-i18n-placeholder="classroom.notesPlaceholder" placeholder="Personal lesson notes... (saved locally)"></textarea>
+          <div class="flex items-center justify-between px-1">
+            <span class="text-[11px] font-bold text-gray-700">Shared Class Notes</span>
+            <span id="notes-status" class="text-[11px] text-gray-500 font-medium">saved</span>
+          </div>
+          <textarea id="notes-textarea" oninput="onNoteInput(this.value)" class="w-full h-64 p-2.5 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500 resize-none font-sans" data-i18n-placeholder="classroom.notesPlaceholder" placeholder="Type shared notes here... Everyone in class sees and edits this note."></textarea>
         </div>
 
         <!-- 6. Prompts / Activities Panel -->
@@ -691,6 +695,11 @@
   </div>
 
 <script>
+    // Shared Lesson Notes State
+    window.currentNoteRecord = null; // { id, room_key, lesson_id, content, version, participants }
+    window.noteDebounceTimer = null;
+    window.localUnsavedNote = false;
+
     // Platform State Management
     let currentRole = 'teacher';
     let lessonMode = 'individual'; // 'individual' (1-on-1) or 'group'
@@ -2092,7 +2101,7 @@
       if (!data) return;
 
       if (isHost) {
-        const allowedTypesOnHost = ['chat', 'blank', 'whiteboard-draw', 'role'];
+        const allowedTypesOnHost = ['chat', 'blank', 'whiteboard-draw', 'role', 'note-sync'];
         if (!allowedTypesOnHost.includes(data.type)) {
           console.warn(`Ignored unauthorized packet type '${data.type}' from participant on host.`);
           return;
@@ -2176,6 +2185,11 @@
           closeActivityBanner();
           addChatMessage('System', `📢 Teacher recalled all participants back to the main room.`);
           if (window.CosyUI && window.CosyUI.toast) CosyUI.toast('📢 All participants recalled to the main room!', 'info');
+          break;
+        case 'note-sync':
+          if (data.content !== undefined) {
+            applyRemoteNoteUpdate(data.content, data.version);
+          }
           break;
       }
     }
@@ -2806,6 +2820,7 @@
       const targetUrl = portalLink ? portalLink.getAttribute('href') : 'student.html';
       const confirmMsg = (window.CosyI18n && window.CosyI18n.t) ? window.CosyI18n.t('classroom.leaveConfirm') : 'Are you sure you want to leave the lesson?';
       if (confirm(confirmMsg)) {
+        saveLessonNoteToSupabase();
         window.location.href = targetUrl;
       }
     }
@@ -2859,6 +2874,225 @@
       }
     });
 
+    // Shared Lesson Notes Functions
+    async function joinAndLoadLessonNote() {
+      const client = window.CosyAuth ? window.CosyAuth.client : null;
+      const keyToUse = roomKey || participantKey || 'default-room-key';
+      const lessonToUse = currentLessonPath || 'default';
+
+      updateNoteStatus('loading...');
+
+      if (client) {
+        try {
+          const { data, error } = await client.rpc('join_lesson_note', {
+            room_key: keyToUse,
+            lesson_id: lessonToUse
+          });
+
+          if (!error && data && data.length > 0) {
+            currentNoteRecord = data[0];
+            const textarea = document.getElementById('notes-textarea');
+            if (textarea && !localUnsavedNote) {
+              textarea.value = currentNoteRecord.content || '';
+            }
+            updateNoteStatus('saved');
+            try {
+              localStorage.setItem(`cosy_note_${currentNoteRecord.id}`, currentNoteRecord.content || '');
+            } catch (e) {}
+            return;
+          }
+        } catch (e) {
+          console.warn('join_lesson_note RPC failed, using local note cache:', e);
+        }
+      }
+
+      // Fallback local note record if offline/unconfigured
+      if (!currentNoteRecord) {
+        currentNoteRecord = {
+          id: `local-${keyToUse}-${lessonToUse}`,
+          room_key: keyToUse,
+          lesson_id: lessonToUse,
+          content: localStorage.getItem('cosy_lesson_notes') || '',
+          version: 0
+        };
+        const textarea = document.getElementById('notes-textarea');
+        if (textarea && !localUnsavedNote) {
+          textarea.value = currentNoteRecord.content;
+        }
+      }
+      updateNoteStatus('saved locally');
+    }
+
+    function updateNoteStatus(status) {
+      const statusEl = document.getElementById('notes-status');
+      if (statusEl) {
+        statusEl.textContent = status;
+        if (status === 'saving...' || status === 'loading...') {
+          statusEl.className = 'text-[11px] text-amber-600 font-bold';
+        } else if (status === 'saved') {
+          statusEl.className = 'text-[11px] text-emerald-600 font-bold';
+        } else if (status === 'saved locally') {
+          statusEl.className = 'text-[11px] text-sky-600 font-bold';
+        } else {
+          statusEl.className = 'text-[11px] text-gray-500 font-medium';
+        }
+      }
+    }
+
+    function onNoteInput(val) {
+      localUnsavedNote = true;
+      updateNoteStatus('saving...');
+
+      if (currentNoteRecord) {
+        currentNoteRecord.content = val;
+      }
+
+      // Broadcast live sync over PeerJS data channel
+      sendData({
+        type: 'note-sync',
+        content: val,
+        version: currentNoteRecord ? currentNoteRecord.version : 0
+      });
+
+      // Local storage backup
+      try {
+        localStorage.setItem('cosy_lesson_notes', val);
+        if (currentNoteRecord && currentNoteRecord.id) {
+          localStorage.setItem(`cosy_note_${currentNoteRecord.id}`, val);
+        }
+      } catch (e) {}
+
+      // Debounce autosave (2s after typing stops)
+      if (noteDebounceTimer) clearTimeout(noteDebounceTimer);
+      noteDebounceTimer = setTimeout(() => {
+        saveLessonNoteToSupabase();
+      }, 2000);
+    }
+
+    function applyRemoteNoteUpdate(newContent, remoteVersion) {
+      const textarea = document.getElementById('notes-textarea');
+      if (!textarea) return;
+
+      const isFocused = document.activeElement === textarea;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+
+      if (currentNoteRecord) {
+        currentNoteRecord.content = newContent;
+        if (typeof remoteVersion === 'number' && remoteVersion > currentNoteRecord.version) {
+          currentNoteRecord.version = remoteVersion;
+        }
+      }
+
+      if (textarea.value !== newContent) {
+        textarea.value = newContent;
+        if (isFocused && typeof start === 'number' && typeof end === 'number') {
+          const maxLen = newContent.length;
+          textarea.setSelectionRange(Math.min(start, maxLen), Math.min(end, maxLen));
+        }
+      }
+      updateNoteStatus('saved');
+    }
+
+    function mergeNoteLines(localText, remoteText) {
+      const localLines = (localText || '').split('\n');
+      const remoteLines = (remoteText || '').split('\n');
+      const maxLen = Math.max(localLines.length, remoteLines.length);
+      const merged = [];
+
+      for (let i = 0; i < maxLen; i++) {
+        const l = localLines[i];
+        const r = remoteLines[i];
+        if (l === undefined) merged.push(r);
+        else if (r === undefined) merged.push(l);
+        else if (l === r) merged.push(l);
+        else merged.push(r + '\n' + l);
+      }
+      return merged.join('\n');
+    }
+
+    async function saveLessonNoteToSupabase() {
+      if (noteDebounceTimer) {
+        clearTimeout(noteDebounceTimer);
+        noteDebounceTimer = null;
+      }
+
+      const textarea = document.getElementById('notes-textarea');
+      const content = textarea ? textarea.value : (currentNoteRecord ? currentNoteRecord.content : '');
+
+      if (!currentNoteRecord || !currentNoteRecord.id || currentNoteRecord.id.startsWith('local-')) {
+        updateNoteStatus('saved locally');
+        return;
+      }
+
+      const client = window.CosyAuth ? window.CosyAuth.client : null;
+      if (!client) {
+        updateNoteStatus('saved locally');
+        return;
+      }
+
+      updateNoteStatus('saving...');
+
+      try {
+        const { data, error } = await client.rpc('save_lesson_note', {
+          note_id: currentNoteRecord.id,
+          content: content,
+          base_version: currentNoteRecord.version
+        });
+
+        if (error) {
+          console.warn('save_lesson_note RPC error:', error);
+          updateNoteStatus('saved locally');
+          return;
+        }
+
+        if (data && data.conflict) {
+          // Handle version conflict: merge incoming text and retry once
+          const remoteContent = data.content || '';
+          const merged = mergeNoteLines(content, remoteContent);
+
+          currentNoteRecord.version = data.version;
+          currentNoteRecord.content = merged;
+          if (textarea) textarea.value = merged;
+
+          // Retry once with new version
+          const retryRes = await client.rpc('save_lesson_note', {
+            note_id: currentNoteRecord.id,
+            content: merged,
+            base_version: currentNoteRecord.version
+          });
+
+          if (!retryRes.error && retryRes.data && !retryRes.data.conflict) {
+            currentNoteRecord.version = retryRes.data.version;
+            currentNoteRecord.content = retryRes.data.content;
+            localUnsavedNote = false;
+            updateNoteStatus('saved');
+          } else {
+            updateNoteStatus('saved locally');
+          }
+        } else if (data && !data.conflict) {
+          currentNoteRecord.version = data.version;
+          currentNoteRecord.content = data.content;
+          localUnsavedNote = false;
+          updateNoteStatus('saved');
+        }
+      } catch (err) {
+        console.warn('Error saving note:', err);
+        updateNoteStatus('saved locally');
+      }
+    }
+
+    // Auto-save on visibility change (tab hidden) and return sync
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        saveLessonNoteToSupabase();
+      } else if (document.visibilityState === 'visible') {
+        if (localUnsavedNote || !currentNoteRecord) {
+          joinAndLoadLessonNote();
+        }
+      }
+    });
+
     // Right Tool Drawer Management
     window.activeTool = 'chat'; var activeTool = window.activeTool;
     window.window.isDrawerPinned = false; isDrawerPinned = false; var isDrawerPinned = window.isDrawerPinned;
@@ -2906,8 +3140,7 @@
         if (input && input.value) searchCosyDict(input.value);
       }
       if (tabName === 'notes') {
-        const textarea = document.getElementById('notes-textarea');
-        if (textarea) textarea.value = localStorage.getItem('cosy_lesson_notes') || '';
+        joinAndLoadLessonNote();
       }
 
       (window.requestAnimationFrame || setTimeout)(() => resizeCanvas(), 0);

@@ -184,6 +184,11 @@ function createMockDom(port, userRole = 'teacher', width = 1280) {
       // Mock window.tailwind
       window.tailwind = { config: {} };
 
+      window.COSY_CONFIG = {
+        SUPABASE_URL: 'https://mock.supabase.co',
+        SUPABASE_ANON_KEY: 'mock-anon-key'
+      };
+
       // Mock Peer & Jitsi (protected against overwrite by external scripts)
       Object.defineProperty(window, 'Peer', {
         get: () => MockPeer,
@@ -614,6 +619,89 @@ async function runSecurityTests() {
       } else {
         console.log('  ✅ PASS: vocab-index.js is NOT loaded at page load, but is injected into <head> upon first dictionary search.');
       }
+    }
+
+
+    // -------------------------------------------------------------
+    // Test (g): Shared Lesson Notes XSS, packet handling, and stale base_version rejection
+    // -------------------------------------------------------------
+    console.log('\n🔹 Test (g): Shared Lesson Notes security & RPC checks...');
+    const { dom: domG } = createMockDom(port, 'teacher');
+    await new Promise(r => setTimeout(r, 800));
+
+    // 1. XSS Payload in Notes Textarea
+    const notesTextarea = domG.window.document.getElementById('notes-textarea');
+    const xssNotesPayload = '<img src=x onerror=alert("notes-xss")><script>alert(1)</script>';
+
+    if (!notesTextarea) {
+      console.error('❌ FAIL: #notes-textarea element not found in classroom.html');
+      failures++;
+    } else {
+      domG.window.onNoteInput(xssNotesPayload);
+      const createdImgs = domG.window.document.querySelectorAll('img[src="x"]');
+      const createdScripts = domG.window.document.querySelectorAll('script');
+      let xssScriptFound = false;
+      createdScripts.forEach(s => {
+        if (s.textContent && s.textContent.includes('alert(1)')) xssScriptFound = true;
+      });
+
+      if (createdImgs.length > 0 || xssScriptFound) {
+        console.error('❌ FAIL: XSS payload in notes created executable HTML elements!');
+        failures++;
+      } else {
+        console.log('  ✅ PASS: XSS payload in notes textarea handled safely as plain text.');
+      }
+    }
+
+    // 2. Unauthorised note-sync packet handling on host
+    domG.window.initHost();
+    await new Promise(r => setTimeout(r, 50));
+
+    let remoteNoteUpdated = false;
+    domG.window.applyRemoteNoteUpdate = (content, ver) => {
+      remoteNoteUpdated = true;
+    };
+
+    // Send malformed / undefined note-sync packet
+    domG.window.handleIncomingData({ type: 'note-sync' });
+    if (remoteNoteUpdated) {
+      console.error('❌ FAIL: Malformed note-sync packet was applied!');
+      failures++;
+    } else {
+      // Send valid note-sync packet
+      domG.window.handleIncomingData({ type: 'note-sync', content: 'Synced content', version: 1 });
+      if (!remoteNoteUpdated) {
+        console.error('❌ FAIL: Valid note-sync packet was rejected on host!');
+        failures++;
+      } else {
+        console.log('  ✅ PASS: Malformed note-sync packet ignored, valid note-sync packet accepted.');
+      }
+    }
+
+    // 3. Stale base_version conflict handling simulation
+    const rpcSaveCalls = [];
+    domG.window.CosyAuth.client.rpc = async (fnName, params) => {
+      rpcSaveCalls.push({ fnName, params });
+      if (fnName === 'save_lesson_note') {
+        if (params.base_version !== 5) {
+          return { data: { conflict: true, content: 'Remote content line 1', version: 5 }, error: null };
+        }
+        return { data: { conflict: false, content: params.content, version: 6 }, error: null };
+      }
+      return { data: [], error: null };
+    };
+
+    domG.window.currentNoteRecord = { id: 'test-note-uuid', content: 'My local line 1', version: 1 };
+    await domG.window.saveLessonNoteToSupabase();
+
+    if (rpcSaveCalls.length < 2 || rpcSaveCalls[0].params.base_version !== 1 || rpcSaveCalls[1].params.base_version !== 5) {
+      console.error('❌ FAIL: save_lesson_note RPC was not invoked with expected base_versions on conflict retry.');
+      failures++;
+    } else if (domG.window.currentNoteRecord.version !== 6 || !domG.window.currentNoteRecord.content.includes('Remote content line 1')) {
+      console.error(`❌ FAIL: Stale base_version conflict was not properly merged. Version=${domG.window.currentNoteRecord.version}`);
+      failures++;
+    } else {
+      console.log('  ✅ PASS: Stale base_version was rejected with conflict flag, merged, and retried successfully.');
     }
 
 
