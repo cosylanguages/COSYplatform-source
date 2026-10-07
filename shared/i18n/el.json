@@ -204,5 +204,9 @@
   "classroom.pinDrawer": "Κάρφωμα πίνακα",
   "classroom.unpinDrawer": "Ξεκάρφωμα πίνακα",
   "classroom.notesTitle": "Σημειώσεις μαθήματος",
-  "classroom.notesPlaceholder": "Προσωπικές σημειώσεις... (αποθηκεύονται τοπικά)"
+  "classroom.notesPlaceholder": "Προσωπικές σημειώσεις... (αποθηκεύονται τοπικά)",
+  "classroom.toolsMenu": "Μενού εργαλείων",
+  "classroom.moreMenu": "Περισσότερα",
+  "classroom.swipeHint": "Σύρετε για αλλαγή σελίδας",
+  "classroom.cameraControls": "Χειριστήρια κάμερας"
 }

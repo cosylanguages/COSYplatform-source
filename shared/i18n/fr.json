@@ -204,5 +204,9 @@
   "classroom.pinDrawer": "Épingler le volet",
   "classroom.unpinDrawer": "Désépingler le volet",
   "classroom.notesTitle": "Notes de cours",
-  "classroom.notesPlaceholder": "Notes personnelles... (enregistrées localement)"
+  "classroom.notesPlaceholder": "Notes personnelles... (enregistrées localement)",
+  "classroom.toolsMenu": "Menu d'outils",
+  "classroom.moreMenu": "Plus d'options",
+  "classroom.swipeHint": "Glisser pour changer de page",
+  "classroom.cameraControls": "Contrôles caméra"
 }

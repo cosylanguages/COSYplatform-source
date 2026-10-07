@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="shared/css/tokens.css">
 
   <script>
-    tailwind.config = {
+    window.tailwind = window.tailwind || {}; tailwind.config = {
       theme: {
         extend: {
           colors: {
@@ -70,25 +70,77 @@
       color: #334155;
     }
   </style>
-</head>
-<body class="bg-gray-100 text-gray-800 h-screen flex flex-col font-sans overflow-hidden">
 
-  <!-- Header / Top Bar Navigation -->
-  <header class="bg-white border-b border-gray-200 px-3 py-2 flex items-center justify-between shadow-sm z-20 flex-wrap gap-2 text-xs">
-    <!-- Left: Brand Logo & Title with Leave Confirm -->
+  <style>
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+    }
+    body {
+      height: 100dvh !important;
+      padding-top: var(--sat);
+      padding-bottom: var(--sab);
+      padding-left: var(--sal);
+      padding-right: var(--sar);
+    }
+    .touch-target {
+      min-width: 44px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .floating-video-tile {
+      position: absolute;
+      z-index: 40;
+      width: 110px;
+      height: 140px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+      border: 2px solid rgba(255,255,255,0.2);
+      background: #111827;
+      touch-action: none;
+    }
+    .bottom-sheet {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      z-index: 50;
+      background: #ffffff;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      box-shadow: 0 -10px 25px -5px rgba(0,0,0,0.3);
+      transition: transform 0.25s ease-in-out;
+      max-height: 80dvh;
+      display: flex;
+      flex-direction: column;
+    }
+    .bottom-sheet.collapsed {
+      transform: translateY(100%);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800 h-[100dvh] flex flex-col font-sans overflow-hidden">
+
+  <!-- TOP BAR (Desktop & Tablet >=600px) -->
+  <header id="desktop-top-bar" class="bg-white border-b border-gray-200 px-3 py-2 hidden sm:flex items-center justify-between shadow-sm z-20 flex-wrap gap-2 text-xs flex-none">
+    <!-- Brand Logo & Title with Leave Confirm -->
     <div class="flex items-center space-x-2">
-      <button onclick="confirmLeaveLesson()" class="flex items-center space-x-2 p-1 hover:bg-gray-100 rounded-xl transition group" title="Leave the lesson?" aria-label="Leave lesson" data-i18n-title="classroom.leaveConfirm">
+      <button onclick="confirmLeaveLesson()" class="flex items-center space-x-2 p-1 hover:bg-gray-100 rounded-xl transition group touch-target" title="Leave the lesson?" aria-label="Leave lesson" data-i18n-title="classroom.leaveConfirm">
         <div class="w-8 h-8 rounded-xl bg-cosy-600 text-white flex items-center justify-center font-bold text-base shadow-sm group-hover:bg-cosy-700 transition">
           C
         </div>
-        <span class="font-bold text-gray-800 text-sm tracking-tight group-hover:text-cosy-700">cosylanguages</span>
+        <span class="font-bold text-gray-800 text-sm tracking-tight group-hover:text-cosy-700 hidden lg:inline">cosylanguages</span>
       </button>
       <a id="portal-link" href="student.html" class="hidden">← Portal</a>
     </div>
 
-    <!-- Center Left: Room Chip & Connection Status -->
+    <!-- Room Chip & Connection Status -->
     <div class="flex items-center space-x-2">
-      <button id="room-chip-btn" onclick="copyShareLink()" class="flex items-center space-x-1.5 px-2.5 py-1 bg-cosy-50 hover:bg-cosy-100 text-cosy-800 border border-cosy-200 rounded-xl font-mono text-xs font-semibold transition" title="Click to copy invite link" aria-label="Room invite link" data-i18n-title="classroom.roomChipTooltip">
+      <button id="room-chip-btn" onclick="copyShareLink()" class="flex items-center space-x-1.5 px-2.5 py-1 bg-cosy-50 hover:bg-cosy-100 text-cosy-800 border border-cosy-200 rounded-xl font-mono text-xs font-semibold transition touch-target" title="Click to copy invite link" aria-label="Room invite link" data-i18n-title="classroom.roomChipTooltip">
         <span>#<span id="display-room-id">------</span></span>
         <span id="room-copy-icon">🔗</span>
       </button>
@@ -98,102 +150,161 @@
       </div>
     </div>
 
-    <!-- Center: Lesson Modes (Host sees buttons, Student sees active label) -->
+    <!-- Modes (Host buttons / Student active mode badge) -->
     <div class="flex items-center space-x-1 bg-gray-100 p-1 rounded-xl">
-      <!-- Host Mode Controls -->
       <div id="host-mode-controls" class="flex items-center space-x-1">
-        <button id="mode-individual-btn" onclick="switchLessonMode('individual')" class="px-2.5 py-1 rounded-lg font-semibold text-xs transition shadow-sm bg-white text-cosy-700" title="1-on-1 Mode" aria-label="1-on-1 mode" data-i18n="classroom.modeOneToOne">
+        <button id="mode-individual-btn" onclick="switchLessonMode('individual')" class="px-2.5 py-1 rounded-lg font-semibold text-xs transition shadow-sm bg-white text-cosy-700 touch-target" title="1-on-1 Mode" aria-label="1-on-1 mode" data-i18n="classroom.modeOneToOne">
           👤👤 1-on-1
         </button>
-        <button id="mode-group-btn" onclick="switchLessonMode('group')" class="px-2.5 py-1 rounded-lg font-semibold text-xs text-gray-600 hover:text-gray-900 transition" title="Group Mode" aria-label="Group mode" data-i18n="classroom.modeGroup">
+        <button id="mode-group-btn" onclick="switchLessonMode('group')" class="px-2.5 py-1 rounded-lg font-semibold text-xs text-gray-600 hover:text-gray-900 transition touch-target" title="Group Mode" aria-label="Group mode" data-i18n="classroom.modeGroup">
           👥 Group
         </button>
-        <button id="breakout-rooms-btn" onclick="toggleBreakoutRoomsModal()" class="px-2.5 py-1 rounded-lg font-semibold text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition hidden" title="Breakout Rooms" aria-label="Breakout rooms" data-i18n="classroom.modeBreakout">
+        <button id="breakout-rooms-btn" onclick="toggleBreakoutRoomsModal()" class="px-2.5 py-1 rounded-lg font-semibold text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition hidden touch-target" title="Breakout Rooms" aria-label="Breakout rooms" data-i18n="classroom.modeBreakout">
           🚪 Breakout Rooms
         </button>
       </div>
-      <!-- Student Active Mode Badge -->
       <div id="student-mode-label" class="hidden px-2.5 py-1 text-xs font-semibold text-cosy-800">
         <span id="active-mode-text">👤👤 1-on-1</span>
       </div>
     </div>
 
-    <!-- Center Right: Tool Buttons -->
-    <div class="flex items-center space-x-1 bg-gray-50 p-1 rounded-xl border border-gray-200">
-      <button id="tab-btn-chat" onclick="switchSidebarTab('chat')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 relative" title="Chat (C)" aria-label="Chat" data-i18n-title="classroom.toolChat">
+    <!-- Desktop Tool Buttons (>=1024px) -->
+    <div class="hidden lg:flex items-center space-x-1 bg-gray-50 p-1 rounded-xl border border-gray-200">
+      <button id="tab-btn-chat" onclick="switchSidebarTab('chat')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 relative touch-target" title="Chat (C)" aria-label="Chat" data-i18n-title="classroom.toolChat">
         <span>💬</span>
-        <span class="hidden md:inline" data-i18n="classroom.toolChat">Chat</span>
+        <span data-i18n="classroom.toolChat">Chat</span>
         <span id="chat-count" class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full hidden">0</span>
       </button>
 
-      <button id="tab-btn-timer" onclick="switchSidebarTab('timer')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1" title="Timer" aria-label="Timer" data-i18n-title="classroom.toolTimer">
+      <button id="tab-btn-timer" onclick="switchSidebarTab('timer')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 touch-target" title="Timer" aria-label="Timer" data-i18n-title="classroom.toolTimer">
         <span>⏱</span>
-        <span class="hidden md:inline" data-i18n="classroom.toolTimer">Timer</span>
+        <span data-i18n="classroom.toolTimer">Timer</span>
       </button>
 
-      <button id="tab-btn-dict" onclick="switchSidebarTab('dict')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1" title="Dictionary" aria-label="Dictionary" data-i18n-title="classroom.toolDictionary">
+      <button id="tab-btn-dict" onclick="switchSidebarTab('dict')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 touch-target" title="Dictionary" aria-label="Dictionary" data-i18n-title="classroom.toolDictionary">
         <span>📖</span>
-        <span class="hidden md:inline" data-i18n="classroom.toolDictionary">Dictionary</span>
+        <span data-i18n="classroom.toolDictionary">Dictionary</span>
       </button>
 
-      <button id="tab-btn-verbs" onclick="switchSidebarTab('verbs')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1" title="Irregular Verbs" aria-label="Irregular Verbs" data-i18n-title="classroom.toolVerbs">
+      <button id="tab-btn-verbs" onclick="switchSidebarTab('verbs')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 touch-target" title="Irregular Verbs" aria-label="Irregular Verbs" data-i18n-title="classroom.toolVerbs">
         <span>🔤</span>
-        <span class="hidden md:inline" data-i18n="classroom.toolVerbs">Verbs</span>
+        <span data-i18n="classroom.toolVerbs">Verbs</span>
       </button>
 
-      <button id="tab-btn-notes" onclick="switchSidebarTab('notes')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1" title="Lesson Notes" aria-label="Lesson Notes" data-i18n-title="classroom.toolNotes">
+      <button id="tab-btn-notes" onclick="switchSidebarTab('notes')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 touch-target" title="Lesson Notes" aria-label="Lesson Notes" data-i18n-title="classroom.toolNotes">
         <span>📝</span>
-        <span class="hidden md:inline" data-i18n="classroom.toolNotes">Notes</span>
+        <span data-i18n="classroom.toolNotes">Notes</span>
       </button>
 
-      <button id="tab-btn-activities" onclick="switchSidebarTab('activities')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 host-only hidden" title="Prompts / Activities" aria-label="Prompts" data-i18n-title="classroom.toolActivities">
+      <button id="tab-btn-activities" onclick="switchSidebarTab('activities')" class="px-2.5 py-1 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition flex items-center space-x-1 host-only hidden touch-target" title="Prompts / Activities" aria-label="Prompts" data-i18n-title="classroom.toolActivities">
         <span>💡</span>
-        <span class="hidden md:inline" data-i18n="classroom.toolActivities">Prompts</span>
+        <span data-i18n="classroom.toolActivities">Prompts</span>
       </button>
     </div>
 
-    <!-- Right: Leave Button -->
+    <!-- Tablet Landscape Collapsed Tools Button (600px - 1023px) -->
+    <div class="lg:hidden flex items-center relative">
+      <button id="tab-btn-tools-menu" onclick="toggleTabletToolsMenu()" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-xl text-sm transition flex items-center space-x-1 touch-target" title="Tools Menu" aria-label="Tools menu" data-i18n-title="classroom.toolsMenu">
+        <span>🧰</span>
+        <span data-i18n="classroom.toolsMenu">Tools</span>
+      </button>
+      <!-- Tablet Icon Grid Dropdown -->
+      <div id="tools-icon-grid" class="hidden absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-200 p-2 z-50 grid grid-cols-3 gap-1">
+        <button onclick="switchSidebarTab('chat'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700">
+          <span class="text-xl">💬</span>
+          <span>Chat</span>
+        </button>
+        <button onclick="switchSidebarTab('timer'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700">
+          <span class="text-xl">⏱</span>
+          <span>Timer</span>
+        </button>
+        <button onclick="switchSidebarTab('dict'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700">
+          <span class="text-xl">📖</span>
+          <span>Dict</span>
+        </button>
+        <button onclick="switchSidebarTab('verbs'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700">
+          <span class="text-xl">🔤</span>
+          <span>Verbs</span>
+        </button>
+        <button onclick="switchSidebarTab('notes'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700">
+          <span class="text-xl">📝</span>
+          <span>Notes</span>
+        </button>
+        <button onclick="switchSidebarTab('activities'); toggleTabletToolsMenu();" class="p-2 hover:bg-cosy-50 rounded-xl flex flex-col items-center justify-center text-xs font-semibold text-gray-700 host-only hidden">
+          <span class="text-xl">💡</span>
+          <span>Prompts</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Leave Button -->
     <div class="flex items-center space-x-2 pl-2 border-l border-gray-200">
-      <button id="logout-btn" onclick="confirmLeaveLesson()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl text-xs transition shadow-sm flex items-center space-x-1" title="Leave Class" aria-label="Leave class" data-i18n="classroom.leaveBtn">
+      <button id="logout-btn" onclick="confirmLeaveLesson()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl text-xs transition shadow-sm flex items-center space-x-1 touch-target" title="Leave Class" aria-label="Leave class" data-i18n="classroom.leaveBtn">
         <span>⎋</span>
-        <span data-i18n="classroom.leaveBtn">Leave Class</span>
+        <span data-i18n="classroom.leaveBtn" class="hidden sm:inline">Leave Class</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- PHONE TOP BAR (<600px) -->
+  <header id="phone-top-bar" class="bg-white border-b border-gray-200 px-3 py-2 flex sm:hidden items-center justify-between shadow-sm z-20 text-xs flex-none">
+    <div class="flex items-center space-x-1 font-bold text-gray-800">
+      <span>cosy</span>
+      <span>·</span>
+      <button onclick="copyShareLink()" class="font-mono text-cosy-700 hover:underline">#<span id="display-room-id-mobile">------</span></button>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <!-- Host More Menu Button ⋯ -->
+      <div class="relative">
+        <button id="more-menu-btn" onclick="toggleMobileMoreMenu()" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-xl font-bold text-base touch-target" title="More options" aria-label="More options" data-i18n-title="classroom.moreMenu">
+          ⋯
+        </button>
+        <div id="more-menu-dropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-gray-200 p-2 z-50 text-xs space-y-1">
+          <button onclick="switchLessonMode('individual'); toggleMobileMoreMenu();" class="w-full text-left px-3 py-2 hover:bg-cosy-50 rounded-xl font-semibold text-gray-700">👤👤 1-on-1 Mode</button>
+          <button onclick="switchLessonMode('group'); toggleMobileMoreMenu();" class="w-full text-left px-3 py-2 hover:bg-cosy-50 rounded-xl font-semibold text-gray-700">👥 Group Mode</button>
+          <button onclick="toggleBreakoutRoomsModal(); toggleMobileMoreMenu();" class="w-full text-left px-3 py-2 hover:bg-amber-50 rounded-xl font-semibold text-amber-800">🚪 Breakout Rooms</button>
+          <button onclick="copyShareLink(); toggleMobileMoreMenu();" class="w-full text-left px-3 py-2 hover:bg-cosy-50 rounded-xl font-semibold text-cosy-700">🔗 Copy Invite Link</button>
+        </div>
+      </div>
+
+      <!-- Phone Leave Button ⎋ -->
+      <button onclick="confirmLeaveLesson()" class="p-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm transition touch-target" title="Leave Class" aria-label="Leave class">
+        ⎋
       </button>
     </div>
   </header>
 
   <!-- Main Workspace Container -->
-  <main id="workspace-container" class="flex-1 flex flex-col lg:flex-row overflow-hidden relative bg-gray-100">
+  <main id="workspace-container" class="flex-1 flex flex-col md:flex-row overflow-hidden relative bg-gray-100">
 
-    <!-- LEFT COLUMN: VIDEO STACK (Teacher Top, Student Bottom) -->
-    <aside id="left-video-column" class="w-full lg:w-72 xl:w-80 bg-gray-900 text-white flex-none flex flex-col border-r border-gray-800 p-2 gap-2 overflow-y-auto">
-      <!-- Video Frame Box -->
-      <div id="video-frame-box" class="flex-1 min-h-[320px] bg-black rounded-xl overflow-hidden relative flex flex-col">
+    <!-- LEFT VIDEO COLUMN / TOP STRIP / FLOATING TILES -->
+    <aside id="left-video-column" class="w-full md:w-1/4 lg:w-72 xl:w-80 bg-gray-900 text-white flex-none flex flex-col border-r border-gray-800 p-2 gap-2 overflow-y-auto max-h-[35vh] md:max-h-full">
+      <div id="video-frame-box" class="flex-1 min-h-[160px] md:min-h-[320px] bg-black rounded-xl overflow-hidden relative flex flex-col">
         <div id="jitsi-container" class="w-full h-full flex flex-col"></div>
-        <div id="jitsi-placeholder" class="w-full h-full flex flex-col items-center justify-center p-4 text-gray-400 text-center space-y-3">
-          <span class="text-3xl">🎥</span>
+        <div id="jitsi-placeholder" class="w-full h-full flex flex-col items-center justify-center p-3 text-gray-400 text-center space-y-2">
+          <span class="text-2xl">🎥</span>
           <span id="video-placeholder-text" class="text-xs font-medium">Video call not connected</span>
-          <button id="launch-video-btn" onclick="startVideoCall()" class="px-3 py-1.5 bg-cosy-600 hover:bg-cosy-700 text-white font-semibold text-xs rounded-xl transition shadow-sm">
+          <button id="launch-video-btn" onclick="startVideoCall()" class="px-3 py-1.5 bg-cosy-600 hover:bg-cosy-700 text-white font-semibold text-xs rounded-xl transition shadow-sm touch-target">
             Start Video Call ⚡
           </button>
         </div>
       </div>
 
       <!-- Media Controls & Settings -->
-      <div class="p-2.5 bg-gray-800/80 rounded-xl text-xs space-y-2 border border-gray-700/50 flex-none">
-        <!-- Media Quick Mute Controls -->
+      <div class="p-2 bg-gray-800/80 rounded-xl text-xs space-y-2 border border-gray-700/50 flex-none hidden md:block">
         <div class="flex items-center justify-between pb-2 border-b border-gray-700">
           <span class="text-[11px] text-gray-300 font-semibold">Media Controls</span>
           <div class="flex items-center space-x-1.5">
-            <button id="toggle-mic-btn" onclick="toggleMicMute()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition text-[11px]" title="Toggle Mic (M)" aria-label="Toggle mic">
+            <button id="toggle-mic-btn" onclick="toggleMicMute()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition text-[11px] touch-target" title="Toggle Mic (M)" aria-label="Toggle mic">
               🎤 Mute (M)
             </button>
-            <button id="toggle-cam-btn" onclick="toggleCameraMute()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition text-[11px]" title="Toggle Cam (V)" aria-label="Toggle camera">
+            <button id="toggle-cam-btn" onclick="toggleCameraMute()" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition text-[11px] touch-target" title="Toggle Cam (V)" aria-label="Toggle camera">
               📹 Cam (V)
             </button>
           </div>
         </div>
 
-        <!-- Device Dropdowns -->
         <div id="media-device-controls" class="space-y-1.5 text-[11px]">
           <div>
             <label class="text-gray-400 block mb-0.5">Camera:</label>
@@ -205,7 +316,6 @@
           </div>
         </div>
 
-        <!-- Video Provider Selector -->
         <div class="pt-1.5 border-t border-gray-700 text-[11px]">
           <label class="text-gray-400 block mb-0.5">Provider:</label>
           <select id="video-provider-select" onchange="changeVideoProvider(this.value)" class="w-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg px-2 py-1">
@@ -227,12 +337,12 @@
 
         <div id="external-video-link-container" class="hidden space-y-1">
           <input type="text" id="video-link-input" placeholder="Paste meeting URL..." class="w-full bg-gray-900 border border-gray-700 text-gray-200 rounded-lg px-2 py-1 text-[11px]">
-          <button onclick="broadcastAndOpenVideoLink()" class="w-full bg-cosy-600 hover:bg-cosy-700 text-white font-semibold py-1 rounded-lg text-[11px]">
+          <button onclick="broadcastAndOpenVideoLink()" class="w-full bg-cosy-600 hover:bg-cosy-700 text-white font-semibold py-1 rounded-lg text-[11px] touch-target">
             Open Link
           </button>
         </div>
 
-        <!-- Host Trigger / Preserved hidden elements for security tests -->
+        <!-- Preserved hidden elements for security unit tests -->
         <div class="hidden">
           <button id="host-btn" onclick="initHost()"></button>
           <input id="target-room-input" type="text" />
@@ -254,13 +364,12 @@
     <section id="center-stage-column" class="flex-1 flex flex-col overflow-hidden relative bg-white">
       <!-- Stage Header Toolbar -->
       <div class="p-2 px-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between text-xs gap-2 flex-wrap flex-none">
-        <!-- Material Select Dropdown (Host Only) -->
         <div id="material-select-wrapper" class="flex items-center space-x-2">
           <span class="font-bold text-gray-700 flex items-center space-x-1">
             <span>📚</span>
-            <span data-i18n="classroom.materialSelect">Material:</span>
+            <span data-i18n="classroom.materialSelect" class="hidden sm:inline">Material:</span>
           </span>
-          <select id="quick-lesson-select" onchange="quickSwitchLesson(this.value)" class="px-2.5 py-1 bg-white border border-gray-300 hover:border-cosy-500 text-gray-800 font-semibold text-xs rounded-lg transition focus:ring-2 focus:ring-cosy-500">
+          <select id="quick-lesson-select" onchange="quickSwitchLesson(this.value)" class="px-2.5 py-1 bg-white border border-gray-300 hover:border-cosy-500 text-gray-800 font-semibold text-xs rounded-lg transition focus:ring-2 focus:ring-cosy-500 max-w-[180px] sm:max-w-xs">
             <option value="default">🇪🇸 Spanish Greetings (Demo)</option>
             <optgroup label="🇬🇧 General English A1">
               <option value="lessons/general-english-a1/daily-routine.json">Daily Routine</option>
@@ -273,7 +382,7 @@
               <option value="lessons/spoken-en/4-day-work-week.xml">4-Day Work Week</option>
             </optgroup>
           </select>
-          <button onclick="toggleLessonCatalogModal()" class="px-2 py-1 bg-cosy-100 hover:bg-cosy-200 text-cosy-800 font-semibold rounded-lg text-xs transition">
+          <button onclick="toggleLessonCatalogModal()" class="px-2 py-1 bg-cosy-100 hover:bg-cosy-200 text-cosy-800 font-semibold rounded-lg text-xs transition touch-target">
             Full Catalog
           </button>
         </div>
@@ -281,17 +390,17 @@
         <!-- Whiteboard Drawing Tools -->
         <div class="flex items-center space-x-2">
           <div class="flex items-center space-x-1 bg-white p-1 rounded-xl border border-gray-200 shadow-sm">
-            <button onclick="setBrushColor('#ef4444')" class="w-4 h-4 rounded-full bg-red-500 border border-gray-300 hover:scale-110 transition" title="Red"></button>
-            <button onclick="setBrushColor('#3b82f6')" class="w-4 h-4 rounded-full bg-blue-500 border border-gray-300 hover:scale-110 transition" title="Blue"></button>
-            <button onclick="setBrushColor('#10b981')" class="w-4 h-4 rounded-full bg-emerald-500 border border-gray-300 hover:scale-110 transition" title="Green"></button>
-            <button onclick="setBrushColor('#111827')" class="w-4 h-4 rounded-full bg-gray-900 border border-gray-300 hover:scale-110 transition" title="Black"></button>
+            <button onclick="setBrushColor('#ef4444')" class="w-5 h-5 rounded-full bg-red-500 border border-gray-300 hover:scale-110 transition touch-target" title="Red"></button>
+            <button onclick="setBrushColor('#3b82f6')" class="w-5 h-5 rounded-full bg-blue-500 border border-gray-300 hover:scale-110 transition touch-target" title="Blue"></button>
+            <button onclick="setBrushColor('#10b981')" class="w-5 h-5 rounded-full bg-emerald-500 border border-gray-300 hover:scale-110 transition touch-target" title="Green"></button>
+            <button onclick="setBrushColor('#111827')" class="w-5 h-5 rounded-full bg-gray-900 border border-gray-300 hover:scale-110 transition touch-target" title="Black"></button>
           </div>
           <select id="brush-size" onchange="setBrushSize(this.value)" class="bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs">
             <option value="2">Thin</option>
             <option value="5" selected>Medium</option>
             <option value="10">Thick</option>
           </select>
-          <button onclick="clearWhiteboard()" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg text-xs transition">
+          <button onclick="clearWhiteboard()" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg text-xs transition touch-target">
             Clear
           </button>
         </div>
@@ -308,11 +417,11 @@
           <span id="activity-banner-title" class="font-bold block">Prompt</span>
           <span id="activity-banner-text"></span>
         </div>
-        <button onclick="closeActivityBanner()" class="text-yellow-700 hover:text-yellow-900 font-bold px-2 py-1">✕</button>
+        <button onclick="closeActivityBanner()" class="text-yellow-700 hover:text-yellow-900 font-bold px-2 py-1 touch-target">✕</button>
       </div>
 
       <!-- Slide & Stage Container -->
-      <div id="slide-container" class="flex-1 p-4 md:p-6 overflow-y-auto relative flex flex-col items-center justify-start">
+      <div id="slide-container" class="flex-1 p-3 md:p-6 overflow-y-auto relative flex flex-col items-center justify-start">
         <canvas id="whiteboard" class="absolute inset-0 z-10 pointer-events-auto"></canvas>
 
         <!-- Slide 1: General English Sample -->
@@ -350,13 +459,13 @@
           <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3 text-xs">
             <label class="block text-gray-700">Where are you <input type="text" id="blank-2" oninput="handleBlankInput('blank-2', this.value)" class="w-28 px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-cosy-500"> ?</label>
             <div id="feedback-2" class="text-xs font-medium min-h-[18px]"></div>
-            <button onclick="checkAnswers()" class="px-3 py-1.5 bg-cosy-600 text-white font-semibold rounded-lg text-xs hover:bg-cosy-700 transition">
+            <button onclick="checkAnswers()" class="px-3 py-1.5 bg-cosy-600 text-white font-semibold rounded-lg text-xs hover:bg-cosy-700 transition touch-target">
               Check Answers
             </button>
           </div>
         </div>
 
-        <!-- Slide 3: Interactive Drawing / Freer Speaking -->
+        <!-- Slide 3: Interactive Canvas -->
         <div id="slide-3" class="slide-content w-full max-w-3xl h-full flex flex-col hidden relative z-0">
           <div class="bg-cosy-50 p-4 rounded-2xl border border-cosy-100 mb-3 flex-none">
             <span class="bg-cosy-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Interactive Canvas</span>
@@ -366,21 +475,21 @@
         </div>
       </div>
 
-      <!-- Stage Navigation Bar (Bottom Right) -->
-      <div class="p-2 px-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-xs flex-none">
-        <span class="text-gray-500 font-medium">Stage View</span>
-        <div class="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border border-gray-200 shadow-sm">
-          <button id="prev-slide-btn" onclick="navigateSlide(-1)" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-bold transition">◀</button>
+      <!-- Stage Navigation Bar (Bottom Right & Mobile Pill) -->
+      <div class="p-2 px-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-xs flex-none">
+        <span class="text-gray-500 font-medium text-[11px] hidden sm:inline" data-i18n="classroom.swipeHint">Swipe or click to change page</span>
+        <div id="stage-nav-pill" class="flex items-center space-x-2 bg-white px-2.5 py-1 rounded-full border border-gray-200 shadow-sm ml-auto">
+          <button id="prev-slide-btn" onclick="navigateSlide(-1)" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700 font-bold transition touch-target">◀</button>
           <span class="font-mono font-bold text-gray-800 text-xs">
             <span id="current-slide-num">1</span> / <span id="total-slides-num">3</span>
           </span>
-          <button id="next-slide-btn" onclick="navigateSlide(1)" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-bold transition">▶</button>
+          <button id="next-slide-btn" onclick="navigateSlide(1)" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700 font-bold transition touch-target">▶</button>
         </div>
       </div>
     </section>
 
-    <!-- RIGHT COLUMN: DOCKED TOOL DRAWER -->
-    <aside id="right-tool-drawer" class="w-full lg:w-80 xl:w-96 bg-white border-l border-gray-200 flex-none flex flex-col hidden shadow-lg z-20">
+    <!-- RIGHT COLUMN / DOCKED / OVERLAY / BOTTOM SHEET TOOL DRAWER -->
+    <aside id="right-tool-drawer" class="w-full lg:w-80 xl:w-96 bg-white border-l border-gray-200 flex-none flex flex-col hidden shadow-2xl z-30 transition-all duration-300">
       <!-- Drawer Header -->
       <div class="p-2.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between flex-none">
         <span id="drawer-title" class="font-bold text-gray-800 text-xs flex items-center space-x-1">
@@ -388,10 +497,10 @@
           <span data-i18n="classroom.toolChat">Chat</span>
         </span>
         <div class="flex items-center space-x-1">
-          <button id="pin-drawer-btn" onclick="togglePinDrawer()" class="p-1 text-gray-500 hover:text-cosy-700 hover:bg-gray-200 rounded-lg transition text-xs" title="Pin drawer" aria-label="Pin drawer" data-i18n-title="classroom.pinDrawer">
+          <button id="pin-drawer-btn" onclick="togglePinDrawer()" class="p-1 text-gray-500 hover:text-cosy-700 hover:bg-gray-200 rounded-lg transition text-xs touch-target" title="Pin drawer" aria-label="Pin drawer" data-i18n-title="classroom.pinDrawer">
             📌
           </button>
-          <button id="close-drawer-btn" onclick="closeDrawer()" class="p-1 text-gray-500 hover:text-red-600 hover:bg-gray-200 rounded-lg transition text-xs font-bold" title="Close" aria-label="Close">
+          <button id="close-drawer-btn" onclick="closeDrawer()" class="p-1 text-gray-500 hover:text-red-600 hover:bg-gray-200 rounded-lg transition text-xs font-bold touch-target" title="Close" aria-label="Close">
             ✕
           </button>
         </div>
@@ -401,12 +510,12 @@
       <div class="flex-1 p-3 overflow-y-auto text-xs">
         <!-- 1. Chat Panel -->
         <div id="sidebar-tab-chat" class="flex flex-col h-full space-y-2">
-          <div id="chat-messages" class="flex-1 p-2 overflow-y-auto text-xs space-y-2 min-h-[220px] bg-gray-50 rounded-xl border border-gray-200">
+          <div id="chat-messages" class="flex-1 p-2 overflow-y-auto text-xs space-y-2 min-h-[200px] bg-gray-50 rounded-xl border border-gray-200">
             <div class="text-gray-400 text-center italic py-2">Welcome to Class Chat</div>
           </div>
           <div class="flex space-x-1.5 flex-none">
             <input type="text" id="chat-input" onkeypress="handleChatKeyPress(event)" placeholder="Type a message..." class="flex-1 px-3 py-2 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500">
-            <button onclick="sendChatMessage()" class="px-3 py-2 bg-cosy-600 hover:bg-cosy-700 text-white rounded-xl font-bold text-xs transition">
+            <button onclick="sendChatMessage()" class="px-3 py-2 bg-cosy-600 hover:bg-cosy-700 text-white rounded-xl font-bold text-xs transition touch-target">
               Send
             </button>
           </div>
@@ -418,14 +527,14 @@
             <div id="timerDisplay" class="text-3xl font-mono font-extrabold text-cosy-700">05:00</div>
           </div>
           <div class="grid grid-cols-3 gap-1">
-            <button onclick="startTimer()" class="px-2 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs">Start</button>
-            <button onclick="pauseTimer()" class="px-2 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-xs">Pause</button>
-            <button onclick="resetTimer(300)" class="px-2 py-1.5 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-bold text-xs">Reset</button>
+            <button onclick="startTimer()" class="px-2 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs touch-target">Start</button>
+            <button onclick="pauseTimer()" class="px-2 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-xs touch-target">Pause</button>
+            <button onclick="resetTimer(300)" class="px-2 py-1.5 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-bold text-xs touch-target">Reset</button>
           </div>
           <div class="flex justify-between gap-1 pt-1">
-            <button onclick="addTimerMinutes(1)" class="flex-1 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-[11px] font-semibold">+1 Min</button>
-            <button onclick="addTimerMinutes(5)" class="flex-1 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-[11px] font-semibold">+5 Min</button>
-            <button onclick="resetTimer(600)" class="flex-1 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-[11px] font-semibold">10 Min</button>
+            <button onclick="addTimerMinutes(1)" class="flex-1 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-[11px] font-semibold touch-target">+1 Min</button>
+            <button onclick="addTimerMinutes(5)" class="flex-1 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-[11px] font-semibold touch-target">+5 Min</button>
+            <button onclick="resetTimer(600)" class="flex-1 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-[11px] font-semibold touch-target">10 Min</button>
           </div>
         </div>
 
@@ -449,11 +558,11 @@
         <!-- 6. Prompts / Activities Panel -->
         <div id="sidebar-tab-activities" class="hidden text-xs space-y-2 p-1">
           <div class="space-y-2">
-            <button onclick="launchActivity('Vocab Elicitation', 'Elicit target vocabulary from students before showing slides.')" class="w-full text-left p-2.5 bg-cosy-50 hover:bg-cosy-100 border border-cosy-200 rounded-xl transition">
+            <button onclick="launchActivity('Vocab Elicitation', 'Elicit target vocabulary from students before showing slides.')" class="w-full text-left p-2.5 bg-cosy-50 hover:bg-cosy-100 border border-cosy-200 rounded-xl transition touch-target">
               <span class="font-bold text-cosy-900 block">Vocab Elicitation</span>
               <span class="text-[11px] text-gray-600">Prompt students for target words</span>
             </button>
-            <button onclick="launchActivity('Concept Check Question', 'Ask a CCQ to verify comprehension without translation.')" class="w-full text-left p-2.5 bg-cosy-50 hover:bg-cosy-100 border border-cosy-200 rounded-xl transition">
+            <button onclick="launchActivity('Concept Check Question', 'Ask a CCQ to verify comprehension without translation.')" class="w-full text-left p-2.5 bg-cosy-50 hover:bg-cosy-100 border border-cosy-200 rounded-xl transition touch-target">
               <span class="font-bold text-cosy-900 block">CCQ Check</span>
               <span class="text-[11px] text-gray-600">Verify understanding using CCQs</span>
             </button>
@@ -463,7 +572,81 @@
     </aside>
   </main>
 
-  <!-- Lesson Catalog Modal -->
+  <!-- PHONE BOTTOM TAB BAR (<600px) -->
+
+  <!-- FLOATING VIDEO TILES FOR PHONE PORTRAIT (<600px) -->
+  <div id="floating-video-container" class="sm:hidden pointer-events-auto">
+    <div id="floating-teacher-tile" onclick="toggleEnlargeTile('floating-teacher-tile')" class="floating-video-tile cursor-pointer top-12 right-2">
+      <div id="teacher-video-slot" class="w-full h-full bg-gray-900 flex items-center justify-center text-white text-[10px]">
+        <span class="font-bold">Teacher 📹</span>
+      </div>
+      <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[9px] px-1 rounded font-bold">Teacher</span>
+    </div>
+
+    <div id="floating-student-tile" onclick="toggleOwnTileControls(event)" class="floating-video-tile cursor-pointer top-48 right-2">
+      <div id="student-video-slot" class="w-full h-full bg-gray-900 flex items-center justify-center text-white text-[10px]">
+        <span class="font-bold">You 📹</span>
+      </div>
+      <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[9px] px-1 rounded font-bold">You</span>
+    </div>
+  </div>
+
+  <!-- Mobile Camera Controls Popup -->
+  <div id="mobile-camera-controls-popup" class="hidden absolute z-40 top-40 right-2 bg-gray-900 text-white rounded-2xl p-3 shadow-2xl border border-gray-700 text-xs space-y-2">
+    <div class="flex items-center justify-between pb-1 border-b border-gray-700">
+      <span class="font-bold text-[11px]" data-i18n="classroom.cameraControls">Camera Controls</span>
+      <button onclick="toggleOwnTileControls(event)" class="text-gray-400 hover:text-white font-bold text-xs">✕</button>
+    </div>
+    <div class="flex space-x-2">
+      <button onclick="toggleMicMute()" class="flex-1 px-2 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-xl text-xs font-semibold">🎤 Mic</button>
+      <button onclick="toggleCameraMute()" class="flex-1 px-2 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-xl text-xs font-semibold">📹 Cam</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM SHEET TOOL DRAWER FOR PHONE PORTRAIT (<600px) -->
+  <div id="bottom-sheet-drawer" class="bottom-sheet collapsed sm:hidden">
+    <div class="p-2 flex flex-col items-center border-b border-gray-200 bg-gray-50 rounded-t-2xl flex-none cursor-grab">
+      <div class="w-10 h-1 bg-gray-300 rounded-full mb-1"></div>
+      <div class="w-full flex items-center justify-between px-2">
+        <span id="bottom-sheet-title" class="font-bold text-gray-800 text-xs flex items-center space-x-1">
+          <span>💬</span>
+          <span data-i18n="classroom.toolChat">Chat</span>
+        </span>
+        <button onclick="closeBottomSheet()" class="text-gray-500 hover:text-red-600 font-bold p-1 text-xs touch-target">✕</button>
+      </div>
+    </div>
+    <div id="bottom-sheet-body" class="p-3 overflow-y-auto flex-1 text-xs min-h-[280px]">
+    </div>
+  </div>
+
+  <footer id="phone-bottom-bar" class="bg-white border-t border-gray-200 flex sm:hidden items-center justify-around p-1 z-20 flex-none">
+    <button onclick="switchSidebarTab('chat')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 touch-target" title="Chat" aria-label="Chat">
+      <span class="text-lg">💬</span>
+      <span class="text-[10px] font-medium">Chat</span>
+    </button>
+    <button onclick="switchSidebarTab('timer')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 touch-target" title="Timer" aria-label="Timer">
+      <span class="text-lg">⏱</span>
+      <span class="text-[10px] font-medium">Timer</span>
+    </button>
+    <button onclick="switchSidebarTab('dict')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 touch-target" title="Dictionary" aria-label="Dictionary">
+      <span class="text-lg">📖</span>
+      <span class="text-[10px] font-medium">Dict</span>
+    </button>
+    <button onclick="switchSidebarTab('verbs')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 touch-target" title="Verbs" aria-label="Verbs">
+      <span class="text-lg">🔤</span>
+      <span class="text-[10px] font-medium">Verbs</span>
+    </button>
+    <button onclick="switchSidebarTab('notes')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 touch-target" title="Notes" aria-label="Notes">
+      <span class="text-lg">📝</span>
+      <span class="text-[10px] font-medium">Notes</span>
+    </button>
+    <button onclick="switchSidebarTab('activities')" class="flex flex-col items-center justify-center p-1 text-gray-600 hover:text-cosy-700 host-only hidden touch-target" title="Prompts" aria-label="Prompts">
+      <span class="text-lg">💡</span>
+      <span class="text-[10px] font-medium">Prompts</span>
+    </button>
+  </footer>
+
+  <!-- Modals -->
   <div id="lesson-catalog-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col p-4 space-y-3 shadow-2xl">
       <div class="flex items-center justify-between border-b border-gray-100 pb-2">
@@ -471,14 +654,13 @@
           <span>📚</span>
           <span>Platform Lesson Catalog</span>
         </h3>
-        <button onclick="toggleLessonCatalogModal()" class="p-1 text-gray-400 hover:text-gray-700 font-bold">✕</button>
+        <button onclick="toggleLessonCatalogModal()" class="p-1 text-gray-400 hover:text-gray-700 font-bold touch-target">✕</button>
       </div>
       <input type="text" id="catalog-search" oninput="filterCatalogModal()" placeholder="Search catalog by title, level, language..." class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs focus:ring-1 focus:ring-cosy-500">
       <div id="catalog-modal-body" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs"></div>
     </div>
   </div>
 
-  <!-- Breakout Rooms Manager Modal -->
   <div id="breakout-rooms-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl max-w-lg w-full p-4 space-y-3 shadow-2xl">
       <div class="flex items-center justify-between border-b border-gray-100 pb-2">
@@ -486,7 +668,7 @@
           <span>🚪</span>
           <span>Breakout Rooms Manager</span>
         </h3>
-        <button onclick="toggleBreakoutRoomsModal()" class="p-1 text-gray-400 hover:text-gray-700 font-bold">✕</button>
+        <button onclick="toggleBreakoutRoomsModal()" class="p-1 text-gray-400 hover:text-gray-700 font-bold touch-target">✕</button>
       </div>
 
       <div class="flex items-center space-x-2 text-xs">
@@ -496,10 +678,10 @@
           <option value="3">3 Rooms</option>
           <option value="4">4 Rooms</option>
         </select>
-        <button onclick="generateBreakoutRooms()" class="px-3 py-1 bg-cosy-600 text-white rounded-lg font-semibold text-xs hover:bg-cosy-700 transition">
+        <button onclick="generateBreakoutRooms()" class="px-3 py-1 bg-cosy-600 text-white rounded-lg font-semibold text-xs hover:bg-cosy-700 transition touch-target">
           Create Rooms
         </button>
-        <button onclick="recallAllFromBreakouts()" class="px-3 py-1 bg-red-600 text-white rounded-lg font-semibold text-xs hover:bg-red-700 transition ml-auto">
+        <button onclick="recallAllFromBreakouts()" class="px-3 py-1 bg-red-600 text-white rounded-lg font-semibold text-xs hover:bg-red-700 transition ml-auto touch-target">
           Recall All
         </button>
       </div>
@@ -2774,12 +2956,232 @@
       } catch (err) {}
     }
 
+
     function switchSidebarTab(tabName) {
-      if (activeTool === tabName && !isDrawerPinned) {
-        closeDrawer();
-        return;
+      const isMobile = window.innerWidth < 600;
+      if (isMobile) {
+        if (activeTool === tabName && isBottomSheetOpen) {
+          closeBottomSheet();
+          return;
+        }
+        openBottomSheet(tabName);
+      } else {
+        if (activeTool === tabName && !isDrawerPinned) {
+          closeDrawer();
+          return;
+        }
+        openDrawer(tabName);
       }
-      openDrawer(tabName);
+    }
+
+      // Responsive Layout Toggle Helpers
+    function toggleTabletToolsMenu() {
+      const menu = document.getElementById('tools-icon-grid');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    function toggleMobileMoreMenu() {
+      const menu = document.getElementById('more-menu-dropdown');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    function updateResponsiveLayout() {
+      const w = window.innerWidth;
+      const isLandscape = window.innerWidth > window.innerHeight;
+
+      // Sync mobile room ID display
+      const roomIdEl = document.getElementById('display-room-id');
+      const mobileRoomIdEl = document.getElementById('display-room-id-mobile');
+      if (roomIdEl && mobileRoomIdEl) {
+        mobileRoomIdEl.innerText = roomIdEl.innerText;
+      }
+
+      // Drawer positioning: on tablet landscape / mobile overlay vs docked
+      const drawer = document.getElementById('right-tool-drawer');
+      if (drawer) {
+        if (w < 1024) {
+          drawer.classList.add('absolute', 'right-0', 'top-0', 'bottom-0', 'z-30', 'w-80', 'max-w-full');
+          drawer.classList.remove('w-full', 'lg:w-80', 'xl:w-96');
+        } else {
+          drawer.classList.remove('absolute', 'right-0', 'top-0', 'bottom-0', 'z-30', 'max-w-full');
+          drawer.classList.add('w-full', 'lg:w-80', 'xl:w-96');
+        }
+      }
+
+      (window.requestAnimationFrame || setTimeout)(() => resizeCanvas(), 0);
+    }
+
+    // Touch Swipe Page Navigation on Stage
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const slideStage = document.getElementById('slide-container');
+      if (slideStage) {
+        slideStage.addEventListener('touchstart', (e) => {
+          if (e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+          }
+        }, { passive: true });
+
+        slideStage.addEventListener('touchend', (e) => {
+          if (e.changedTouches.length === 1) {
+            const deltaX = e.changedTouches[0].clientX - touchStartX;
+            const deltaY = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(deltaX) > 60 && Math.abs(deltaX) > Math.abs(deltaY) * 2) {
+              if (deltaX < 0) {
+                navigateSlide(1);
+              } else {
+                navigateSlide(-1);
+              }
+            }
+          }
+        }, { passive: true });
+      }
+
+      // Touch Long-Press Tooltips
+      let touchTimer = null;
+      document.querySelectorAll('[data-i18n-title], [title]').forEach(el => {
+        el.addEventListener('touchstart', () => {
+          const tKey = el.getAttribute('data-i18n-title');
+          const titleText = (tKey && window.CosyI18n) ? window.CosyI18n.t(tKey) : el.getAttribute('title');
+          if (!titleText) return;
+          touchTimer = setTimeout(() => {
+            if (window.CosyUI && window.CosyUI.toast) {
+              CosyUI.toast(titleText, 'info');
+            }
+          }, 500);
+        }, { passive: true });
+
+        el.addEventListener('touchend', () => { if (touchTimer) clearTimeout(touchTimer); });
+        el.addEventListener('touchmove', () => { if (touchTimer) clearTimeout(touchTimer); });
+      });
+
+      window.addEventListener('resize', updateResponsiveLayout);
+      window.addEventListener('orientationchange', () => setTimeout(updateResponsiveLayout, 100));
+      updateResponsiveLayout();
+    });
+
+
+
+    // Mobile Bottom Sheet & Floating Tile Logic
+    let isBottomSheetOpen = false;
+
+    function openBottomSheet(tabName) {
+      const sheet = document.getElementById('bottom-sheet-drawer');
+      const body = document.getElementById('bottom-sheet-body');
+      const titleEl = document.getElementById('bottom-sheet-title');
+
+      if (!sheet || !body) return;
+
+      const contentEl = document.getElementById('sidebar-tab-' + tabName);
+      if (contentEl) {
+        body.appendChild(contentEl);
+        contentEl.classList.remove('hidden');
+      }
+
+      const titles = {
+        chat: 'Chat',
+        timer: 'Timer',
+        dict: 'Dictionary',
+        verbs: 'Irregular Verbs',
+        notes: 'Lesson Notes',
+        activities: 'Prompts'
+      };
+
+      if (titleEl) {
+        const cap = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+        const tKey = tabName === 'verbs' ? 'toolVerbs' : tabName === 'dict' ? 'toolDictionary' : ('tool' + cap);
+        const titleText = (window.CosyI18n && window.CosyI18n.t) ? window.CosyI18n.t('classroom.' + tKey) : (titles[tabName] || tabName);
+        titleEl.innerText = titleText;
+      }
+
+      sheet.classList.remove('collapsed');
+      isBottomSheetOpen = true;
+      window.activeTool = tabName; activeTool = tabName;
+
+      if (tabName === 'verbs') searchIrregularVerbs('');
+      if (tabName === 'dict') {
+        const input = document.getElementById('dictSearchInput');
+        if (input && input.value) searchCosyDict(input.value);
+      }
+      if (tabName === 'notes') {
+        const textarea = document.getElementById('notes-textarea');
+        if (textarea) textarea.value = localStorage.getItem('cosy_lesson_notes') || '';
+      }
+
+      (window.requestAnimationFrame || setTimeout)(() => resizeCanvas(), 0);
+    }
+
+    function closeBottomSheet() {
+      const sheet = document.getElementById('bottom-sheet-drawer');
+      if (sheet) sheet.classList.add('collapsed');
+      isBottomSheetOpen = false;
+      window.activeTool = null; activeTool = null;
+
+      const rightDrawerBody = document.querySelector('#right-tool-drawer .overflow-y-auto');
+      ['chat', 'timer', 'dict', 'verbs', 'notes', 'activities'].forEach(t => {
+        const contentEl = document.getElementById('sidebar-tab-' + t);
+        if (contentEl && rightDrawerBody && !rightDrawerBody.contains(contentEl)) {
+          rightDrawerBody.appendChild(contentEl);
+          contentEl.classList.add('hidden');
+        }
+      });
+
+      (window.requestAnimationFrame || setTimeout)(() => resizeCanvas(), 0);
+    }
+
+    function toggleOwnTileControls(e) {
+      if (e) e.stopPropagation();
+      const popup = document.getElementById('mobile-camera-controls-popup');
+      if (popup) popup.classList.toggle('hidden');
+    }
+
+    function toggleEnlargeTile(tileId) {
+      const tile = document.getElementById(tileId);
+      if (!tile) return;
+      if (tile.classList.contains('fixed')) {
+        tile.classList.remove('fixed', 'inset-4', 'z-50', 'w-auto', 'h-auto');
+        tile.classList.add('floating-video-tile');
+      } else {
+        tile.classList.remove('floating-video-tile');
+        tile.classList.add('fixed', 'inset-4', 'z-50', 'w-auto', 'h-auto');
+      }
+    }
+
+    function makeElementDraggable(el) {
+      if (!el) return;
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+      el.onmousedown = (e) => {
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; };
+        document.onmousemove = (e2) => {
+          e2.preventDefault();
+          pos1 = pos3 - e2.clientX; pos2 = pos4 - e2.clientY;
+          pos3 = e2.clientX; pos4 = e2.clientY;
+          el.style.top = (el.offsetTop - pos2) + "px";
+          el.style.left = (el.offsetLeft - pos1) + "px";
+        };
+      };
+
+      el.ontouchstart = (e) => {
+        if (e.touches.length === 1) {
+          pos3 = e.touches[0].clientX; pos4 = e.touches[0].clientY;
+          document.ontouchend = () => { document.ontouchend = null; document.ontouchmove = null; };
+          document.ontouchmove = (e2) => {
+            if (e2.touches.length === 1) {
+              pos1 = pos3 - e2.touches[0].clientX; pos2 = pos4 - e2.touches[0].clientY;
+              pos3 = e2.touches[0].clientX; pos4 = e2.touches[0].clientY;
+              el.style.top = (el.offsetTop - pos2) + "px";
+              el.style.left = (el.offsetLeft - pos1) + "px";
+            }
+          };
+        }
+      };
     }
 
 </script>

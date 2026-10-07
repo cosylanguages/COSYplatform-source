@@ -108,7 +108,7 @@ function startStaticServer() {
   });
 }
 
-function createMockDom(port, userRole = 'teacher') {
+function createMockDom(port, userRole = 'teacher', width = 1280) {
   const filePath = path.join(ROOT_DIR, 'classroom.html');
   const fileContent = fs.readFileSync(filePath, 'utf8');
 
@@ -251,6 +251,8 @@ function createMockDom(port, userRole = 'teacher') {
         }
       };
 
+      Object.defineProperty(window, 'innerWidth', { value: width, writable: true, configurable: true });
+      Object.defineProperty(window, 'innerHeight', { value: width === 390 ? 844 : width === 768 ? 1024 : 800, writable: true, configurable: true });
       Object.defineProperty(window, 'supabase', {
         get: () => ({ createClient: () => mockClient }),
         configurable: true
@@ -611,6 +613,36 @@ async function runSecurityTests() {
         failures++;
       } else {
         console.log('  ✅ PASS: vocab-index.js is NOT loaded at page load, but is injected into <head> upon first dictionary search.');
+      }
+    }
+
+
+    // -------------------------------------------------------------
+    // Test (e2): Multi-viewport responsive controls check at 1280px, 768px, and 390px
+    // -------------------------------------------------------------
+    console.log('\n🔹 Test (e2): Multi-viewport responsive controls check (1280px, 768px, 390px)...');
+    const viewports = [
+      { width: 1280, name: 'Desktop (1280px)', requiredIds: ['desktop-top-bar', 'tab-btn-chat', 'tab-btn-timer', 'tab-btn-dict', 'tab-btn-verbs', 'tab-btn-notes', 'quick-lesson-select', 'logout-btn', 'prev-slide-btn', 'next-slide-btn'] },
+      { width: 768, name: 'Tablet (768px)', requiredIds: ['desktop-top-bar', 'tab-btn-tools-menu', 'room-chip-btn', 'connection-status', 'logout-btn'] },
+      { width: 390, name: 'Mobile (390px)', requiredIds: ['phone-top-bar', 'phone-bottom-bar', 'more-menu-btn', 'stage-nav-pill', 'prev-slide-btn', 'next-slide-btn'] }
+    ];
+
+    for (const vp of viewports) {
+      const { dom: domVp } = createMockDom(port, 'teacher', vp.width);
+      await new Promise(r => setTimeout(r, 800));
+
+      let missingInVp = 0;
+      vp.requiredIds.forEach(id => {
+        const el = domVp.window.document.getElementById(id);
+        if (!el) {
+          console.error(`❌ FAIL: Required control '#${id}' missing in ${vp.name} viewport!`);
+          failures++;
+          missingInVp++;
+        }
+      });
+
+      if (missingInVp === 0) {
+        console.log(`  ✅ PASS: All ${vp.requiredIds.length} key controls present in ${vp.name} viewport.`);
       }
     }
 

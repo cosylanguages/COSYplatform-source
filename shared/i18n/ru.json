@@ -204,5 +204,9 @@
   "classroom.pinDrawer": "Закрепить панель",
   "classroom.unpinDrawer": "Открепить панель",
   "classroom.notesTitle": "Заметки к уроку",
-  "classroom.notesPlaceholder": "Личные заметки... (сохраняются локально)"
+  "classroom.notesPlaceholder": "Личные заметки... (сохраняются локально)",
+  "classroom.toolsMenu": "Меню инструментов",
+  "classroom.moreMenu": "Дополнительно",
+  "classroom.swipeHint": "Смахните для смены страницы",
+  "classroom.cameraControls": "Управление камерой"
 }

@@ -204,5 +204,9 @@
   "classroom.pinDrawer": "Fissa pannello",
   "classroom.unpinDrawer": "Sblocca pannello",
   "classroom.notesTitle": "Note di lezione",
-  "classroom.notesPlaceholder": "Note personali... (salvate localmente)"
+  "classroom.notesPlaceholder": "Note personali... (salvate localmente)",
+  "classroom.toolsMenu": "Menu strumenti",
+  "classroom.moreMenu": "Altre opzioni",
+  "classroom.swipeHint": "Scorri per cambiare pagina",
+  "classroom.cameraControls": "Controlli fotocamera"
 }

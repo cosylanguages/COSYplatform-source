@@ -204,5 +204,9 @@
   "classroom.pinDrawer": "Pin drawer",
   "classroom.unpinDrawer": "Unpin drawer",
   "classroom.notesTitle": "Lesson Notes",
-  "classroom.notesPlaceholder": "Personal lesson notes... (saved locally)"
+  "classroom.notesPlaceholder": "Personal lesson notes... (saved locally)",
+  "classroom.toolsMenu": "Tools Menu",
+  "classroom.moreMenu": "More options",
+  "classroom.swipeHint": "Swipe to change page",
+  "classroom.cameraControls": "Camera Controls"
 }
