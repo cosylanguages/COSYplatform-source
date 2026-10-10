@@ -1,0 +1,92 @@
+{
+  "_note": "Allowlist of i18n keys whose target-language translation is genuinely identical to the English source text (brands, international standard terms, or shared spelling).",
+  "allowed": {
+    "classroom.toolChat": [
+      "it"
+    ],
+    "classroom.toolNotes": [
+      "fr"
+    ],
+    "classroom.toolTimer": [
+      "it"
+    ],
+    "footer.cosydata": [
+      "fr",
+      "ru",
+      "it",
+      "el"
+    ],
+    "footer.cosyevents": [
+      "fr",
+      "ru",
+      "it",
+      "el"
+    ],
+    "footer.cosygames": [
+      "fr",
+      "ru",
+      "it",
+      "el"
+    ],
+    "footer.cosylanguages": [
+      "fr",
+      "ru",
+      "it",
+      "el"
+    ],
+    "footer.cosytools": [
+      "fr",
+      "ru",
+      "it",
+      "el"
+    ],
+    "founder.clientOffline": [
+      "it"
+    ],
+    "founder.thAction": [
+      "fr"
+    ],
+    "langname.br": [
+      "fr"
+    ],
+    "langname.tt": [
+      "fr"
+    ],
+    "lesson.questionFallback": [
+      "fr"
+    ],
+    "login.emailPlaceholder": [
+      "ru",
+      "el"
+    ],
+    "login.heading": [
+      "fr",
+      "ru",
+      "it",
+      "el"
+    ],
+    "login.passwordLabel": [
+      "it"
+    ],
+    "switcher.auto": [
+      "fr",
+      "it"
+    ],
+    "tools.sections": [
+      "fr"
+    ],
+    "tools.timerPause": [
+      "fr"
+    ],
+    "tools.verbV1": [
+      "fr",
+      "it"
+    ],
+    "track.Cinema": [
+      "it"
+    ],
+    "track.Discussion": [
+      "fr"
+    ]
+  }
+}

@@ -314,6 +314,12 @@
     const levelParam = urlParams.get('level');
     const lessonParam = urlParams.get('lesson');
 
+    function trackLabel(track) {
+      const key = 'track.' + track;
+      const v = window.CosyI18n.t(key);
+      return (v === key) ? `<span data-i18n-skip>${track}</span>` : v;
+    }
+
     async function initHubApp() {
       await window.CosyI18n.ready;
       if (window.CosyLangSwitcher) {
@@ -379,7 +385,7 @@
                 <div>
                   <span class="badge-hub" style="margin-bottom: 8px; display: inline-block;" data-i18n-skip>${course.level.toUpperCase()}</span>
                   <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 6px;" data-i18n-skip>${course.title}</h3>
-                  <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">${window.CosyI18n.t('hub.trackLabel', { track: `<span data-i18n-skip>${course.track}</span>` })}</p>
+                  <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">${window.CosyI18n.t('hub.trackLabel', { track: trackLabel(course.track) })}</p>
                 </div>
                 <a href="hub.html?course=${course.id}&level=${course.level.toLowerCase()}" class="btn" style="background: var(--hub-primary, #0369a1); text-align: center;" data-i18n="hub.openCourseRoadmap">${window.CosyI18n.t('hub.openCourseRoadmap')}</a>
               </div>
@@ -390,7 +396,7 @@
                 <div>
                   <span class="badge-hub" style="margin-bottom: 8px; display: inline-block;" data-i18n-skip>${course.level.toUpperCase()}</span>
                   <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 6px;" data-i18n-skip>${course.title}</h3>
-                  <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">${window.CosyI18n.t('hub.trackLabel', { track: `<span data-i18n-skip>${course.track}</span>` })}</p>
+                  <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">${window.CosyI18n.t('hub.trackLabel', { track: trackLabel(course.track) })}</p>
                 </div>
                 <span style="font-size: 0.85rem; color: #64748b; font-weight: 500; text-align: center; display: block;" data-i18n="common.comingSoon">${window.CosyI18n.t('common.comingSoon')}</span>
               </div>
