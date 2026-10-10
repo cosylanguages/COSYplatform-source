@@ -227,12 +227,15 @@ async function runPageI18nTests() {
     // Test Non-English pages for untranslated English dictionary strings
     console.log('  Testing non-English pages for untranslated English strings...');
     const enDict = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'shared/i18n/en.json'), 'utf8'));
-    const enValues = Object.entries(enDict)
-      .filter(([k, v]) => k !== '_meta' && typeof v === 'string' && v.length >= 4)
-      .map(([k, v]) => v.replace(/\{[a-zA-Z0-9_]+\}/g, '').trim())
-      .filter(v => v.length >= 4 && !ALLOWLIST_WORDS.has(v));
+    const escapeRegExp = (v) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     for (const lang of NON_ENGLISH_LANGS) {
+      const langDict = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, `shared/i18n/${lang}.json`), 'utf8'));
+      const checkValues = Object.entries(enDict)
+        .filter(([k, v]) => k !== '_meta' && typeof v === 'string' && langDict[k] !== v)
+        .map(([k, v]) => v.replace(/\{[a-zA-Z0-9_]+\}/g, '').trim())
+        .filter(v => v.length >= 4 && !ALLOWLIST_WORDS.has(v));
+
       for (const page of PAGES) {
         const domLang = loadPageDom(port, `${page}?ui=${lang}`);
         await new Promise(r => setTimeout(r, 1200));
@@ -243,8 +246,9 @@ async function runPageI18nTests() {
 
         const visibleText = (clone.textContent || '').replace(/\s+/g, ' ');
 
-        for (const enVal of enValues) {
-          if (visibleText.includes(enVal)) {
+        for (const enVal of checkValues) {
+          const rx = new RegExp('(^|[^\\p{L}\\p{N}])' + escapeRegExp(enVal) + '(?=$|[^\\p{L}\\p{N}])', 'u');
+          if (rx.test(visibleText)) {
             console.error(`❌ Non-English test failed on ${page} (?ui=${lang})! Found untranslated English text: "${enVal}"`);
             process.exit(1);
           }

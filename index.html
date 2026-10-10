@@ -260,6 +260,12 @@
     const courseParam = urlParams.get('course');
     const levelParam = urlParams.get('level');
 
+    function trackLabel(track) {
+      const key = 'track.' + track;
+      const v = window.CosyI18n.t(key);
+      return (v === key) ? `<span data-i18n-skip>${track}</span>` : v;
+    }
+
     async function checkAuthentication() {
       const client = window.CosyAuth ? window.CosyAuth.client : null;
       if (client) {
@@ -360,7 +366,7 @@
         const availableCount = courses.filter(c => c.status !== 'not_yet_available').length;
         const comingSoonCount = courses.filter(c => c.status === 'not_yet_available').length;
 
-        const trackHeadingText = window.CosyI18n.t('index.trackTitle', { track: trackName, count: availableCount }) +
+        const trackHeadingText = window.CosyI18n.t('index.trackTitle', { track: trackLabel(trackName), count: availableCount }) +
           (comingSoonCount > 0 ? `<span style="font-size: 0.8em; font-weight: normal; color: #64748b;" data-i18n-skip>${window.CosyI18n.t('index.trackTitlePlus', { count: comingSoonCount })}</span>` : '');
 
         html += `
