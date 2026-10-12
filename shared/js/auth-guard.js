@@ -229,12 +229,24 @@ window.CosyAuth = window.CosyAuth || {};
  * Redirects to login.html if unauthenticated.
  * @returns {Promise<{session: Object, profile: Object}>}
  */
+// Translate a user-visible string through CosyI18n when it is available.
+// Falls back to the given English text so the page never shows a raw key.
+window.CosyAuth.tr = function(key, fallback, params) {
+  try {
+    if (window.CosyI18n && typeof window.CosyI18n.t === 'function') {
+      const v = window.CosyI18n.t(key, params);
+      if (v && v !== key) return v;
+    }
+  } catch (e) { /* fall through to English */ }
+  return fallback;
+};
+
 window.CosyAuth.getAuthAndProfile = async function() {
   if (!window.CosyAuth.isConfigured || !window.CosyAuth.client) {
     document.body.innerHTML = `
       <div style="max-width: 500px; margin: 100px auto; padding: 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; border: 1px solid #fca5a5; border-radius: 12px; background-color: #fef2f2; color: #991b1b; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
-        <h2 style="margin-top: 0; color: #991b1b; font-size: 1.5rem;">Platform Not Configured</h2>
-        <p style="margin-bottom: 0; font-size: 0.95rem; color: #b91c1c;">Platform not configured. Ask an administrator to set the Supabase details in shared/js/config.js.</p>
+        <h2 style="margin-top: 0; color: #991b1b; font-size: 1.5rem;">${window.CosyAuth.tr('auth.notConfiguredTitle', 'Platform Not Configured')}</h2>
+        <p style="margin-bottom: 0; font-size: 0.95rem; color: #b91c1c;">${window.CosyAuth.tr('auth.notConfiguredMessage', 'Platform not configured. Ask an administrator to set the Supabase details in shared/js/config.js.')}</p>
       </div>
     `;
     return null;
@@ -289,9 +301,10 @@ window.CosyAuth.requireRole = async function(allowedRoles = []) {
   const normalizedAllowed = allowedRoles.map(r => r.toLowerCase());
 
   if (!normalizedAllowed.includes(userRole)) {
+    const roleLabel = window.CosyAuth.tr('role.' + userRole, userRole);
     window.CosyAuth.renderAccessDenied(
-      "Access Restricted",
-      `Your current account role ('${userRole}') does not have permission to view this page.`
+      window.CosyAuth.tr('auth.accessRestrictedTitle', 'Access Restricted'),
+      window.CosyAuth.tr('auth.roleNoPermission', `Your current account role ('${userRole}') does not have permission to view this page.`, { role: roleLabel })
     );
     return null;
   }
@@ -308,8 +321,8 @@ window.CosyAuth.renderAccessDenied = function(title, message) {
       <h2 style="margin-top: 0; color: #991b1b; font-size: 1.5rem;">${title}</h2>
       <p style="margin-bottom: 24px; font-size: 0.95rem; color: #b91c1c;">${message}</p>
       <div style="display: flex; gap: 12px; justify-content: center;">
-        <button onclick="window.CosyAuth.logout()" style="background-color: #dc2626; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Log Out</button>
-        <a href="login.html" style="background-color: #6b7280; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 600;">Back to Login</a>
+        <button onclick="window.CosyAuth.logout()" style="background-color: #dc2626; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">${window.CosyAuth.tr('common.logout', 'Log Out')}</button>
+        <a href="login.html" style="background-color: #6b7280; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 600;">${window.CosyAuth.tr('auth.backToLogin', 'Back to Login')}</a>
       </div>
     </div>
   `;
