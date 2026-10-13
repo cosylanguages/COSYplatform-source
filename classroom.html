@@ -22,6 +22,7 @@
   <!-- Config & Auth Guard -->
   <script src="shared/js/config.js"></script>
   <script src="shared/js/auth-guard.js"></script>
+  <script src="shared/js/progress.js"></script>
   <script src="shared/js/auth-sso.js"></script>
   <script src="shared/js/cms-editor.js"></script>
   <script src="shared/js/ui-toast.js"></script>
@@ -1577,6 +1578,22 @@
           parseJsonLessonToSlides(JSON.parse(content));
         }
 
+        if (currentRole === 'student' && window.CosyProgress && typeof window.CosyProgress.loadAnswers === 'function') {
+          try {
+            const saved = await window.CosyProgress.loadAnswers(lessonPath);
+            if (saved && typeof saved === 'object') {
+              Object.keys(saved).forEach(fKey => {
+                const inputEl = document.getElementById(fKey);
+                if (inputEl) {
+                  inputEl.value = saved[fKey];
+                }
+              });
+            }
+          } catch (e) {
+            console.error("Error populating student saved answers in classroom:", e);
+          }
+        }
+
       } catch (e) {
         console.error("Error loading dynamic lesson:", e);
         if (window.CosyUI && window.CosyUI.toast) {
@@ -2660,6 +2677,11 @@
     // Exercise Fill-in-Blank handler
     function handleBlankInput(id, val) {
       sendData({ type: 'blank', id: id, value: val });
+      if (currentRole === 'student' && currentLessonPath) {
+        if (window.CosyProgress && typeof window.CosyProgress.saveAnswer === 'function') {
+          window.CosyProgress.saveAnswer(currentLessonPath, id, val);
+        }
+      }
     }
 
     function checkAnswers() {
