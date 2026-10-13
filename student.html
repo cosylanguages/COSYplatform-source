@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0369a1">
   <meta name="description" content="Study interactive lessons, practice vocabulary, and track learning progress.">
   <link rel="icon" href="shared/img/favicon.svg" type="image/svg+xml">
-  <title>Student Workspace · COSYlanguages</title>
+  <title data-i18n="student.title">Student Workspace · COSYlanguages</title>
   <link rel="stylesheet" href="shared/css/tokens.css">
   <link rel="stylesheet" href="shared/styles/style.css">
   <style>
@@ -457,6 +457,8 @@
   <script src="shared/js/auth-guard.js"></script>
   <script src="shared/js/auth-sso.js"></script>
   <script src="shared/js/cms-editor.js"></script>
+  <script src="shared/js/i18n.js"></script>
+  <script src="shared/js/lang-switcher.js"></script>
   <script src="shared/js/lazy-script.js"></script>
   <script src="shared/js/lesson-resolver.js"></script>
   <script src="shared/js/ui-toast.js"></script>
@@ -466,13 +468,14 @@
   <header class="manual-header">
     <div class="header-content">
       <div class="logo-badge">
-        <span>COSYlanguages</span>
-        <span class="badge-student">Student Workspace</span>
+        <span data-i18n-skip>COSYlanguages</span>
+        <span class="badge-student" data-i18n="student.badge">Student Workspace</span>
       </div>
       <div style="display: flex; align-items: center; gap: 12px;">
-        <a href="classroom.html" class="btn" style="background: #047857; color: white; padding: 4px 12px; text-decoration: none; font-size: 0.8rem; border-radius: 6px; font-weight: 600;">Live Classroom 🎥</a>
+        <a href="classroom.html" class="btn" style="background: #047857; color: white; padding: 4px 12px; text-decoration: none; font-size: 0.8rem; border-radius: 6px; font-weight: 600;" data-i18n="common.liveClassroom">Live Classroom 🎥</a>
+        <div id="header-lang-switcher"></div>
         <div id="user-info" style="font-size: 0.85rem; color: #64748b;"></div>
-        <button onclick="window.CosyAuth.logout()" class="btn-logout">Log Out</button>
+        <button onclick="window.CosyAuth.logout()" class="btn-logout" data-i18n="common.logout">Log Out</button>
       </div>
     </div>
   </header>
@@ -482,12 +485,12 @@
   </main>
 
   <footer class="cosy-ecosystem-strip-footer">
-    🌐 Part of the COSY ecosystem •
-    <a href="https://cosylanguages.github.io/COSYlanguages/" target="_blank" rel="noopener">COSYlanguages 🏠</a> •
-    <a href="https://cosylanguages.github.io/COSYdata/" target="_blank" rel="noopener">COSYdata 📚</a> •
-    <a href="https://cosylanguages.github.io/COSYtools/" target="_blank" rel="noopener">COSYtools 🔎</a> •
-    <a href="https://cosylanguages.github.io/COSYgames/" target="_blank" rel="noopener">COSYgames 🎮</a> •
-    <a href="https://cosylanguages.github.io/COSYevents/" target="_blank" rel="noopener">COSYevents 🎉</a>
+    <span data-i18n="footer.partOfEcosystem">🌐 Part of the COSY ecosystem •</span>
+    <a href="https://cosylanguages.github.io/COSYlanguages/" target="_blank" rel="noopener" data-i18n="footer.cosylanguages">COSYlanguages 🏠</a> •
+    <a href="https://cosylanguages.github.io/COSYdata/" target="_blank" rel="noopener" data-i18n="footer.cosydata">COSYdata 📚</a> •
+    <a href="https://cosylanguages.github.io/COSYtools/" target="_blank" rel="noopener" data-i18n="footer.cosytools">COSYtools 🔎</a> •
+    <a href="https://cosylanguages.github.io/COSYgames/" target="_blank" rel="noopener" data-i18n="footer.cosygames">COSYgames 🎮</a> •
+    <a href="https://cosylanguages.github.io/COSYevents/" target="_blank" rel="noopener" data-i18n="footer.cosyevents">COSYevents 🎉</a>
   </footer>
 
   <script>
@@ -496,18 +499,46 @@
     const levelParam = urlParams.get('level');
     const lessonParam = urlParams.get('lesson');
 
+    // ---- i18n helpers (UI text only; course/lesson content is never translated) ----
+    const T = (key, params) => window.CosyI18n.t(key, params);
+    const TP = (key, count, params) => window.CosyI18n.tp(key, count, params);
+    const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const skip = (v) => `<span data-i18n-skip>${esc(v)}</span>`;
+    function trackName(track) {
+      const key = `track.${track}`;
+      const v = T(key);
+      return (v === key) ? track : v;
+    }
+    function showEssaySaved(statusId) {
+      const el = document.getElementById(statusId);
+      if (el) el.innerText = T('lesson.savedOnDevice');
+    }
+    window.showEssaySaved = showEssaySaved;
+
     async function initStudentApp() {
       const appRoot = document.getElementById('app-root');
+
+      await window.CosyI18n.ready;
+      if (window.CosyLangSwitcher) {
+        window.CosyLangSwitcher.mount('#header-lang-switcher');
+      }
 
       const authData = await window.CosyAuth.requireRole(['student', 'teacher', 'founder']);
       if (!authData) return;
 
+      if (authData.profile && typeof window.CosyI18n.recompute === 'function') {
+        await window.CosyI18n.recompute(authData.profile);
+      }
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute('content', T('student.metaDescription'));
+
       const userEmail = authData.user ? authData.user.email : '';
-      document.getElementById('user-info').innerText = `Learner: ${userEmail || 'Student'}`;
+      const who = userEmail ? skip(userEmail) : esc(T('student.userFallback'));
+      document.getElementById('user-info').innerHTML = T('student.userLabel', { email: who });
 
       if (lessonParam) {
         if (!window.CosyAuth.canAccessCourseId(courseParam, authData.profile)) {
-          renderAccessDenied('Course unavailable', 'You do not have access to this course.');
+          renderAccessDenied(T('common.courseUnavailableTitle'), T('common.noCourseAccess'));
           return;
         }
         renderLesson(lessonParam, authData.profile);
@@ -548,55 +579,55 @@
       let html = `
         <div class="catalog-container">
           <div class="catalog-header">
-            <h1 style="font-size: 1.6rem; color: #0f172a; margin-bottom: 8px;">Your Student Workspace 📚</h1>
+            <h1 style="font-size: 1.6rem; color: #0f172a; margin-bottom: 8px;">${T('student.catalogTitle')}</h1>
           </div>
 
           <!-- My Shared Notes Section -->
           <div id="my-notes-section" style="margin-bottom: 30px; background: white; border: 1px solid #cbd5e1; border-radius: var(--cosy-radius-md, 14px); padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
             <h2 style="font-size: 1.2rem; font-weight: 700; color: #0369a1; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-              <span>📝 My Lesson Notes</span>
-              <button onclick="loadUserNotes('student')" style="font-size: 0.8rem; padding: 4px 10px; background: #e0f2fe; color: #0369a1; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Refresh 🔄</button>
+              <span>${T('notes.titleStudent')}</span>
+              <button onclick="loadUserNotes('student')" style="font-size: 0.8rem; padding: 4px 10px; background: #e0f2fe; color: #0369a1; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">${T('notes.refresh')}</button>
             </h2>
             <div id="user-notes-container">
-              <p style="color: #64748b; font-size: 0.85rem;">Loading your notes...</p>
+              <p style="color: #64748b; font-size: 0.85rem;">${T('notes.loading')}</p>
             </div>
           </div>
 
           <div class="catalog-header">
-            <h2 style="font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Available Courses & Materials</h2>
-            <p style="color: #64748b; margin-bottom: 16px;">Filter by Language, Course Track, and CEFR Level:</p>
+            <h2 style="font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">${T('student.availableCourses')}</h2>
+            <p style="color: #64748b; margin-bottom: 16px;">${T('student.catalogSubtitle')}</p>
 
             <div style="background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
               <div style="flex: 1; min-width: 180px;">
-                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-right: 6px;">🔎 Search:</label>
-                <input type="text" id="studentSearchFilter" placeholder="Search course titles..." oninput="applyStudentCatalogSearch()" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%;" />
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-right: 6px;">${T('student.searchLabel')}</label>
+                <input type="text" id="studentSearchFilter" placeholder="${esc(T('student.searchPlaceholder'))}" oninput="applyStudentCatalogSearch()" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%;" />
               </div>
 
               <div>
-                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-right: 6px;">Language:</label>
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-right: 6px;">${T('student.filterLanguage')}</label>
                 <select id="langFilter" onchange="updateStudentFilters()" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1;">
-                  <option value="all" ${currentLang==='all'?'selected':''}>All Languages</option>
-                  <option value="en" ${currentLang==='en'?'selected':''}>🇬🇧 English</option>
-                  <option value="fr" ${currentLang==='fr'?'selected':''}>🇫🇷 French</option>
-                  <option value="ru" ${currentLang==='ru'?'selected':''}>🇷🇺 Russian</option>
+                  <option value="all" ${currentLang==='all'?'selected':''}>${T('student.filterAllLanguages')}</option>
+                  <option value="en" ${currentLang==='en'?'selected':''}>🇬🇧 ${T('langname.en')}</option>
+                  <option value="fr" ${currentLang==='fr'?'selected':''}>🇫🇷 ${T('langname.fr')}</option>
+                  <option value="ru" ${currentLang==='ru'?'selected':''}>🇷🇺 ${T('langname.ru')}</option>
                 </select>
               </div>
 
               <div>
-                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-right: 6px;">Course Type:</label>
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-right: 6px;">${T('student.filterTrack')}</label>
                 <select id="trackFilter" onchange="updateStudentFilters()" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1;">
-                  <option value="all" ${currentTrack==='all'?'selected':''}>All Types</option>
-                  <option value="General" ${currentTrack==='General'?'selected':''}>General</option>
-                  <option value="Spoken" ${currentTrack==='Spoken'?'selected':''}>Spoken</option>
-                  <option value="Grammar" ${currentTrack==='Grammar'?'selected':''}>Grammar</option>
-                  <option value="Pronunciation" ${currentTrack==='Pronunciation'?'selected':''}>Pronunciation</option>
+                  <option value="all" ${currentTrack==='all'?'selected':''}>${T('student.filterAllTypes')}</option>
+                  <option value="General" ${currentTrack==='General'?'selected':''}>${trackName('General')}</option>
+                  <option value="Spoken" ${currentTrack==='Spoken'?'selected':''}>${trackName('Spoken')}</option>
+                  <option value="Grammar" ${currentTrack==='Grammar'?'selected':''}>${trackName('Grammar')}</option>
+                  <option value="Pronunciation" ${currentTrack==='Pronunciation'?'selected':''}>${trackName('Pronunciation')}</option>
                 </select>
               </div>
 
               <div>
-                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-right: 6px;">CEFR Level:</label>
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-right: 6px;">${T('student.filterLevel')}</label>
                 <select id="levelFilter" onchange="updateStudentFilters()" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1;">
-                  <option value="all" ${currentLevel==='all'?'selected':''}>All Levels</option>
+                  <option value="all" ${currentLevel==='all'?'selected':''}>${T('student.filterAllLevels')}</option>
                   <option value="a0" ${currentLevel==='a0'?'selected':''}>A0</option>
                   <option value="a1" ${currentLevel==='a1'?'selected':''}>A1</option>
                   <option value="a2" ${currentLevel==='a2'?'selected':''}>A2</option>
@@ -611,7 +642,7 @@
       `;
 
       if (allowedCourses.length === 0) {
-        html += `<p style="grid-column: 1/-1; color: #64748b;">No courses match the selected filters.</p>`;
+        html += `<p style="grid-column: 1/-1; color: #64748b;">${T('common.noCoursesMatch')}</p>`;
       } else {
         const groupedByLangTrack = {};
         allowedCourses.forEach(c => {
@@ -640,7 +671,7 @@
           html += `
             <div class="category-card" id="scat-${groupKey}">
               <div class="category-header" onclick="toggleStudentCategoryFold('scat-${groupKey}')">
-                <h3>${langName} • ${group.track} (${availableCount})${comingSoonCount > 0 ? ` <span style="font-size: 0.8em; font-weight: normal; color: #64748b;">+ ${comingSoonCount} coming soon</span>` : ''}</h3>
+                <h3>${T('common.groupHeading', { language: langName, track: trackName(group.track), count: availableCount })}${comingSoonCount > 0 ? ` <span style="font-size: 0.8em; font-weight: normal; color: #64748b;">${T('common.comingSoonCount', { count: comingSoonCount })}</span>` : ''}</h3>
                 <span class="category-toggle-icon">▼</span>
               </div>
               <div class="category-body">
@@ -653,12 +684,12 @@
                 <div class="course-item-card">
                   <div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                      <span class="course-item-level badge-student">${c.level.toUpperCase()}</span>
-                      <span class="course-item-title">${c.title}</span>
+                      <span class="course-item-level badge-student" data-i18n-skip>${c.level.toUpperCase()}</span>
+                      <span class="course-item-title" data-i18n-skip>${c.title}</span>
                     </div>
                   </div>
                   <a href="student.html?course=${c.id}&level=${c.level.toLowerCase()}" class="btn" style="background: var(--student-primary); padding: 6px 12px; font-size: 0.8rem; white-space: nowrap;">
-                    View 📚
+                    ${T('student.viewCourse')}
                   </a>
                 </div>
               `;
@@ -667,11 +698,11 @@
                 <div class="course-item-card disabled" style="opacity: 0.6;">
                   <div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                      <span class="course-item-level badge-student">${c.level.toUpperCase()}</span>
-                      <span class="course-item-title">${c.title}</span>
+                      <span class="course-item-level badge-student" data-i18n-skip>${c.level.toUpperCase()}</span>
+                      <span class="course-item-title" data-i18n-skip>${c.title}</span>
                     </div>
                   </div>
-                  <span style="font-size: 0.8rem; color: #64748b; font-weight: 500; white-space: nowrap;">Coming soon</span>
+                  <span style="font-size: 0.8rem; color: #64748b; font-weight: 500; white-space: nowrap;">${T('common.comingSoon')}</span>
                 </div>
               `;
             }
@@ -710,25 +741,25 @@
           } catch (e) {}
         }
 
-        if (!roadmapRes || !roadmapRes.ok) throw new Error(`Roadmap for ${courseId} not found`);
+        if (!roadmapRes || !roadmapRes.ok) { const nf = new Error('roadmap-not-found'); nf.code = 'ROADMAP_NOT_FOUND'; throw nf; }
         const roadmap = await roadmapRes.json();
 
         const role = (profile && profile.role) || 'student';
         const totalLessons = roadmap.sequence.length;
         const availableCount = roadmap.sequence.filter(item => window.CosyLessons.getLessonState(item, role) === 'available').length;
         const summaryText = roadmap.teacherLed
-          ? `Taught live with your teacher · ${totalLessons} lessons`
-          : `${availableCount} of ${totalLessons} lessons available`;
+          ? TP('common.taughtLiveSummary', totalLessons)
+          : TP('common.lessonsAvailable', availableCount, { total: totalLessons });
 
         let html = `
           <div class="catalog-container">
             <div class="lesson-nav-header">
-              <a href="student.html" class="back-btn">← Back to Courses</a>
-              <span class="badge-student">${roadmap.title}</span>
+              <a href="student.html" class="back-btn">${T('student.backToCourses')}</a>
+              <span class="badge-student" data-i18n-skip>${roadmap.title}</span>
             </div>
 
             <div class="section-card">
-              <h2 style="font-size: 1.4rem; color: #0f172a; margin-bottom: 6px;">${roadmap.title}</h2>
+              <h2 style="font-size: 1.4rem; color: #0f172a; margin-bottom: 6px;" data-i18n-skip>${roadmap.title}</h2>
               <p style="color: #64748b; margin-bottom: 20px;">${summaryText}</p>
 
               <div class="unit-grid">
@@ -743,13 +774,13 @@
               <div class="unit-card">
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">LESSON #${item.lessonNumber}</span>
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">${T('common.lessonNumber', { number: item.lessonNumber })}</span>
                   </div>
-                  <h3 style="margin: 6px 0;">${item.title}</h3>
-                  ${item.unit ? `<p style="font-size: 0.8rem; color: #64748b; margin-bottom: 12px;">${item.unit}</p>` : ''}
+                  <h3 style="margin: 6px 0;" data-i18n-skip>${item.title}</h3>
+                  ${item.unit ? `<p style="font-size: 0.8rem; color: #64748b; margin-bottom: 12px;" data-i18n-skip>${item.unit}</p>` : ''}
                 </div>
                 <div style="display: flex; gap: 6px; flex-direction: column;">
-                  <a href="student.html?lesson=${encodeURIComponent(lessonPath)}&course=${encodeURIComponent(courseId)}" class="btn" style="background: var(--student-primary); padding: 6px 12px; font-size: 0.85rem; text-align: center;">Open lesson</a>
+                  <a href="student.html?lesson=${encodeURIComponent(lessonPath)}&course=${encodeURIComponent(courseId)}" class="btn" style="background: var(--student-primary); padding: 6px 12px; font-size: 0.85rem; text-align: center;">${T('common.openLesson')}</a>
                 </div>
               </div>
             `;
@@ -758,11 +789,11 @@
               <div class="unit-card" style="opacity: 0.6; background: #f8fafc;">
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">LESSON #${item.lessonNumber}</span>
-                    <span style="font-size: 0.75rem; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Taught live with your teacher</span>
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">${T('common.lessonNumber', { number: item.lessonNumber })}</span>
+                    <span style="font-size: 0.75rem; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-weight: 600;">${T('common.taughtWithTeacher')}</span>
                   </div>
-                  <h3 style="margin: 6px 0; color: #64748b;">${item.title}</h3>
-                  ${item.unit ? `<p style="font-size: 0.8rem; color: #64748b; margin-bottom: 12px;">${item.unit}</p>` : ''}
+                  <h3 style="margin: 6px 0; color: #64748b;" data-i18n-skip>${item.title}</h3>
+                  ${item.unit ? `<p style="font-size: 0.8rem; color: #64748b; margin-bottom: 12px;" data-i18n-skip>${item.unit}</p>` : ''}
                 </div>
               </div>
             `;
@@ -771,11 +802,11 @@
               <div class="unit-card" style="opacity: 0.6; background: #f8fafc;">
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">LESSON #${item.lessonNumber}</span>
-                    <span style="font-size: 0.75rem; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Planned</span>
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">${T('common.lessonNumber', { number: item.lessonNumber })}</span>
+                    <span style="font-size: 0.75rem; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-weight: 600;">${T('common.planned')}</span>
                   </div>
-                  <h3 style="margin: 6px 0; color: #64748b;">${item.title}</h3>
-                  ${item.unit ? `<p style="font-size: 0.8rem; color: #64748b; margin-bottom: 12px;">${item.unit}</p>` : ''}
+                  <h3 style="margin: 6px 0; color: #64748b;" data-i18n-skip>${item.title}</h3>
+                  ${item.unit ? `<p style="font-size: 0.8rem; color: #64748b; margin-bottom: 12px;" data-i18n-skip>${item.unit}</p>` : ''}
                 </div>
               </div>
             `;
@@ -786,7 +817,10 @@
         appRoot.innerHTML = html;
 
       } catch (err) {
-        appRoot.innerHTML = `<div class="access-denied"><h2>Error</h2><p>${err.message}</p></div>`;
+        const errMsg = (err && err.code === 'ROADMAP_NOT_FOUND')
+          ? T('common.roadmapNotFound', { course: skip(courseId) })
+          : T('common.genericError');
+        appRoot.innerHTML = `<div class="access-denied"><h2>${T('common.errorTitle')}</h2><p>${errMsg}</p></div>`;
       }
     }
 
@@ -810,13 +844,10 @@
 
     function getLangName(code) {
       if (!code) return '';
-      const map = {
-        en: 'English', fr: 'French', ru: 'Russian', es: 'Spanish', el: 'Greek',
-        de: 'German', it: 'Italian', pt: 'Portuguese', ba: 'Bashkir', br: 'Breton',
-        hy: 'Armenian', ka: 'Georgian', tt: 'Tatar'
-      };
       const lower = code.toLowerCase();
-      return map[lower] || lower.toUpperCase();
+      const key = `langname.${lower}`;
+      const v = T(key);
+      return (v === key) ? lower.toUpperCase() : v;
     }
 
     function getCosyDictMetadata(item) {
@@ -1670,7 +1701,7 @@
 
       const client = window.CosyAuth ? window.CosyAuth.client : null;
       if (!client) {
-        container.innerHTML = '<p style="color: #64748b; font-size: 0.85rem;">Notes functionality requires configured database access.</p>';
+        container.innerHTML = `<p style="color: #64748b; font-size: 0.85rem;">${T('notes.needsDb')}</p>`;
         return;
       }
 
@@ -1683,14 +1714,14 @@
         if (error) throw error;
 
         if (!notes || notes.length === 0) {
-          container.innerHTML = '<p style="color: #64748b; font-size: 0.85rem;">You do not have any saved classroom notes yet.</p>';
+          container.innerHTML = `<p style="color: #64748b; font-size: 0.85rem;">${T('notes.empty')}</p>`;
           return;
         }
 
         // Group notes by date, language, and lesson
         const grouped = {};
         notes.forEach(note => {
-          const dateStr = note.updated_at ? new Date(note.updated_at).toLocaleDateString() : 'Recent';
+          const dateStr = note.updated_at ? window.CosyI18n.formatDate(new Date(note.updated_at)) : T('notes.recent');
           const parts = (note.lesson_id || '').split('/');
           const file = parts.pop() || note.lesson_id;
           const lang = parts.length > 0 ? parts[parts.length - 1] : 'general';
@@ -1704,7 +1735,7 @@
         for (const groupHeader in grouped) {
           html += `
             <div style="border-bottom: 1px solid #e2e8f0; pb: 8px;">
-              <h3 style="font-size: 0.95rem; font-weight: 700; color: #334155; margin-bottom: 8px;">${groupHeader}</h3>
+              <h3 style="font-size: 0.95rem; font-weight: 700; color: #334155; margin-bottom: 8px;" data-i18n-skip>${esc(groupHeader)}</h3>
               <div style="display: flex; flex-direction: column; gap: 10px;">
           `;
 
@@ -1716,12 +1747,12 @@
             html += `
               <div id="${cardId}" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <strong style="font-size: 0.88rem; color: #0369a1;">${n.lesson_id}</strong>
+                  <strong style="font-size: 0.88rem; color: #0369a1;" data-i18n-skip>${esc(n.lesson_id)}</strong>
                   <span id="${statusId}" style="font-size: 0.75rem; font-weight: 700; color: #64748b;">v${n.version || 0}</span>
                 </div>
-                <textarea id="${textareaId}" style="width: 100%; height: 80px; padding: 8px; font-size: 0.85rem; border: 1px solid #cbd5e1; border-radius: 6px; resize: vertical; font-family: inherit;">${n.content || ''}</textarea>
+                <textarea id="${textareaId}" style="width: 100%; height: 80px; padding: 8px; font-size: 0.85rem; border: 1px solid #cbd5e1; border-radius: 6px; resize: vertical; font-family: inherit;" data-i18n-skip>${esc(n.content || '')}</textarea>
                 <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
-                  <button onclick="savePortalNote('${n.id}', '${textareaId}', '${statusId}', ${n.version || 0})" style="background: var(--student-primary, #0369a1); color: white; border: none; border-radius: 6px; padding: 4px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Save Note</button>
+                  <button onclick="savePortalNote('${n.id}', '${textareaId}', '${statusId}', ${n.version || 0})" style="background: var(--student-primary, #0369a1); color: white; border: none; border-radius: 6px; padding: 4px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">${T('notes.saveNote')}</button>
                 </div>
               </div>
             `;
@@ -1734,7 +1765,7 @@
 
       } catch (err) {
         console.warn('Error loading notes:', err);
-        container.innerHTML = `<p style="color: #ef4444; font-size: 0.85rem;">Could not load notes: ${err.message || 'Error'}</p>`;
+        container.innerHTML = `<p style="color: #ef4444; font-size: 0.85rem;">${T('notes.loadFailed', { message: skip(err.message || T('common.errorTitle')) })}</p>`;
       }
     }
 
@@ -1747,11 +1778,11 @@
       const client = window.CosyAuth ? window.CosyAuth.client : null;
 
       if (!client) {
-        if (statusEl) statusEl.innerText = 'Saved locally';
+        if (statusEl) statusEl.innerText = T('notes.savedLocally');
         return;
       }
 
-      if (statusEl) statusEl.innerText = 'Saving...';
+      if (statusEl) statusEl.innerText = T('notes.saving');
 
       try {
         const { data, error } = await client.rpc('save_lesson_note', {
@@ -1763,14 +1794,14 @@
         if (error) throw error;
 
         if (data && data.conflict) {
-          if (statusEl) statusEl.innerText = 'Conflict merged';
+          if (statusEl) statusEl.innerText = T('notes.conflictMerged');
           textarea.value = data.content || content;
         } else {
-          if (statusEl) statusEl.innerText = 'Saved ✓';
+          if (statusEl) statusEl.innerText = T('notes.saved');
         }
       } catch (err) {
         console.warn('Portal note save error:', err);
-        if (statusEl) statusEl.innerText = 'Save failed';
+        if (statusEl) statusEl.innerText = T('notes.saveFailed');
       }
     }
 

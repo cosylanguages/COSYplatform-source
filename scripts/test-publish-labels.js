@@ -221,18 +221,19 @@ async function runTestPronunciationTeacherLed() {
   // Test (b): JSDOM rendering
   console.log('  Checking test (b): JSDOM rendering for student vs teacher role on pronunciation-fr-a1...');
   const lessonResolverCode = fs.readFileSync(path.join(rootDir, 'shared', 'js', 'lesson-resolver.js'), 'utf8');
+  const i18nCode = fs.readFileSync(path.join(rootDir, 'shared', 'js', 'i18n.js'), 'utf8');
 
   // Student view JSDOM test
   const studentHtmlContent = fs.readFileSync(path.join(rootDir, 'student.html'), 'utf8');
   const studentScriptMatch = studentHtmlContent.match(/<script>([\s\S]*?)<\/script>/i);
-  const studentDom = new JSDOM(studentHtmlContent, { url: 'http://localhost/student.html?course=pronunciation-fr-a1', runScripts: 'outside-only' });
+  const studentDom = new JSDOM(studentHtmlContent, { url: 'http://localhost/student.html?course=pronunciation-fr-a1&ui=en', runScripts: 'outside-only' });
   studentDom.window.eval(lessonResolverCode);
   studentDom.window.CosyAuth = {
     requireRole: async () => ({ user: { email: 'student@cosylanguages.com' }, profile: { role: 'student' } }),
     FULL_MANIFEST: []
   };
   studentDom.window.fetch = async (url) => {
-    const cleanUrl = url.split('?')[0];
+    const cleanUrl = url.split('?')[0].replace(/^https?:\/\/[^/]+\//, '');
     const localPath = path.join(rootDir, cleanUrl);
     if (fs.existsSync(localPath)) {
       const fileContent = fs.readFileSync(localPath, 'utf8');
@@ -240,6 +241,9 @@ async function runTestPronunciationTeacherLed() {
     }
     return { ok: false, status: 404 };
   };
+  studentDom.window.COSY_BASE_PATH = 'http://localhost/';
+  studentDom.window.eval(i18nCode);
+  await studentDom.window.CosyI18n.ready;
   studentDom.window.eval(studentScriptMatch[1]);
   await studentDom.window.renderCourseRoadmap('pronunciation-fr-a1', 'a1', { role: 'student' });
 
@@ -257,14 +261,14 @@ async function runTestPronunciationTeacherLed() {
   // Teacher view JSDOM test
   const teacherHtmlContent = fs.readFileSync(path.join(rootDir, 'teacher.html'), 'utf8');
   const teacherScriptMatch = teacherHtmlContent.match(/<script>([\s\S]*?)<\/script>/i);
-  const teacherDom = new JSDOM(teacherHtmlContent, { url: 'http://localhost/teacher.html?course=pronunciation-fr-a1', runScripts: 'outside-only' });
+  const teacherDom = new JSDOM(teacherHtmlContent, { url: 'http://localhost/teacher.html?course=pronunciation-fr-a1&ui=en', runScripts: 'outside-only' });
   teacherDom.window.eval(lessonResolverCode);
   teacherDom.window.CosyAuth = {
     requireRole: async () => ({ user: { email: 'teacher@cosylanguages.com' }, profile: { role: 'teacher' } }),
     FULL_MANIFEST: []
   };
   teacherDom.window.fetch = async (url) => {
-    const cleanUrl = url.split('?')[0];
+    const cleanUrl = url.split('?')[0].replace(/^https?:\/\/[^/]+\//, '');
     const localPath = path.join(rootDir, cleanUrl);
     if (fs.existsSync(localPath)) {
       const fileContent = fs.readFileSync(localPath, 'utf8');
@@ -272,6 +276,9 @@ async function runTestPronunciationTeacherLed() {
     }
     return { ok: false, status: 404 };
   };
+  teacherDom.window.COSY_BASE_PATH = 'http://localhost/';
+  teacherDom.window.eval(i18nCode);
+  await teacherDom.window.CosyI18n.ready;
   teacherDom.window.eval(teacherScriptMatch[1]);
   await teacherDom.window.renderCourseRoadmap('pronunciation-fr-a1', 'a1', { role: 'teacher' });
 

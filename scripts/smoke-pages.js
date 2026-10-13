@@ -12,7 +12,7 @@ const COMBINATIONS = [
   { role: 'student', url: 'student.html' },
   { role: 'student', url: 'student.html?course=general-en-a1' },
   { role: 'student', url: 'student.html?course=general-en-b2' },
-  { role: 'student', url: 'student.html?course=pronunciation-fr-a1' },
+  { role: 'student', url: 'student.html?course=pronunciation-fr-a1&ui=en' },
   { role: 'student', url: 'student.html?lesson=lessons/general-english-a1/nice-to-meet-you.json&course=general-en-a1' },
 
   // Teacher role
@@ -21,7 +21,7 @@ const COMBINATIONS = [
   { role: 'teacher', url: 'teacher.html?lang=fr' },
   { role: 'teacher', url: 'teacher.html?lang=ru' },
   { role: 'teacher', url: 'teacher.html?course=general-en-a1' },
-  { role: 'teacher', url: 'teacher.html?course=pronunciation-fr-a1' },
+  { role: 'teacher', url: 'teacher.html?course=pronunciation-fr-a1&ui=en' },
   { role: 'teacher', url: 'teacher-english.html' },
   { role: 'teacher', url: 'teacher-french.html' },
   { role: 'teacher', url: 'teacher-russian.html' },
@@ -32,7 +32,7 @@ const COMBINATIONS = [
   { role: 'founder', url: 'teacher.html?lang=en' },
   { role: 'founder', url: 'teacher.html?lang=fr' },
   { role: 'founder', url: 'teacher.html?lang=ru' },
-  { role: 'founder', url: 'teacher.html?course=pronunciation-fr-a1' },
+  { role: 'founder', url: 'teacher.html?course=pronunciation-fr-a1&ui=en' },
   { role: 'founder', url: 'hub.html' },
   { role: 'founder', url: 'index.html' }
 ];
