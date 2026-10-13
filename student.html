@@ -455,6 +455,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1"></script>
   <script src="shared/js/config.js"></script>
   <script src="shared/js/auth-guard.js"></script>
+  <script src="shared/js/progress.js"></script>
   <script src="shared/js/auth-sso.js"></script>
   <script src="shared/js/cms-editor.js"></script>
   <script src="shared/js/i18n.js"></script>
@@ -1116,6 +1117,15 @@
         window.currentStudentSlideIdx = 0;
 
         window.currentStudentLessonPath = lessonPath;
+
+        if (window.CosyProgress && typeof window.CosyProgress.loadAnswers === 'function') {
+          try {
+            await window.CosyProgress.loadAnswers(lessonPath);
+          } catch (e) {
+            console.error("Error loading progress answers:", e);
+          }
+        }
+
         if (lessonPath.endsWith('.xml')) {
           const parser = new DOMParser();
           const xmlDoc = parser.parseFromString(text, "text/xml");
@@ -1357,6 +1367,10 @@
         existing[key] = val;
         localStorage.setItem(storeKey, JSON.stringify(existing));
       } catch(e) {}
+
+      if (window.CosyProgress && typeof window.CosyProgress.saveAnswer === 'function') {
+        window.CosyProgress.saveAnswer(lessonPath, key, val);
+      }
     }
 
     function getSavedStudentInput(key) {
