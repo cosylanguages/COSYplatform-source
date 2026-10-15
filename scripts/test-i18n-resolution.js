@@ -22,7 +22,7 @@ const RESOLUTION_TEST_CASES = [
     },
     url: "index.html?ui=it",
     profile: { language_access: ['el'] },
-    expected: "fr"
+    expected: "it"
   },
   {
     name: "2b. URL ?ui=pseudo is supported",
