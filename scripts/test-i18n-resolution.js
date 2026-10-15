@@ -6,23 +6,23 @@ const ROOT_DIR = path.join(__dirname, '..');
 
 const RESOLUTION_TEST_CASES = [
   {
-    name: "1. Pinned choice in localStorage wins over all lower rules",
+    name: "1. Course language overrides a pinned interface preference",
     setup(win) {
       win.localStorage.setItem('cosy_ui_lang', 'fr');
       win.localStorage.setItem('cosy_ui_lang_last', 'el');
     },
     url: "index.html?ui=ru&lang=it",
     profile: { language_access: ['el'] },
-    expected: "fr"
+    expected: "it"
   },
   {
-    name: "2. URL ?ui=<code> wins when nothing is pinned",
+    name: "2. URL ?ui=<code> wins when no course context exists",
     setup(win) {
       win.localStorage.setItem('cosy_ui_lang_last', 'el');
     },
     url: "index.html?ui=it&lang=fr",
     profile: { language_access: ['el'] },
-    expected: "it"
+    expected: "fr"
   },
   {
     name: "2b. URL ?ui=pseudo is supported",
@@ -32,7 +32,7 @@ const RESOLUTION_TEST_CASES = [
     expected: "pseudo"
   },
   {
-    name: "3a. Context language ?lang= wins when no pin or ?ui",
+    name: "3a. Context language ?lang= wins when no higher course context exists",
     setup(win) {},
     url: "index.html?lang=el",
     profile: { language_access: ['fr'] },
