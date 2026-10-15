@@ -46,6 +46,13 @@ const RESOLUTION_TEST_CASES = [
     expected: "fr"
   },
   {
+    name: "3c. Concrete course ID overrides a conflicting ?lang parameter",
+    setup(win) {},
+    url: "index.html?lang=fr&course=pronunciation-it-a1",
+    profile: { language_access: ['ru'] },
+    expected: "it"
+  },
+  {
     name: "4. Profile default wins when no pin, ?ui, or context lang",
     setup(win) {},
     url: "index.html",
@@ -119,7 +126,8 @@ async function runResolutionTests() {
     // Fake CosyAuth for manifest resolution
     win.CosyAuth = {
       FULL_MANIFEST: [
-        { id: 'pronunciation-fr-a1', lang: 'fr' }
+        { id: 'pronunciation-fr-a1', lang: 'fr' },
+        { id: 'pronunciation-it-a1', lang: 'it' }
       ]
     };
 
