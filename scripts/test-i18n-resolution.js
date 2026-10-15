@@ -16,11 +16,11 @@ const RESOLUTION_TEST_CASES = [
     expected: "it"
   },
   {
-    name: "2. URL ?ui=<code> wins when no course context exists",
+    name: "2. URL ?ui=<code> wins when no language context exists",
     setup(win) {
       win.localStorage.setItem('cosy_ui_lang_last', 'el');
     },
-    url: "index.html?ui=it&lang=fr",
+    url: "index.html?ui=it",
     profile: { language_access: ['el'] },
     expected: "fr"
   },
