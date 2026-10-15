@@ -57,17 +57,19 @@
   function resolveLanguage(profile) {
     // A language-specific learning context must override a general UI preference.
     // Otherwise a learner entering a French course could see English or Russian chrome.
-    // Step 1: Context language: ?lang=<code>, or ?course= (from manifest)
-    const langParam = getUrlParam('lang');
-    if (langParam && SUPPORTED_LANGS.includes(langParam.toLowerCase())) {
-      return langParam.toLowerCase();
-    }
+    // A concrete course ID is the most specific learning context.
     const courseParam = getUrlParam('course');
     if (courseParam) {
       const courseLang = getCourseLangFromManifest(courseParam);
       if (courseLang && SUPPORTED_LANGS.includes(courseLang)) {
         return courseLang;
       }
+    }
+
+    // Otherwise use an explicit language context before general UI preferences.
+    const langParam = getUrlParam('lang');
+    if (langParam && SUPPORTED_LANGS.includes(langParam.toLowerCase())) {
+      return langParam.toLowerCase();
     }
 
     // Step 3: Pinned choice in localStorage "cosy_ui_lang" (only outside course context)
