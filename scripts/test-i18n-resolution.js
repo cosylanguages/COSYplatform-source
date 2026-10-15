@@ -6,21 +6,21 @@ const ROOT_DIR = path.join(__dirname, '..');
 
 const RESOLUTION_TEST_CASES = [
   {
-    name: "1. Pinned choice in localStorage wins over all lower rules",
+    name: "1. Course language overrides a pinned interface preference",
     setup(win) {
       win.localStorage.setItem('cosy_ui_lang', 'fr');
       win.localStorage.setItem('cosy_ui_lang_last', 'el');
     },
     url: "index.html?ui=ru&lang=it",
     profile: { language_access: ['el'] },
-    expected: "fr"
+    expected: "it"
   },
   {
-    name: "2. URL ?ui=<code> wins when nothing is pinned",
+    name: "2. URL ?ui=<code> wins when no language context exists",
     setup(win) {
       win.localStorage.setItem('cosy_ui_lang_last', 'el');
     },
-    url: "index.html?ui=it&lang=fr",
+    url: "index.html?ui=it",
     profile: { language_access: ['el'] },
     expected: "it"
   },
@@ -32,7 +32,7 @@ const RESOLUTION_TEST_CASES = [
     expected: "pseudo"
   },
   {
-    name: "3a. Context language ?lang= wins when no pin or ?ui",
+    name: "3a. Context language ?lang= wins when no higher course context exists",
     setup(win) {},
     url: "index.html?lang=el",
     profile: { language_access: ['fr'] },
@@ -44,6 +44,13 @@ const RESOLUTION_TEST_CASES = [
     url: "index.html?course=pronunciation-fr-a1",
     profile: { language_access: ['ru'] },
     expected: "fr"
+  },
+  {
+    name: "3c. Concrete course ID overrides a conflicting ?lang parameter",
+    setup(win) {},
+    url: "index.html?lang=fr&course=pronunciation-it-a1",
+    profile: { language_access: ['ru'] },
+    expected: "it"
   },
   {
     name: "4. Profile default wins when no pin, ?ui, or context lang",
@@ -119,7 +126,8 @@ async function runResolutionTests() {
     // Fake CosyAuth for manifest resolution
     win.CosyAuth = {
       FULL_MANIFEST: [
-        { id: 'pronunciation-fr-a1', lang: 'fr' }
+        { id: 'pronunciation-fr-a1', lang: 'fr' },
+        { id: 'pronunciation-it-a1', lang: 'it' }
       ]
     };
 
