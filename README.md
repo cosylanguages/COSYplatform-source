@@ -1,6 +1,6 @@
 # COSYplatform Content Repository
 
-> **Archived repository.** This content source has moved to [COSYplatform](https://github.com/cosylanguages/COSYplatform). The repository is read-only and kept for historical reference. Please open issues and pull requests in COSYplatform.
+> **Deprecated repository.** This content source has moved to [COSYplatform](https://github.com/cosylanguages/COSYplatform). It is kept for historical reference and is scheduled for archiving. Please open issues and pull requests in COSYplatform.
 
 Welcome to the **COSYplatform Content Repository**! This repository hosts all interactive curriculums, course roadmaps, teacher manuals, reference guides, student workbooks, and interactive lesson markup files used by the **CosyLanguages** teaching and learning platform.
 
