@@ -6,8 +6,83 @@
 window.CosyCMS = window.CosyCMS || {};
 
 (function () {
+  // --- HTML sanitizer: ALLOW-LIST, rebuilds a clean tree instead of trying to remove bad parts -------------
+  // Saved overrides are readable by every visitor and all COSY apps share one origin, so script injected
+  // here could reach the sessions of every other app. Applied both when saving and when rendering.
+  // Same approach as COSYtools' cms-editor.js, with table/definition/figure tags added for lesson pages.
+  var CMS_SAFE_TAGS = new Set(['a', 'b', 'strong', 'i', 'em', 'u', 's', 'del', 'ins', 'mark', 'kbd', 'abbr', 'br',
+    'p', 'span', 'div', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'code', 'pre',
+    'small', 'sup', 'sub', 'blockquote', 'hr', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'caption',
+    'section', 'article', 'header', 'footer', 'main', 'figure', 'figcaption', 'details', 'summary', 'img']);
+  // Removed together with their content; other unknown tags are unwrapped (their text is kept).
+  var CMS_DROP_TAGS = new Set(['script', 'style', 'svg', 'math', 'iframe', 'frame', 'frameset', 'object', 'embed',
+    'applet', 'template', 'noscript', 'noembed', 'noframes', 'textarea', 'title', 'head', 'base', 'link', 'meta',
+    'form', 'select', 'option', 'button', 'input', 'video', 'audio', 'source', 'canvas', 'xmp', 'plaintext']);
+  var CMS_SAFE_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
+  var CMS_IMG_PROTOCOLS = new Set(['http:', 'https:']);
+  var XHTML_NS = 'http://www.w3.org/1999/xhtml';
+
+  function cmsSafeUrl(value, protocols) {
+    var v = String(value).replace(/[\u0000-\u001f\u007f]/g, '').trim();
+    if (!v) return null;
+    try {
+      // The WHATWG parser applies the scheme normalisation browsers use ("java\tscript:" is caught).
+      var u = new URL(v, 'https://relative.invalid/');
+      return protocols.has(u.protocol) ? v : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function sanitizeHTML(html) {
+    if (!html || typeof html !== 'string') return '';
+    var source = new DOMParser().parseFromString(html, 'text/html');
+    var outDoc = document.implementation.createHTMLDocument('');
+    var out = outDoc.createElement('div');
+
+    (function copy(from, to) {
+      Array.from(from.childNodes).forEach(function (node) {
+        if (node.nodeType === 3) { to.appendChild(outDoc.createTextNode(node.nodeValue)); return; }
+        if (node.nodeType !== 1) return;
+        var tag = node.localName;
+        if (node.namespaceURI !== XHTML_NS || CMS_DROP_TAGS.has(tag)) return;
+        if (!CMS_SAFE_TAGS.has(tag)) { copy(node, to); return; }
+        var el = outDoc.createElement(tag);
+        ['class', 'lang', 'title', 'aria-label'].forEach(function (name) {
+          if (node.hasAttribute(name)) el.setAttribute(name, node.getAttribute(name));
+        });
+        if (node.hasAttribute('dir') && /^(ltr|rtl|auto)$/i.test(node.getAttribute('dir'))) {
+          el.setAttribute('dir', node.getAttribute('dir').toLowerCase());
+        }
+        if ((tag === 'td' || tag === 'th')) {
+          ['colspan', 'rowspan'].forEach(function (name) {
+            if (/^\d{1,2}$/.test(node.getAttribute(name) || '')) el.setAttribute(name, node.getAttribute(name));
+          });
+        }
+        if (tag === 'a') {
+          var href = node.hasAttribute('href') ? cmsSafeUrl(node.getAttribute('href'), CMS_SAFE_PROTOCOLS) : null;
+          if (href) { el.setAttribute('href', href); el.setAttribute('rel', 'noopener noreferrer'); }
+        }
+        if (tag === 'img') {
+          var src = node.hasAttribute('src') ? cmsSafeUrl(node.getAttribute('src'), CMS_IMG_PROTOCOLS) : null;
+          if (!src) return;
+          el.setAttribute('src', src);
+          if (node.hasAttribute('alt')) el.setAttribute('alt', node.getAttribute('alt'));
+          to.appendChild(el);
+          return;
+        }
+        copy(node, el);
+        to.appendChild(el);
+      });
+    })(source.body, out);
+
+    return out.innerHTML;
+  }
+
   let isEditing = false;
   let userRole = null;
+
+  window.CosyCMS.sanitizeHTML = sanitizeHTML;
 
   function getSupabaseClient() {
     if (window.CosyAuth && window.CosyAuth.client) {
@@ -113,7 +188,7 @@ window.CosyCMS = window.CosyCMS || {};
       }
 
       if (el) {
-        el.innerHTML = htmlContent;
+        el.innerHTML = sanitizeHTML(htmlContent);
       }
     });
   }
@@ -264,7 +339,7 @@ window.CosyCMS = window.CosyCMS || {};
 
     editableElements.forEach((el, index) => {
       const key = el.getAttribute('data-cms-id') || el.id || `cms-el-${index}`;
-      overrides[key] = el.innerHTML;
+      overrides[key] = sanitizeHTML(el.innerHTML);
     });
 
     const pagePath = getNormalizedPathname();

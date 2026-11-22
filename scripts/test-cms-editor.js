@@ -159,6 +159,18 @@ async function runCmsEditorTests() {
     failures++;
   }
 
+  // Test 6: HTML sanitizer
+  console.log('\n🔹 Test 6: HTML Sanitizer...');
+  const dirty = '<script>alert(1)</script><b onclick="x()">ok</b><a href="javascript:alert(1)">x</a><img src=x onerror=alert(1)>';
+  const clean = window.CosyCMS.sanitizeHTML(dirty);
+
+  if (clean === '<b>ok</b><a>x</a><img src="x">') {
+    console.log('  ✅ PASS: Saved HTML is rebuilt from the allow-list.');
+  } else {
+    console.error(`  ❌ FAIL: Unexpected sanitizer output: ${JSON.stringify(clean)}`);
+    failures++;
+  }
+
   console.log('\n---------------------------------------------------');
   if (failures > 0) {
     console.error(`❌ Founder Visual CMS Editor tests failed with ${failures} errors.`);
