@@ -18,7 +18,7 @@
   --accent:#F5C842;
   --accent2:#4ECDC4;
   --accent3:#FF6B6B;
-  --muted:#7A9BB5;
+  --muted:#9DB8CD;
   --white:#F0F6FF;
   --u1:#3B82F6; --u1-lt:#1E3A5F;
   --u2:#8B5CF6; --u2-lt:#3B1F6B;
@@ -236,7 +236,7 @@ function buildContent(){
       return `<div class="lesson-card${isDone?' done':''}${isOpen?' open':''}" id="lesson-${l.code}">
         <div class="lc-header" onclick="toggleLesson('${l.code}')">
           <span class="lc-code">${l.code}</span>
-          <span class="lc-num" style="border-color:${u.color};color:${u.color}">${l.num}</span>
+          <span class="lc-num" style="border-color:${u.color};color:color-mix(in srgb, ${u.color} 35%, #fff)">${l.num}</span>
           <span class="lc-title">${l.title}</span>
           <button class="lc-done-btn" onclick="markDone('${l.code}',event)">${isDone?'✓ Fatto':'Segna fatto'}</button>
           <span class="lc-expand">▼</span>
@@ -255,7 +255,7 @@ function buildContent(){
       </div>`;
     }).join('');
     return `<div class="unit-block ${u.id}" id="${u.id}">
-      <div class="unit-header"><div class="uh-num" style="color:${u.color}">0${u.num}</div><div class="uh-body"><h2>Unità ${u.num}: ${u.label}</h2><div class="uh-arc">${u.arc}</div></div></div>
+      <div class="unit-header"><div class="uh-num" style="color:color-mix(in srgb, ${u.color} 35%, #fff)">0${u.num}</div><div class="uh-body"><h2>Unità ${u.num}: ${u.label}</h2><div class="uh-arc">${u.arc}</div></div></div>
       ${lessonsHtml}</div>`;
   }).join('');
   area.innerHTML = unitsHtml;

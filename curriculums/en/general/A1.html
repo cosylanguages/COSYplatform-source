@@ -18,7 +18,7 @@
   --accent:#F5C842;
   --accent2:#4ECDC4;
   --accent3:#FF6B6B;
-  --muted:#7A9BB5;
+  --muted:#9DB8CD;
   --white:#F0F6FF;
 
   /* Unit colours */
@@ -558,7 +558,7 @@ function buildContent(){
       padding:.65rem .8rem;border-left:3px solid ${col}">
       <a href="../../vocabulary-reference.html?lang=en&search=${encodeURIComponent(theme)}" style="text-decoration:none;display:block;">
         <div style="font-size:.62rem;font-weight:900;letter-spacing:.07em;text-transform:uppercase;
-          color:${col};margin-bottom:.45rem">${theme}</div>
+          color:color-mix(in srgb, ${col} 45%, #fff);margin-bottom:.45rem">${theme}</div>
       </a>
       <div style="display:flex;flex-wrap:wrap;gap:.25rem">
         ${words.map(w=>`<a href="../../vocabulary-reference.html?lang=en&search=${encodeURIComponent(w)}" style="text-decoration:none;">
@@ -604,7 +604,7 @@ function buildContent(){
                id="lesson-${l.code}">
         <div class="lc-header" onclick="toggleLesson('${l.code}')">
           <span class="lc-code">${l.code}</span>
-          <span class="lc-num" style="border-color:${u.color};color:${u.color}">${l.num}</span>
+          <span class="lc-num" style="border-color:${u.color};color:color-mix(in srgb, ${u.color} 35%, #fff)">${l.num}</span>
           <span class="lc-title">${l.title}</span>
           ${renderSkillPills(l)}
           <button class="lc-done-btn" id="done-btn-${l.code}"
@@ -648,14 +648,14 @@ function buildContent(){
 
     return `<div class="unit-block ${u.id}" id="${u.id}">
       <div class="unit-header">
-        <div class="uh-num" style="color:${u.color}">0${u.num}</div>
+        <div class="uh-num" style="color:color-mix(in srgb, ${u.color} 35%, #fff)">0${u.num}</div>
         <div class="uh-body">
           <h2>Unit ${u.num}: ${u.label}</h2>
           <div class="uh-arc">${u.arc}</div>
           <div class="uh-tags">
             <span class="uh-tag">${u.lessons_count} lessons</span>
             ${(u.vocab_themes || []).map(t=>`<span class="uh-tag">${t}</span>`).join('')}
-            <span class="uh-tag" style="color:${u.color};border-color:${u.color}">${pct}% complete</span>
+            <span class="uh-tag" style="color:color-mix(in srgb, ${u.color} 35%, #fff);border-color:${u.color}">${pct}% complete</span>
           </div>
         </div>
       </div>
