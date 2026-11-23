@@ -20,12 +20,12 @@
 
     body {
       background-color: var(--cosy-color-cream, #fdfcf8);
-      color: #0f172a;
+      color: var(--cosy-color-ink);
     }
 
     .founder-header {
       background: var(--founder-primary);
-      color: white;
+      color: var(--on-primary);
       padding: 1.5rem 0;
       border-bottom: 1px solid #1e293b;
     }
@@ -58,7 +58,7 @@
     }
 
     .stat-card {
-      background: white;
+      background: var(--cosy-color-surface-raised);
       border: 1px solid var(--border-color);
       border-radius: var(--cosy-radius-md, 14px);
       padding: 1.5rem;
@@ -67,7 +67,7 @@
 
     .stat-card h3 {
       font-size: 0.9rem;
-      color: #64748b;
+      color: var(--cosy-color-ink-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 0.5rem;
@@ -80,7 +80,7 @@
     }
 
     .portal-section {
-      background: white;
+      background: var(--cosy-color-surface-raised);
       border-radius: var(--cosy-radius-md, 14px);
       border: 1px solid var(--border-color);
       padding: 2rem;
@@ -91,7 +91,7 @@
     .portal-section h2 {
       font-size: 1.4rem;
       margin-bottom: 1rem;
-      color: #0f172a;
+      color: var(--cosy-color-ink);
     }
 
     .teacher-links-grid {
@@ -102,7 +102,7 @@
     }
 
     .teacher-link-card {
-      background: #f8fafc;
+      background: var(--cosy-color-surface-subtle);
       border: 1px solid var(--border-color);
       border-radius: var(--cosy-radius-sm, 8px);
       padding: 1.25rem;
@@ -114,12 +114,12 @@
     .teacher-link-card h4 {
       font-size: 1.1rem;
       margin-bottom: 0.5rem;
-      color: #0f172a;
+      color: var(--cosy-color-ink);
     }
 
     .btn-logout {
-      background-color: #334155;
-      color: white;
+      background-color: var(--cosy-color-ink-soft);
+      color: var(--on-primary);
       border: none;
       padding: 6px 14px;
       border-radius: 6px;
@@ -142,22 +142,22 @@
     }
 
     .admin-table th {
-      background: #f1f5f9;
-      color: #334155;
+      background: var(--cosy-color-surface-muted);
+      color: var(--cosy-color-ink-soft);
       font-weight: 700;
       padding: 10px 12px;
-      border-bottom: 2px solid #cbd5e1;
+      border-bottom: 2px solid var(--cosy-color-border-strong);
     }
 
     .admin-table td {
       padding: 12px;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid var(--cosy-color-border-soft);
       vertical-align: middle;
     }
 
     .admin-table select, .admin-table input[type="text"] {
       padding: 6px 10px;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--cosy-color-border-strong);
       border-radius: 6px;
       font-size: 0.85rem;
       width: 100%;
@@ -165,14 +165,14 @@
     }
 
     .admin-table select:disabled, .admin-table input:disabled {
-      background-color: #f1f5f9;
-      color: #475569;
+      background-color: var(--cosy-color-surface-muted);
+      color: var(--cosy-color-ink-soft);
       cursor: not-allowed;
     }
 
     .btn-save-row {
-      background-color: #0369a1;
-      color: white;
+      background-color: var(--cosy-color-ink-link);
+      color: var(--on-primary);
       border: none;
       padding: 6px 12px;
       border-radius: 6px;
@@ -183,17 +183,17 @@
     }
 
     .btn-save-row:hover {
-      background-color: #0369a1;
+      background-color: var(--cosy-color-ink-link);
     }
 
     .instructions-card {
-      background: #f0f9ff;
+      background: var(--cosy-color-tint-info);
       border: 1px solid #bae6fd;
       border-radius: 8px;
       padding: 16px 20px;
       margin-bottom: 20px;
       font-size: 0.9rem;
-      color: #0369a1;
+      color: var(--cosy-color-ink-link);
     }
 
     .instructions-card ol {
@@ -223,7 +223,7 @@
       </div>
       <div style="display: flex; align-items: center; gap: 16px;">
         <div id="header-lang-switcher"></div>
-        <div id="user-info" style="font-size: 0.85rem; color: #94a3b8;"></div>
+        <div id="user-info" style="font-size: 0.85rem; color: var(--cosy-color-ink-muted);"></div>
         <button onclick="window.CosyAuth.logout()" class="btn-logout" data-i18n="common.logout">Log Out</button>
       </div>
     </div>
@@ -305,18 +305,18 @@
           <div class="stat-card">
             <h3 data-i18n="founder.statLanguages">${window.CosyI18n.t('founder.statLanguages')}</h3>
             <div class="stat-number" data-i18n-skip>${langBig}</div>
-            <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">${langSub}</p>
+            <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-top: 4px;">${langSub}</p>
           </div>
           <div class="stat-card">
             <h3 data-i18n="founder.statCourses">${window.CosyI18n.t('founder.statCourses')}</h3>
             <div class="stat-number" data-i18n-skip>${courseBig}</div>
-            <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">${courseSub}</p>
+            <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-top: 4px;">${courseSub}</p>
           </div>
           <div class="stat-card">
             <h3 data-i18n="founder.statLessons">${window.CosyI18n.t('founder.statLessons')}</h3>
             <div class="stat-number" data-i18n-skip>${lessonBig}</div>
-            <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">${lessonSub1}</p>
-            ${lessonSub2 ? `<p style="font-size: 0.85rem; color: #64748b; margin-top: 2px;">${lessonSub2}</p>` : ''}
+            <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-top: 4px;">${lessonSub1}</p>
+            ${lessonSub2 ? `<p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-top: 2px;">${lessonSub2}</p>` : ''}
           </div>
         </div>
 
@@ -332,82 +332,82 @@
           </div>
 
           <div id="profiles-table-container">
-            <p style="color: #64748b; font-style: italic;" data-i18n="founder.loadingProfiles">${window.CosyI18n.t('founder.loadingProfiles')}</p>
+            <p style="color: var(--cosy-color-ink-muted); font-style: italic;" data-i18n="founder.loadingProfiles">${window.CosyI18n.t('founder.loadingProfiles')}</p>
           </div>
         </div>
 
         <div class="portal-section">
           <h2 data-i18n="founder.teacherSpacesTitle">${window.CosyI18n.t('founder.teacherSpacesTitle')}</h2>
-          <p style="color: #64748b; margin-bottom: 1rem;" data-i18n="founder.teacherSpacesDesc">${window.CosyI18n.t('founder.teacherSpacesDesc')}</p>
+          <p style="color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.teacherSpacesDesc">${window.CosyI18n.t('founder.teacherSpacesDesc')}</p>
           <div class="teacher-links-grid">
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceEnTitle">${window.CosyI18n.t('founder.spaceEnTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceEnDesc">${window.CosyI18n.t('founder.spaceEnDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceEnDesc">${window.CosyI18n.t('founder.spaceEnDesc')}</p>
               <a href="teacher.html?lang=en" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceEnBtn">${window.CosyI18n.t('founder.spaceEnBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceFrTitle">${window.CosyI18n.t('founder.spaceFrTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceFrDesc">${window.CosyI18n.t('founder.spaceFrDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceFrDesc">${window.CosyI18n.t('founder.spaceFrDesc')}</p>
               <a href="teacher.html?lang=fr" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceFrBtn">${window.CosyI18n.t('founder.spaceFrBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceRuTitle">${window.CosyI18n.t('founder.spaceRuTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceRuDesc">${window.CosyI18n.t('founder.spaceRuDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceRuDesc">${window.CosyI18n.t('founder.spaceRuDesc')}</p>
               <a href="teacher.html?lang=ru" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceRuBtn">${window.CosyI18n.t('founder.spaceRuBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceDeTitle">${window.CosyI18n.t('founder.spaceDeTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceDeDesc">${window.CosyI18n.t('founder.spaceDeDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceDeDesc">${window.CosyI18n.t('founder.spaceDeDesc')}</p>
               <a href="teacher.html?lang=de" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceDeBtn">${window.CosyI18n.t('founder.spaceDeBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceEsTitle">${window.CosyI18n.t('founder.spaceEsTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceEsDesc">${window.CosyI18n.t('founder.spaceEsDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceEsDesc">${window.CosyI18n.t('founder.spaceEsDesc')}</p>
               <a href="teacher.html?lang=es" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceEsBtn">${window.CosyI18n.t('founder.spaceEsBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spacePtTitle">${window.CosyI18n.t('founder.spacePtTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spacePtDesc">${window.CosyI18n.t('founder.spacePtDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spacePtDesc">${window.CosyI18n.t('founder.spacePtDesc')}</p>
               <a href="teacher.html?lang=pt" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spacePtBtn">${window.CosyI18n.t('founder.spacePtBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceItTitle">${window.CosyI18n.t('founder.spaceItTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceItDesc">${window.CosyI18n.t('founder.spaceItDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceItDesc">${window.CosyI18n.t('founder.spaceItDesc')}</p>
               <a href="teacher.html?lang=it" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceItBtn">${window.CosyI18n.t('founder.spaceItBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceElTitle">${window.CosyI18n.t('founder.spaceElTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceElDesc">${window.CosyI18n.t('founder.spaceElDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceElDesc">${window.CosyI18n.t('founder.spaceElDesc')}</p>
               <a href="teacher.html?lang=el" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceElBtn">${window.CosyI18n.t('founder.spaceElBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceHyTitle">${window.CosyI18n.t('founder.spaceHyTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceHyDesc">${window.CosyI18n.t('founder.spaceHyDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceHyDesc">${window.CosyI18n.t('founder.spaceHyDesc')}</p>
               <a href="teacher.html?lang=hy" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceHyBtn">${window.CosyI18n.t('founder.spaceHyBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceKaTitle">${window.CosyI18n.t('founder.spaceKaTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceKaDesc">${window.CosyI18n.t('founder.spaceKaDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceKaDesc">${window.CosyI18n.t('founder.spaceKaDesc')}</p>
               <a href="teacher.html?lang=ka" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceKaBtn">${window.CosyI18n.t('founder.spaceKaBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceTtTitle">${window.CosyI18n.t('founder.spaceTtTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceTtDesc">${window.CosyI18n.t('founder.spaceTtDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceTtDesc">${window.CosyI18n.t('founder.spaceTtDesc')}</p>
               <a href="teacher.html?lang=tt" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceTtBtn">${window.CosyI18n.t('founder.spaceTtBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceBaTitle">${window.CosyI18n.t('founder.spaceBaTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceBaDesc">${window.CosyI18n.t('founder.spaceBaDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceBaDesc">${window.CosyI18n.t('founder.spaceBaDesc')}</p>
               <a href="teacher.html?lang=ba" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceBaBtn">${window.CosyI18n.t('founder.spaceBaBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.spaceBrTitle">${window.CosyI18n.t('founder.spaceBrTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.spaceBrDesc">${window.CosyI18n.t('founder.spaceBrDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.spaceBrDesc">${window.CosyI18n.t('founder.spaceBrDesc')}</p>
               <a href="teacher.html?lang=br" class="btn" style="background: var(--cosy-platform-teacher, #0369a1); text-align: center;" data-i18n="founder.spaceBrBtn">${window.CosyI18n.t('founder.spaceBrBtn')}</a>
             </div>
             <div class="teacher-link-card">
               <h4 data-i18n="founder.masterSpaceTitle">${window.CosyI18n.t('founder.masterSpaceTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.masterSpaceDesc">${window.CosyI18n.t('founder.masterSpaceDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.masterSpaceDesc">${window.CosyI18n.t('founder.masterSpaceDesc')}</p>
               <a href="teacher.html" class="btn btn-outline" style="text-align: center;" data-i18n="founder.masterSpaceBtn">${window.CosyI18n.t('founder.masterSpaceBtn')}</a>
             </div>
           </div>
@@ -418,7 +418,7 @@
           <div class="teacher-links-grid">
             <div class="teacher-link-card">
               <h4 data-i18n="founder.studentCardTitle">${window.CosyI18n.t('founder.studentCardTitle')}</h4>
-              <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;" data-i18n="founder.studentCardDesc">${window.CosyI18n.t('founder.studentCardDesc')}</p>
+              <p style="font-size: 0.85rem; color: var(--cosy-color-ink-muted); margin-bottom: 1rem;" data-i18n="founder.studentCardDesc">${window.CosyI18n.t('founder.studentCardDesc')}</p>
               <a href="student.html" class="btn btn-secondary" style="text-align: center;" data-i18n="founder.studentCardBtn">${window.CosyI18n.t('founder.studentCardBtn')}</a>
             </div>
           </div>
@@ -447,7 +447,7 @@
 
       const client = window.CosyAuth.client;
       if (!client) {
-        container.innerHTML = `<p style="color: #ef4444;" data-i18n="founder.clientOffline">Client offline</p>`;
+        container.innerHTML = `<p style="color: var(--cosy-color-ink-error);" data-i18n="founder.clientOffline">Client offline</p>`;
         return;
       }
 
@@ -458,12 +458,12 @@
           .order('created_at', { ascending: false });
 
         if (error) {
-          container.innerHTML = `<p style="color: #ef4444;">${window.CosyI18n.t('founder.errFetchingProfiles', { message: `<span data-i18n-skip>${error.message}</span>` })}</p>`;
+          container.innerHTML = `<p style="color: var(--cosy-color-ink-error);">${window.CosyI18n.t('founder.errFetchingProfiles', { message: `<span data-i18n-skip>${error.message}</span>` })}</p>`;
           return;
         }
 
         if (!profiles || profiles.length === 0) {
-          container.innerHTML = `<p style="color: #64748b;" data-i18n="founder.noProfiles">${window.CosyI18n.t('founder.noProfiles')}</p>`;
+          container.innerHTML = `<p style="color: var(--cosy-color-ink-muted);" data-i18n="founder.noProfiles">${window.CosyI18n.t('founder.noProfiles')}</p>`;
           return;
         }
 
@@ -498,7 +498,7 @@
 
           html += `
             <tr id="profile-row-${p.id}">
-              <td style="font-family: monospace; font-size: 0.8rem; color: #64748b;" title="${p.id}" data-i18n-skip>
+              <td style="font-family: monospace; font-size: 0.8rem; color: var(--cosy-color-ink-muted);" title="${p.id}" data-i18n-skip>
                 ${p.id.substring(0, 8)}...
               </td>
               <td style="width: 120px;">
@@ -517,7 +517,7 @@
               <td style="width: 180px;">
                 <input type="text" id="sessions-${p.id}" value="${sessionsStr.replace(/"/g, '&quot;')}" placeholder="${phSessions}" data-i18n-placeholder="founder.phSessions" ${isTeacher ? '' : 'disabled style="display:none;"'} />
               </td>
-              <td style="font-size: 0.8rem; color: #64748b;" data-i18n-skip>
+              <td style="font-size: 0.8rem; color: var(--cosy-color-ink-muted);" data-i18n-skip>
                 ${dateStr}
               </td>
               <td>
@@ -533,7 +533,7 @@
         window.CosyI18n.applyDom(container);
 
       } catch (err) {
-        container.innerHTML = `<p style="color: #ef4444;">${window.CosyI18n.t('founder.errSystem', { message: `<span data-i18n-skip>${err.message}</span>` })}</p>`;
+        container.innerHTML = `<p style="color: var(--cosy-color-ink-error);">${window.CosyI18n.t('founder.errSystem', { message: `<span data-i18n-skip>${err.message}</span>` })}</p>`;
       }
     }
 
@@ -543,7 +543,7 @@
       const btnEl = document.getElementById(`btn-save-${userId}`);
 
       if (!client) {
-        if (statusEl) statusEl.innerHTML = `<span style="color: #ef4444;">${window.CosyI18n.t('founder.clientOffline')}</span>`;
+        if (statusEl) statusEl.innerHTML = `<span style="color: var(--cosy-color-ink-error);">${window.CosyI18n.t('founder.clientOffline')}</span>`;
         return;
       }
 
@@ -566,7 +566,7 @@
       }
 
       if (btnEl) btnEl.disabled = true;
-      if (statusEl) statusEl.innerHTML = `<span style="color: #0369a1;">${window.CosyI18n.t('founder.savingStatus')}</span>`;
+      if (statusEl) statusEl.innerHTML = `<span style="color: var(--cosy-color-ink-link);">${window.CosyI18n.t('founder.savingStatus')}</span>`;
 
       try {
         const updatePayload = {
@@ -584,13 +584,13 @@
           .select('id');
 
         if (error || !data || data.length !== 1) {
-          if (statusEl) statusEl.innerHTML = `<span style="color: #ef4444; font-weight: 600;">${window.CosyI18n.t('founder.notSavedErr')}</span>`;
+          if (statusEl) statusEl.innerHTML = `<span style="color: var(--cosy-color-ink-error); font-weight: 600;">${window.CosyI18n.t('founder.notSavedErr')}</span>`;
         } else {
           if (statusEl) statusEl.innerHTML = `<span style="color: #047857; font-weight: 600;">${window.CosyI18n.t('founder.savedSuccess')}</span>`;
           setTimeout(() => { if (statusEl) statusEl.innerHTML = ''; }, 3000);
         }
       } catch (err) {
-        if (statusEl) statusEl.innerHTML = `<span style="color: #ef4444; font-weight: 600;">${window.CosyI18n.t('founder.notSavedErr')}</span>`;
+        if (statusEl) statusEl.innerHTML = `<span style="color: var(--cosy-color-ink-error); font-weight: 600;">${window.CosyI18n.t('founder.notSavedErr')}</span>`;
       } finally {
         if (btnEl) btnEl.disabled = false;
       }

@@ -17,10 +17,10 @@
     select.setAttribute('data-i18n-skip', '');
     select.style.padding = '4px 8px';
     select.style.borderRadius = '6px';
-    select.style.border = '1px solid #cbd5e1';
+    select.style.border = '1px solid var(--cosy-color-border-strong, #cbd5e1)';
     select.style.fontSize = '0.85rem';
-    select.style.background = '#f8fafc';
-    select.style.color = '#0f172a';
+    select.style.background = 'var(--cosy-color-surface-subtle, #f8fafc)';
+    select.style.color = 'var(--cosy-color-ink, #0f172a)';
     select.style.cursor = 'pointer';
 
     if (window.CosyI18n && typeof window.CosyI18n.t === 'function') {

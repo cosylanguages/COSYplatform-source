@@ -10,6 +10,7 @@
  */
 
 :root {
+    color-scheme: light;
     /* ── 1. Base Neutrals & Surface Palette (Light Mode) ──────────────── */
     --cosy-color-cream:                  #fdfcf8;
     --cosy-color-cream-dark:             #f5ede0;
@@ -22,6 +23,28 @@
     --cosy-color-ink-faint:              #5c5957;
     --cosy-color-muted:                  #5c5957;
 
+    --cosy-platform-accent-light:        #e0f2fe;
+    --cosy-color-tint-error:             #fef2f2;
+    --cosy-color-tint-success:           #dcfce7;
+    --cosy-color-tint-violet:            #f3e8ff;
+    --cosy-color-surface-muted:          #f1f5f9;
+    --cosy-color-honey:                  #945e05;
+    --cosy-color-honey-dark:             #7d4d03;
+    --cosy-color-honey-pale:             #fff8e7;
+    --cosy-color-honey-mid:              #fef0c7;
+    --cosy-color-ink-inverse:            #f8fafc;
+    --cosy-color-ink-on-accent:          #082f49;
+    --cosy-color-ink-error:              #b91c1c;
+    --cosy-color-ink-success:            #166534;
+    --cosy-color-ink-link:               #0369a1;
+    --on-primary:                        #ffffff;
+    --cosy-color-surface-subtle:         #f8fafc;
+    --cosy-color-surface-raised:         #ffffff;
+    --cosy-color-border-strong:          #cbd5e1;
+    --cosy-color-border-soft:            #e2e8f0;
+    --cosy-color-tint-info:              #f0f9ff;
+    --cosy-color-tint-info-strong:       #e0f2fe;
+    --cosy-color-tint-warn:              #fffbe3;
     --cosy-color-border:                 rgba(74, 107, 80, 0.12);
     --cosy-color-border-hover:           rgba(74, 107, 80, 0.25);
 
@@ -236,17 +259,82 @@
 /* ── 12. Dark Mode Theme Overrides ───────────────────────────────────────── */
 html[data-theme="dark"], body.theme-dark {
     --cosy-color-cream:                  #0f172a;
-    --cosy-color-cream-dark:             #0284c7;
+    --cosy-color-cream-dark:             #16202e;
     --cosy-color-warm-white:             #1e293b;
     --cosy-color-surface:                #1e293b;
 
     --cosy-color-ink:                    #f8fafc;
     --cosy-color-ink-soft:               #cbd5e1;
     --cosy-color-ink-muted:              #94a3b8;
+    --cosy-platform-accent-light:        #16304f;
+    --cosy-color-tint-error:             #3a1d1d;
+    --cosy-color-tint-success:           #16321f;
+    --cosy-color-tint-violet:            #2a2140;
+    --cosy-color-surface-muted:          #202b3a;
+    --cosy-color-honey:                  #f0b429;
+    --cosy-color-honey-dark:             #f5d089;
+    --cosy-color-honey-pale:             #3a3320;
+    --cosy-color-honey-mid:              #4a3f22;
+    --cosy-color-ink-inverse:            #f8fafc;
+    --cosy-color-ink-on-accent:          #082f49;
+    --cosy-color-ink-error:              #fca5a5;
+    --cosy-color-ink-success:            #86efac;
+    --cosy-color-ink-link:               #7dd3fc;
+    --on-primary:                        #082f49;
+    --cosy-color-surface-subtle:         #243244;
+    --cosy-color-surface-raised:         #1e293b;
+    --cosy-color-border-strong:          #334155;
+    --cosy-color-border-soft:            #2b3b4e;
+    --cosy-color-tint-info:              #16304f;
+    --cosy-color-tint-info-strong:       #1e3a5f;
+    --cosy-color-tint-warn:              #3a3320;
     --cosy-color-border:                 rgba(56, 189, 248, 0.20);
     --cosy-color-border-hover:           rgba(56, 189, 248, 0.35);
 
     --cosy-platform-accent:              #38bdf8;
     --cosy-platform-student:             #38bdf8;
     --cosy-platform-teacher:             #7dd3fc;
+}
+
+/* Follow the OS preference when the page has not pinned a theme. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --cosy-color-cream:                  #0f172a;
+    --cosy-color-cream-dark:             #16202e;
+    --cosy-color-warm-white:             #1e293b;
+    --cosy-color-surface:                #1e293b;
+
+    --cosy-color-ink:                    #f8fafc;
+    --cosy-color-ink-soft:               #cbd5e1;
+    --cosy-color-ink-muted:              #94a3b8;
+    --cosy-platform-accent-light:        #16304f;
+    --cosy-color-tint-error:             #3a1d1d;
+    --cosy-color-tint-success:           #16321f;
+    --cosy-color-tint-violet:            #2a2140;
+    --cosy-color-surface-muted:          #202b3a;
+    --cosy-color-honey:                  #f0b429;
+    --cosy-color-honey-dark:             #f5d089;
+    --cosy-color-honey-pale:             #3a3320;
+    --cosy-color-honey-mid:              #4a3f22;
+    --cosy-color-ink-inverse:            #f8fafc;
+    --cosy-color-ink-on-accent:          #082f49;
+    --cosy-color-ink-error:              #fca5a5;
+    --cosy-color-ink-success:            #86efac;
+    --cosy-color-ink-link:               #7dd3fc;
+    --on-primary:                        #082f49;
+    --cosy-color-surface-subtle:         #243244;
+    --cosy-color-surface-raised:         #1e293b;
+    --cosy-color-border-strong:          #334155;
+    --cosy-color-border-soft:            #2b3b4e;
+    --cosy-color-tint-info:              #16304f;
+    --cosy-color-tint-info-strong:       #1e3a5f;
+    --cosy-color-tint-warn:              #3a3320;
+    --cosy-color-border:                 rgba(56, 189, 248, 0.20);
+    --cosy-color-border-hover:           rgba(56, 189, 248, 0.35);
+
+    --cosy-platform-accent:              #38bdf8;
+    --cosy-platform-student:             #38bdf8;
+    --cosy-platform-teacher:             #7dd3fc;
+    color-scheme: dark;
+  }
 }

@@ -18,7 +18,7 @@
   <script src="shared/js/lang-switcher.js"></script>
   <style>
     body {
-      background-color: #f8fafc;
+      background-color: var(--cosy-color-surface-subtle);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       display: flex;
       align-items: center;
@@ -29,8 +29,8 @@
       box-sizing: border-box;
     }
     .login-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
+      background: var(--cosy-color-surface-raised);
+      border: 1px solid var(--cosy-color-border-soft);
       border-radius: 12px;
       padding: 40px;
       width: 100%;
@@ -50,11 +50,11 @@
     .login-header h1 {
       font-size: 1.75rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--cosy-color-ink);
       margin: 0 0 8px 0;
     }
     .login-header p {
-      color: #64748b;
+      color: var(--cosy-color-ink-muted);
       font-size: 0.9rem;
       margin: 0;
     }
@@ -65,13 +65,13 @@
       display: block;
       font-size: 0.85rem;
       font-weight: 600;
-      color: #334155;
+      color: var(--cosy-color-ink-soft);
       margin-bottom: 6px;
     }
     .form-group input {
       width: 100%;
       padding: 10px 14px;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--cosy-color-border-strong);
       border-radius: 8px;
       font-size: 0.95rem;
       box-sizing: border-box;
@@ -79,14 +79,14 @@
     }
     .form-group input:focus {
       outline: none;
-      border-color: #0369a1;
+      border-color: var(--cosy-color-ink-link);
       box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
     }
     .btn-submit {
       width: 100%;
       padding: 12px;
-      background-color: #0369a1;
-      color: #ffffff;
+      background-color: var(--cosy-color-ink-link);
+      color: var(--on-primary);
       border: none;
       border-radius: 8px;
       font-size: 0.95rem;
@@ -95,16 +95,16 @@
       transition: background-color 0.15s ease;
     }
     .btn-submit:hover {
-      background-color: #0369a1;
+      background-color: var(--cosy-color-ink-link);
     }
     .btn-submit:disabled {
-      background-color: #94a3b8;
+      background-color: var(--cosy-color-ink-muted);
       cursor: not-allowed;
     }
     .error-banner {
-      background-color: #fef2f2;
+      background-color: var(--cosy-color-tint-error);
       border: 1px solid #fca5a5;
-      color: #991b1b;
+      color: var(--cosy-color-ink-error);
       padding: 12px;
       border-radius: 8px;
       font-size: 0.85rem;
@@ -115,7 +115,7 @@
       text-align: center;
       margin-top: 24px;
       font-size: 0.8rem;
-      color: #475569;
+      color: var(--cosy-color-ink-soft);
     }
   </style>
 </head>

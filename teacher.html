@@ -27,7 +27,7 @@
     }
 
     .badge-teacher {
-      background: #f3e8ff;
+      background: var(--cosy-color-tint-violet);
       color: var(--teacher-primary, #6d28d9);
       padding: 4px 10px;
       border-radius: var(--cosy-radius-full, 100px);
@@ -36,8 +36,8 @@
     }
 
     .btn-logout {
-      background-color: #334155;
-      color: white;
+      background-color: var(--cosy-color-ink-soft);
+      color: var(--on-primary);
       border: none;
       padding: 6px 14px;
       border-radius: 6px;
@@ -50,16 +50,16 @@
     .access-denied {
       max-width: 500px;
       margin: 80px auto;
-      background: white;
+      background: var(--cosy-color-surface-raised);
       padding: 40px;
       border-radius: var(--cosy-radius-md, 14px);
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--cosy-color-border-strong);
       text-align: center;
       box-shadow: var(--cosy-shadow-sm);
     }
 
     .access-denied h2 {
-      color: #ef4444;
+      color: var(--cosy-color-ink-error);
       margin-bottom: 12px;
     }
 
@@ -86,7 +86,7 @@
     }
 
     .category-card {
-      background: #f0f9ff;
+      background: var(--cosy-color-tint-info);
       border: 1px solid #bae6fd;
       border-radius: var(--cosy-radius-md, 14px);
       padding: 16px;
@@ -133,8 +133,8 @@
     }
 
     .course-item-card {
-      background: white;
-      border: 1px solid #e2e8f0;
+      background: var(--cosy-color-surface-raised);
+      border: 1px solid var(--cosy-color-border-soft);
       border-radius: var(--cosy-radius-sm, 8px);
       padding: 12px 14px;
       display: flex;
@@ -152,7 +152,7 @@
     .course-item-title {
       font-weight: 600;
       font-size: 0.9rem;
-      color: #0f172a;
+      color: var(--cosy-color-ink);
     }
 
     .course-item-level {
@@ -164,8 +164,8 @@
 
     /* Controls Header Bar */
     .teacher-controls-bar {
-      background: white;
-      border: 1px solid #e2e8f0;
+      background: var(--cosy-color-surface-raised);
+      border: 1px solid var(--cosy-color-border-soft);
       border-radius: var(--cosy-radius-md, 14px);
       padding: 16px 24px;
       margin-bottom: 20px;
@@ -179,8 +179,8 @@
 
     /* Slide Navigation Controls */
     .slide-nav-bar {
-      background: white;
-      border: 1px solid #e2e8f0;
+      background: var(--cosy-color-surface-raised);
+      border: 1px solid var(--cosy-color-border-soft);
       border-radius: var(--cosy-radius-md, 14px);
       padding: 12px 20px;
       margin-bottom: 20px;
@@ -201,34 +201,34 @@
     .slide-pill {
       padding: 6px 14px;
       border-radius: var(--cosy-radius-full, 100px);
-      border: 1px solid #cbd5e1;
-      background: #f8fafc;
+      border: 1px solid var(--cosy-color-border-strong);
+      background: var(--cosy-color-surface-subtle);
       font-size: 0.82rem;
       font-weight: 600;
-      color: #475569;
+      color: var(--cosy-color-ink-soft);
       cursor: pointer;
       transition: all 0.15s ease;
     }
 
     .slide-pill:hover {
-      background: #e2e8f0;
-      color: #0f172a;
+      background: var(--cosy-color-border-soft);
+      color: var(--cosy-color-ink);
     }
 
     .slide-pill.active {
       background: var(--teacher-primary);
-      color: white;
+      color: var(--on-primary);
       border-color: var(--teacher-primary);
     }
 
     .slide-nav-btn {
       padding: 8px 16px;
       border-radius: var(--cosy-radius-sm, 8px);
-      border: 1px solid #cbd5e1;
-      background: white;
+      border: 1px solid var(--cosy-color-border-strong);
+      background: var(--cosy-color-surface-raised);
       font-weight: 600;
       font-size: 0.85rem;
-      color: #0f172a;
+      color: var(--cosy-color-ink);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -237,7 +237,7 @@
     }
 
     .slide-nav-btn:hover:not(:disabled) {
-      background: #f1f5f9;
+      background: var(--cosy-color-surface-muted);
     }
 
     .slide-nav-btn:disabled {
@@ -255,9 +255,9 @@
     .control-group select {
       padding: 6px 12px;
       border-radius: var(--cosy-radius-sm, 8px);
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--cosy-color-border-strong);
       font-size: 0.85rem;
-      background: #f8fafc;
+      background: var(--cosy-color-surface-subtle);
     }
 
     /* Edvibe Workspace Layout */
@@ -278,8 +278,8 @@
     }
 
     .left-utility-rail {
-      background: white;
-      border: 1px solid #e2e8f0;
+      background: var(--cosy-color-surface-raised);
+      border: 1px solid var(--cosy-color-border-soft);
       border-radius: var(--cosy-radius-md, 14px);
       padding: 12px 6px;
       display: flex;
@@ -295,26 +295,26 @@
       width: 40px;
       height: 40px;
       border-radius: 10px;
-      border: 1px solid #cbd5e1;
-      background: #f8fafc;
+      border: 1px solid var(--cosy-color-border-strong);
+      background: var(--cosy-color-surface-subtle);
       font-size: 1.2rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.15s ease;
-      color: #475569;
+      color: var(--cosy-color-ink-soft);
     }
 
     .rail-btn:hover, .rail-btn.active {
       background: var(--teacher-primary);
-      color: white;
+      color: var(--on-primary);
       border-color: var(--teacher-primary);
     }
 
     .right-sections-sidebar {
-      background: white;
-      border: 1px solid #e2e8f0;
+      background: var(--cosy-color-surface-raised);
+      border: 1px solid var(--cosy-color-border-soft);
       border-radius: var(--cosy-radius-md, 14px);
       padding: 20px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.03);
@@ -325,7 +325,7 @@
     .sections-header {
       font-size: 1rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--cosy-color-ink);
       margin-bottom: 14px;
       padding-bottom: 8px;
       border-bottom: 2px solid #f1f5f9;
@@ -343,21 +343,21 @@
       margin-bottom: 6px;
       font-size: 0.88rem;
       font-weight: 500;
-      color: #475569;
+      color: var(--cosy-color-ink-soft);
       cursor: pointer;
       transition: all 0.15s ease;
-      background: #f8fafc;
+      background: var(--cosy-color-surface-subtle);
       border: 1px solid transparent;
     }
 
     .section-item:hover {
-      background: #f1f5f9;
-      color: #0f172a;
+      background: var(--cosy-color-surface-muted);
+      color: var(--cosy-color-ink);
     }
 
     .section-item.active {
-      background: #e0f2fe;
-      color: #0369a1;
+      background: var(--cosy-color-tint-info-strong);
+      color: var(--cosy-color-ink-link);
       border-color: #bae6fd;
       font-weight: 600;
     }
@@ -365,8 +365,8 @@
     .section-num {
       font-size: 0.75rem;
       font-weight: 700;
-      background: #cbd5e1;
-      color: #334155;
+      background: var(--cosy-color-border-strong);
+      color: var(--cosy-color-ink-soft);
       padding: 2px 6px;
       border-radius: 4px;
       margin-right: 8px;
@@ -374,14 +374,14 @@
 
     .section-item.active .section-num {
       background: var(--teacher-primary);
-      color: white;
+      color: var(--on-primary);
     }
 
     /* Lesson Viewer */
     .slide-card {
-      background: white;
+      background: var(--cosy-color-surface-raised);
       border-radius: var(--cosy-radius-md, 14px);
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--cosy-color-border-soft);
       padding: 32px;
       margin-bottom: 24px;
       box-shadow: var(--cosy-shadow-sm);
@@ -389,7 +389,7 @@
 
     .slide-title {
       font-size: 1.4rem;
-      color: #0f172a;
+      color: var(--cosy-color-ink);
       border-bottom: 2px solid #f1f5f9;
       padding-bottom: 12px;
       margin-bottom: 20px;
@@ -400,8 +400,8 @@
 
     .slide-stage-tag {
       font-size: 0.75rem;
-      background: #f1f5f9;
-      color: #475569;
+      background: var(--cosy-color-surface-muted);
+      color: var(--cosy-color-ink-soft);
       padding: 4px 10px;
       border-radius: 6px;
       text-transform: uppercase;
@@ -440,13 +440,13 @@
     }
 
     .answer-key-box {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
+      background: var(--cosy-color-surface-muted);
+      border: 1px solid var(--cosy-color-border-strong);
       border-radius: 6px;
       padding: 10px 14px;
       margin: 8px 0;
       font-size: 0.85rem;
-      color: #334155;
+      color: var(--cosy-color-ink-soft);
     }
 
     .answer-key-title {
@@ -464,7 +464,7 @@
 
     cosy-blockquote, .cosy-blockquote {
       display: block;
-      background: #f8fafc;
+      background: var(--cosy-color-surface-subtle);
       border-left: 4px solid var(--teacher-primary);
       padding: 16px;
       margin: 16px 0;
@@ -489,8 +489,8 @@
         <span class="badge-teacher">Teacher Catalog &amp; Guide</span>
       </div>
       <div style="display: flex; align-items: center; gap: 12px;">
-        <a href="classroom.html" class="btn" style="background: #047857; color: white; padding: 4px 12px; text-decoration: none; font-size: 0.8rem; border-radius: 6px; font-weight: 600;">Live Classroom 🎥</a>
-        <div id="user-info" style="font-size: 0.85rem; color: #64748b;"></div>
+        <a href="classroom.html" class="btn" style="background: #047857; color: var(--cosy-color-ink-inverse); padding: 4px 12px; text-decoration: none; font-size: 0.8rem; border-radius: 6px; font-weight: 600;">Live Classroom 🎥</a>
+        <div id="user-info" style="font-size: 0.85rem; color: var(--cosy-color-ink-muted);"></div>
         <button onclick="window.CosyAuth.logout()" class="btn-logout">Log Out</button>
       </div>
     </div>
@@ -580,8 +580,8 @@
         <div class="catalog-container">
           <div class="catalog-header">
             <div>
-              <h1 style="font-size: 1.6rem; color: #0f172a;">${headingText}</h1>
-              <p style="color: #64748b;">Teachers have access to all assigned tracks, curriculums, and speech scripts.</p>
+              <h1 style="font-size: 1.6rem; color: var(--cosy-color-ink);">${headingText}</h1>
+              <p style="color: var(--cosy-color-ink-muted);">Teachers have access to all assigned tracks, curriculums, and speech scripts.</p>
             </div>
             <div style="display: flex; gap: 8px;">
               ${profile && profile.role === 'founder' ? '<a href="founder.html" class="btn btn-outline" style="font-size: 0.85rem;">← Founder Portal</a>' : ''}
@@ -589,13 +589,13 @@
           </div>
 
           <!-- My Shared Notes Section -->
-          <div id="my-notes-section" style="margin-bottom: 30px; background: white; border: 1px solid #cbd5e1; border-radius: var(--cosy-radius-md, 14px); padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+          <div id="my-notes-section" style="margin-bottom: 30px; background: var(--cosy-color-surface-raised); border: 1px solid var(--cosy-color-border-strong); border-radius: var(--cosy-radius-md, 14px); padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
             <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--teacher-primary, #6d28d9); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
               <span>📝 My Classroom Notes</span>
-              <button onclick="loadUserNotes('teacher')" style="font-size: 0.8rem; padding: 4px 10px; background: #f3e8ff; color: var(--teacher-primary, #6d28d9); border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Refresh 🔄</button>
+              <button onclick="loadUserNotes('teacher')" style="font-size: 0.8rem; padding: 4px 10px; background: var(--cosy-color-tint-violet); color: var(--teacher-primary, #6d28d9); border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Refresh 🔄</button>
             </h2>
             <div id="user-notes-container">
-              <p style="color: #64748b; font-size: 0.85rem;">Loading your notes...</p>
+              <p style="color: var(--cosy-color-ink-muted); font-size: 0.85rem;">Loading your notes...</p>
             </div>
           </div>
 
@@ -603,7 +603,7 @@
       `;
 
       if (courseList.length === 0) {
-        html += `<p style="grid-column: 1/-1; color: #64748b;">No courses match the selected filters.</p>`;
+        html += `<p style="grid-column: 1/-1; color: var(--cosy-color-ink-muted);">No courses match the selected filters.</p>`;
       } else {
         const groupedByLangTrack = {};
         courseList.forEach(c => {
@@ -632,7 +632,7 @@
           html += `
             <div class="category-card" id="tcat-${groupKey}">
               <div class="category-header" onclick="toggleTeacherCategoryFold('tcat-${groupKey}')">
-                <h3>${langName} • ${group.track} (${availableCount})${comingSoonCount > 0 ? ` <span style="font-size: 0.8em; font-weight: normal; color: #64748b;">+ ${comingSoonCount} coming soon</span>` : ''}</h3>
+                <h3>${langName} • ${group.track} (${availableCount})${comingSoonCount > 0 ? ` <span style="font-size: 0.8em; font-weight: normal; color: var(--cosy-color-ink-muted);">+ ${comingSoonCount} coming soon</span>` : ''}</h3>
                 <span class="category-toggle-icon">▼</span>
               </div>
               <div class="category-body">
@@ -663,7 +663,7 @@
                       <span class="course-item-title">${c.title}</span>
                     </div>
                   </div>
-                  <span style="font-size: 0.8rem; color: #64748b; font-weight: 500; white-space: nowrap;">Coming soon</span>
+                  <span style="font-size: 0.8rem; color: var(--cosy-color-ink-muted); font-weight: 500; white-space: nowrap;">Coming soon</span>
                 </div>
               `;
             }
@@ -716,13 +716,13 @@
         let html = `
           <div class="catalog-container">
             <div class="teacher-controls-bar">
-              <a href="teacher.html" class="back-btn" style="color: #64748b; font-weight: 500;">← Back to Catalog</a>
+              <a href="teacher.html" class="back-btn" style="color: var(--cosy-color-ink-muted); font-weight: 500;">← Back to Catalog</a>
               <span class="badge-teacher">${roadmap.title}</span>
             </div>
 
             <div class="section-card">
-              <h2 style="font-size: 1.4rem; color: #0f172a; margin-bottom: 6px;">${roadmap.title}</h2>
-              <p style="color: #64748b; margin-bottom: 20px;">${summaryText}</p>
+              <h2 style="font-size: 1.4rem; color: var(--cosy-color-ink); margin-bottom: 6px;">${roadmap.title}</h2>
+              <p style="color: var(--cosy-color-ink-muted); margin-bottom: 20px;">${summaryText}</p>
 
               <div class="unit-grid">
         `;
@@ -736,10 +736,10 @@
               <div class="unit-card">
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">LESSON #${item.lessonNumber}</span>
+                    <span style="font-size: 0.75rem; color: var(--cosy-color-ink-muted); font-weight: 600;">LESSON #${item.lessonNumber}</span>
                   </div>
                   <h3 style="margin: 6px 0;">${item.title}</h3>
-                  ${item.unit ? `<p style="font-size: 0.8rem; color: #64748b; margin-bottom: 12px;">${item.unit}</p>` : ''}
+                  ${item.unit ? `<p style="font-size: 0.8rem; color: var(--cosy-color-ink-muted); margin-bottom: 12px;">${item.unit}</p>` : ''}
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
                   <a href="teacher.html?lesson=${encodeURIComponent(lessonPath)}&course=${encodeURIComponent(courseId)}" class="btn" style="background: var(--teacher-primary); padding: 6px 12px; font-size: 0.8rem; text-align: center;">Open lesson</a>
@@ -748,14 +748,14 @@
             `;
           } else {
             html += `
-              <div class="unit-card" style="opacity: 0.6; background: #f8fafc;">
+              <div class="unit-card" style="opacity: 0.6; background: var(--cosy-color-surface-subtle);">
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">LESSON #${item.lessonNumber}</span>
-                    <span style="font-size: 0.75rem; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Planned</span>
+                    <span style="font-size: 0.75rem; color: var(--cosy-color-ink-muted); font-weight: 600;">LESSON #${item.lessonNumber}</span>
+                    <span style="font-size: 0.75rem; color: var(--cosy-color-ink-muted); background: var(--cosy-color-surface-muted); padding: 2px 6px; border-radius: 4px; font-weight: 600;">Planned</span>
                   </div>
-                  <h3 style="margin: 6px 0; color: #64748b;">${item.title}</h3>
-                  ${item.unit ? `<p style="font-size: 0.8rem; color: #64748b; margin-bottom: 12px;">${item.unit}</p>` : ''}
+                  <h3 style="margin: 6px 0; color: var(--cosy-color-ink-muted);">${item.title}</h3>
+                  ${item.unit ? `<p style="font-size: 0.8rem; color: var(--cosy-color-ink-muted); margin-bottom: 12px;">${item.unit}</p>` : ''}
                 </div>
               </div>
             `;
@@ -864,11 +864,11 @@
       const resultsDiv = document.getElementById('dictSearchResults');
 
       if (!window.CosyVocabIndex) {
-        if (resultsDiv) resultsDiv.innerHTML = `<p style="color: #64748b; font-style: italic;">Loading dictionary…</p>`;
+        if (resultsDiv) resultsDiv.innerHTML = `<p style="color: var(--cosy-color-ink-muted); font-style: italic;">Loading dictionary…</p>`;
         try {
           await window.CosyLazy.load('shared/js/vocab-index.js');
         } catch (err) {
-          if (resultsDiv) resultsDiv.innerHTML = `<p style="color: #ef4444;">Could not load the dictionary.</p>`;
+          if (resultsDiv) resultsDiv.innerHTML = `<p style="color: var(--cosy-color-ink-error);">Could not load the dictionary.</p>`;
           return;
         }
       }
@@ -879,7 +879,7 @@
       const currentQuery = currentInput ? currentInput.value : query;
       const q = (currentQuery !== undefined ? currentQuery : query).trim().toLowerCase();
       if (!q) {
-        resultsDiv.innerHTML = `<p style="color: #64748b; font-style: italic;">Type a word to search COSYdata vocabulary index...</p>`;
+        resultsDiv.innerHTML = `<p style="color: var(--cosy-color-ink-muted); font-style: italic;">Type a word to search COSYdata vocabulary index...</p>`;
         return;
       }
 
@@ -906,7 +906,7 @@
       }
 
       if (allMatches.length === 0) {
-        resultsDiv.innerHTML = `<p style="color: #ef4444;">No matching COSYdata key found for "${q}".</p>`;
+        resultsDiv.innerHTML = `<p style="color: var(--cosy-color-ink-error);">No matching COSYdata key found for "${q}".</p>`;
         return;
       }
 
@@ -927,24 +927,24 @@
         html += `
           <div style="background: ${isExact ? '#faf5ff' : '#ffffff'}; border: 1px solid ${isExact ? '#6d28d9' : '#cbd5e1'}; border-radius: 10px; padding: 10px 12px; cursor: pointer;" onclick="toggleDictCardDetail('${cardId}')">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: #0f172a;">
+              <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--cosy-color-ink);">
                 <span>${meta.emoji}</span>
                 <span style="font-size: 0.95rem; color: var(--teacher-primary, #6d28d9);">${m.word}</span>
-                ${isExact ? '<span style="background: #dcfce7; color: #166534; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">EXACT MATCH</span>' : ''}
+                ${isExact ? '<span style="background: var(--cosy-color-tint-success); color: var(--cosy-color-ink-success); font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">EXACT MATCH</span>' : ''}
               </div>
               <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-size: 0.7rem; background: #f3e8ff; color: var(--teacher-primary, #6d28d9); padding: 2px 6px; border-radius: 4px; font-weight: 700;">${meta.level}</span>
-                <span style="font-size: 0.7rem; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-weight: 600;">${m.pos}</span>
-                <button onclick="event.stopPropagation(); speakText('${m.word.replace(/'/g, "\\'")}', 'en-US')" style="background: var(--teacher-primary, #6d28d9); color: white; border: none; border-radius: 6px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer;">🔊</button>
+                <span style="font-size: 0.7rem; background: var(--cosy-color-tint-violet); color: var(--teacher-primary, #6d28d9); padding: 2px 6px; border-radius: 4px; font-weight: 700;">${meta.level}</span>
+                <span style="font-size: 0.7rem; background: var(--cosy-color-surface-muted); color: var(--cosy-color-ink-soft); padding: 2px 6px; border-radius: 4px; font-weight: 600;">${m.pos}</span>
+                <button onclick="event.stopPropagation(); speakText('${m.word.replace(/'/g, "\\'")}', 'en-US')" style="background: var(--teacher-primary, #6d28d9); color: var(--on-primary); border: none; border-radius: 6px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer;">🔊</button>
               </div>
             </div>
 
-            <div id="${cardId}" style="display: ${isExact ? 'block' : 'none'}; margin-top: 8px; pt-8px; border-top: 1px solid #e2e8f0; font-size: 0.8rem; color: #334155;">
+            <div id="${cardId}" style="display: ${isExact ? 'block' : 'none'}; margin-top: 8px; pt-8px; border-top: 1px solid var(--cosy-color-border-soft); font-size: 0.8rem; color: var(--cosy-color-ink-soft);">
               <div style="margin-top: 6px; font-weight: 500;"><strong style="color: var(--teacher-primary, #6d28d9);">Definition:</strong> ${meta.definition}</div>
-              <div style="margin-top: 4px; background: #f8fafc; padding: 6px 8px; border-radius: 6px; font-style: italic;"><strong style="font-style: normal; color: #475569;">Example:</strong> "${meta.example}"</div>
+              <div style="margin-top: 4px; background: var(--cosy-color-surface-subtle); padding: 6px 8px; border-radius: 6px; font-style: italic;"><strong style="font-style: normal; color: var(--cosy-color-ink-soft);">Example:</strong> "${meta.example}"</div>
               ${meta.synonyms.length > 0 ? `<div style="margin-top: 4px;"><strong>Synonyms:</strong> ${meta.synonyms.join(', ')}</div>` : ''}
               ${meta.antonyms.length > 0 ? `<div style="margin-top: 4px;"><strong>Antonyms:</strong> ${meta.antonyms.join(', ')}</div>` : ''}
-              <div style="font-family: monospace; font-size: 0.75rem; color: var(--teacher-primary, #6d28d9); background: #faf5ff; padding: 4px 6px; border-radius: 4px; margin-top: 6px; word-break: break-all;">
+              <div style="font-family: monospace; font-size: 0.75rem; color: var(--teacher-primary, #6d28d9); background: var(--cosy-color-tint-violet); padding: 4px 6px; border-radius: 4px; margin-top: 6px; word-break: break-all;">
                 COSYdata ID: ${m.id} | File: ${m.file}
               </div>
             </div>
@@ -975,11 +975,11 @@
       const resultsDiv = document.getElementById('verbSearchResults');
 
       if (!window.CosyIrregularVerbs) {
-        if (resultsDiv) resultsDiv.innerHTML = `<p style="color: #64748b; font-style: italic;">Loading dictionary…</p>`;
+        if (resultsDiv) resultsDiv.innerHTML = `<p style="color: var(--cosy-color-ink-muted); font-style: italic;">Loading dictionary…</p>`;
         try {
           await window.CosyLazy.load('shared/js/irregular-verbs.js');
         } catch (err) {
-          if (resultsDiv) resultsDiv.innerHTML = `<p style="color: #ef4444;">Could not load the dictionary.</p>`;
+          if (resultsDiv) resultsDiv.innerHTML = `<p style="color: var(--cosy-color-ink-error);">Could not load the dictionary.</p>`;
           return;
         }
       }
@@ -993,14 +993,14 @@
       const matches = verbs.filter(v => v.v1.includes(q) || v.v2.includes(q) || v.v3.includes(q));
 
       if (matches.length === 0) {
-        resultsDiv.innerHTML = `<p style="color: #ef4444;">No irregular verb found for "${q}".</p>`;
+        resultsDiv.innerHTML = `<p style="color: var(--cosy-color-ink-error);">No irregular verb found for "${q}".</p>`;
         return;
       }
 
       let html = `
         <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
           <thead>
-            <tr style="background: #f1f5f9; border-bottom: 1px solid #cbd5e1; color: #475569;">
+            <tr style="background: var(--cosy-color-surface-muted); border-bottom: 1px solid var(--cosy-color-border-strong); color: var(--cosy-color-ink-soft);">
               <th style="padding: 6px 8px;">V1 (Base)</th>
               <th style="padding: 6px 8px;">V2 (Past Simple)</th>
               <th style="padding: 6px 8px;">V3 (Past Participle)</th>
@@ -1011,8 +1011,8 @@
 
       matches.slice(0, 15).forEach(v => {
         html += `
-          <tr style="border-bottom: 1px solid #e2e8f0;">
-            <td style="padding: 6px 8px; font-weight: 700; color: #0f172a;">${v.v1}</td>
+          <tr style="border-bottom: 1px solid var(--cosy-color-border-soft);">
+            <td style="padding: 6px 8px; font-weight: 700; color: var(--cosy-color-ink);">${v.v1}</td>
             <td style="padding: 6px 8px; color: var(--teacher-primary, #6d28d9);">${v.v2}</td>
             <td style="padding: 6px 8px; color: var(--teacher-primary, #6d28d9);">${v.v3}</td>
           </tr>
@@ -1143,8 +1143,8 @@
       let html = `
         <div style="max-width: 1440px; margin: 10px auto; padding: 0 16px;">
           <div class="teacher-controls-bar">
-            <a href="${backHref}" class="back-btn" style="color: #64748b; font-weight: 500;">← Back to Course</a>
-            <span style="font-weight: 700; color: #0f172a; font-size: 1.1rem;">${lessonTitle}</span>
+            <a href="${backHref}" class="back-btn" style="color: var(--cosy-color-ink-muted); font-weight: 500;">← Back to Course</a>
+            <span style="font-weight: 700; color: var(--cosy-color-ink); font-size: 1.1rem;">${lessonTitle}</span>
             <div style="display: flex; gap: 8px; align-items: center;">
               <button class="slide-nav-btn" onclick="toggleTeacherViewMode()">${window.teacherViewModeAll ? '📄 Single Slide' : '📜 Scroll All'}</button>
               <button class="slide-nav-btn" onclick="toggleProjectorMode()" title="Classroom Projector">🖥️ Projector</button>
@@ -1165,29 +1165,29 @@
 
           <!-- Main Slide Content Area -->
           <div style="position: relative;">
-            <div id="dict-drawer" style="display: ${window.activeDrawer==='dict'?'block':'none'}; background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-              <h3 style="font-size: 1rem; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+            <div id="dict-drawer" style="display: ${window.activeDrawer==='dict'?'block':'none'}; background: var(--cosy-color-surface-raised); border: 1px solid var(--cosy-color-border-strong); border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+              <h3 style="font-size: 1rem; color: var(--cosy-color-ink); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
                 <span>📖 COSYdata Dictionary Lookup</span>
                 <button onclick="toggleUtilityDrawer(null)" style="border:none; background:none; cursor:pointer; font-size: 1.1rem;">✖</button>
               </h3>
-              <input type="text" id="dictSearchInput" placeholder="Type a word (e.g. mother, family)..." oninput="searchCosyDict(this.value)" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; margin-bottom: 12px;" />
+              <input type="text" id="dictSearchInput" placeholder="Type a word (e.g. mother, family)..." oninput="searchCosyDict(this.value)" style="width: 100%; padding: 8px 12px; border: 1px solid var(--cosy-color-border-strong); border-radius: 6px; font-size: 0.9rem; margin-bottom: 12px;" />
               <div id="dictSearchResults" style="max-height: 250px; overflow-y: auto; font-size: 0.88rem;">
-                <p style="color: #64748b; font-style: italic;">Type a word to search COSYdata vocabulary index...</p>
+                <p style="color: var(--cosy-color-ink-muted); font-style: italic;">Type a word to search COSYdata vocabulary index...</p>
               </div>
             </div>
 
-            <div id="verbs-drawer" style="display: ${window.activeDrawer==='verbs'?'block':'none'}; background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-              <h3 style="font-size: 1rem; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+            <div id="verbs-drawer" style="display: ${window.activeDrawer==='verbs'?'block':'none'}; background: var(--cosy-color-surface-raised); border: 1px solid var(--cosy-color-border-strong); border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+              <h3 style="font-size: 1rem; color: var(--cosy-color-ink); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
                 <span>⚡ Irregular Verbs Reference (V1 - V2 - V3)</span>
                 <button onclick="toggleUtilityDrawer(null)" style="border:none; background:none; cursor:pointer; font-size: 1.1rem;">✖</button>
               </h3>
-              <input type="text" id="verbSearchInput" placeholder="Search verb (e.g. go, speak, write)..." oninput="searchIrregularVerbs(this.value)" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; margin-bottom: 12px;" />
+              <input type="text" id="verbSearchInput" placeholder="Search verb (e.g. go, speak, write)..." oninput="searchIrregularVerbs(this.value)" style="width: 100%; padding: 8px 12px; border: 1px solid var(--cosy-color-border-strong); border-radius: 6px; font-size: 0.9rem; margin-bottom: 12px;" />
               <div id="verbSearchResults" style="max-height: 250px; overflow-y: auto;">
               </div>
             </div>
 
-            <div id="timer-drawer" style="display: ${window.activeDrawer==='timer'?'block':'none'}; background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-              <h3 style="font-size: 1rem; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+            <div id="timer-drawer" style="display: ${window.activeDrawer==='timer'?'block':'none'}; background: var(--cosy-color-surface-raised); border: 1px solid var(--cosy-color-border-strong); border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+              <h3 style="font-size: 1rem; color: var(--cosy-color-ink); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
                 <span>⏱️ Classroom Timer</span>
                 <button onclick="toggleUtilityDrawer(null)" style="border:none; background:none; cursor:pointer; font-size: 1.1rem;">✖</button>
               </h3>
@@ -1236,7 +1236,7 @@
               <span class="section-num">${idx + 1}</span>
               <span>${s.title}</span>
             </div>
-            ${s.stage ? `<span style="font-size: 0.7rem; color: #64748b;">${s.stage}</span>` : ''}
+            ${s.stage ? `<span style="font-size: 0.7rem; color: var(--cosy-color-ink-muted);">${s.stage}</span>` : ''}
           </div>
         `;
       });
@@ -1373,7 +1373,7 @@
 
           output += `
             <div style="margin: 12px 0;">
-              <input type="text" disabled placeholder="${child.getAttribute("placeholder") || "Student input..."}" style="padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;" />
+              <input type="text" disabled placeholder="${child.getAttribute("placeholder") || "Student input..."}" style="padding: 6px 12px; border: 1px solid var(--cosy-color-border-strong); border-radius: 6px;" />
               <div class="answer-key-box">
                 <div class="answer-key-title">🔑 Answer Key:</div>
                 <div>${ansList.join(" / ") || "Free response"}</div>
@@ -1396,25 +1396,25 @@
           const questions = child.querySelectorAll("cosy-test-question");
           questions.forEach(q => {
             const qText = q.querySelector("cosy-test-question-text")?.textContent || "Question";
-            output += `<div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin: 12px 0; border: 1px solid #e2e8f0;"><strong>${qText}</strong>`;
+            output += `<div style="background: var(--cosy-color-surface-subtle); padding: 12px; border-radius: 8px; margin: 12px 0; border: 1px solid var(--cosy-color-border-soft);"><strong>${qText}</strong>`;
             const answers = q.querySelectorAll("cosy-test-item");
             answers.forEach(a => {
               const isCorrect = a.getAttribute("correct") === "true";
-              output += `<div style="padding: 4px 8px; margin: 4px 0; ${isCorrect ? 'background: #dcfce7; font-weight: 600; color: #15803d;' : ''}">${a.textContent} ${isCorrect ? '✔️ (Correct Answer)' : ''}</div>`;
+              output += `<div style="padding: 4px 8px; margin: 4px 0; ${isCorrect ? 'background: var(--cosy-color-tint-success); font-weight: 600; color: #15803d;' : ''}">${a.textContent} ${isCorrect ? '✔️ (Correct Answer)' : ''}</div>`;
             });
             output += `</div>`;
           });
         } else if (tagName === "cosy-vocabulary") {
           const items = child.querySelectorAll("cosy-vocabulary-item");
-          output += `<div style="background: #f8fafc; border-radius: 8px; padding: 12px; margin: 12px 0;">`;
+          output += `<div style="background: var(--cosy-color-surface-subtle); border-radius: 8px; padding: 12px; margin: 12px 0;">`;
           items.forEach(v => {
-            output += `<div style="padding: 6px 0; border-bottom: 1px solid #e2e8f0;"><strong>${v.getAttribute("word")}</strong>: ${v.getAttribute("definition")}</div>`;
+            output += `<div style="padding: 6px 0; border-bottom: 1px solid var(--cosy-color-border-soft);"><strong>${v.getAttribute("word")}</strong>: ${v.getAttribute("definition")}</div>`;
           });
           output += `</div>`;
         } else if (tagName === "cosy-choice" || tagName === "cosy-choice-image") {
           output += `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 16px 0;">${renderXmlNodeToTeacherHtml(child)}</div>`;
         } else if (tagName === "cosy-choice-option" || tagName === "cosy-choice-image-option") {
-          output += `<div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; background: white;">${renderXmlNodeToTeacherHtml(child)}</div>`;
+          output += `<div style="border: 1px solid var(--cosy-color-border-strong); border-radius: 8px; padding: 12px; background: var(--cosy-color-surface-raised);">${renderXmlNodeToTeacherHtml(child)}</div>`;
         } else if (tagName === "cosy-image") {
           const src = child.getAttribute("src") || child.getAttribute("resource-id") || "";
           if (src.startsWith("https://")) {
@@ -1449,11 +1449,11 @@
           if (el.type === "instruction") output += `<cosy-instruction>📋 ${el.content}</cosy-instruction>`;
           else if (el.type === "blockquote") output += `<cosy-blockquote>${el.content}</cosy-blockquote>`;
           else if (el.type === "test") {
-            output += `<div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin: 12px 0; border: 1px solid #e2e8f0;">`;
+            output += `<div style="background: var(--cosy-color-surface-subtle); padding: 12px; border-radius: 8px; margin: 12px 0; border: 1px solid var(--cosy-color-border-soft);">`;
             if (el.options) {
               el.options.forEach(opt => {
                 const isCorrect = el.answers && el.answers.includes(opt);
-                output += `<div style="padding: 4px 8px; margin: 4px 0; ${isCorrect ? 'background: #dcfce7; font-weight: 600; color: #15803d;' : ''}">${opt} ${isCorrect ? '✔️ (Correct Answer)' : ''}</div>`;
+                output += `<div style="padding: 4px 8px; margin: 4px 0; ${isCorrect ? 'background: var(--cosy-color-tint-success); font-weight: 600; color: #15803d;' : ''}">${opt} ${isCorrect ? '✔️ (Correct Answer)' : ''}</div>`;
               });
             }
             output += `</div>`;
@@ -1476,7 +1476,7 @@
 
       const client = window.CosyAuth ? window.CosyAuth.client : null;
       if (!client) {
-        container.innerHTML = '<p style="color: #64748b; font-size: 0.85rem;">Notes functionality requires configured database access.</p>';
+        container.innerHTML = '<p style="color: var(--cosy-color-ink-muted); font-size: 0.85rem;">Notes functionality requires configured database access.</p>';
         return;
       }
 
@@ -1489,7 +1489,7 @@
         if (error) throw error;
 
         if (!notes || notes.length === 0) {
-          container.innerHTML = '<p style="color: #64748b; font-size: 0.85rem;">You do not have any saved classroom notes yet.</p>';
+          container.innerHTML = '<p style="color: var(--cosy-color-ink-muted); font-size: 0.85rem;">You do not have any saved classroom notes yet.</p>';
           return;
         }
 
@@ -1509,8 +1509,8 @@
         let html = '<div style="display: flex; flex-direction: column; gap: 16px;">';
         for (const groupHeader in grouped) {
           html += `
-            <div style="border-bottom: 1px solid #e2e8f0; pb: 8px;">
-              <h3 style="font-size: 0.95rem; font-weight: 700; color: #334155; margin-bottom: 8px;">${groupHeader}</h3>
+            <div style="border-bottom: 1px solid var(--cosy-color-border-soft); pb: 8px;">
+              <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--cosy-color-ink-soft); margin-bottom: 8px;">${groupHeader}</h3>
               <div style="display: flex; flex-direction: column; gap: 10px;">
           `;
 
@@ -1520,14 +1520,14 @@
             const statusId = `note-status-${n.id}`;
 
             html += `
-              <div id="${cardId}" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px;">
+              <div id="${cardId}" style="background: var(--cosy-color-surface-subtle); border: 1px solid var(--cosy-color-border-strong); border-radius: 8px; padding: 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                   <strong style="font-size: 0.88rem; color: var(--teacher-primary, #6d28d9);">${n.lesson_id}</strong>
-                  <span id="${statusId}" style="font-size: 0.75rem; font-weight: 700; color: #64748b;">v${n.version || 0}</span>
+                  <span id="${statusId}" style="font-size: 0.75rem; font-weight: 700; color: var(--cosy-color-ink-muted);">v${n.version || 0}</span>
                 </div>
-                <textarea id="${textareaId}" style="width: 100%; height: 80px; padding: 8px; font-size: 0.85rem; border: 1px solid #cbd5e1; border-radius: 6px; resize: vertical; font-family: inherit;">${n.content || ''}</textarea>
+                <textarea id="${textareaId}" style="width: 100%; height: 80px; padding: 8px; font-size: 0.85rem; border: 1px solid var(--cosy-color-border-strong); border-radius: 6px; resize: vertical; font-family: inherit;">${n.content || ''}</textarea>
                 <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
-                  <button onclick="savePortalNote('${n.id}', '${textareaId}', '${statusId}', ${n.version || 0})" style="background: var(--teacher-primary, #6d28d9); color: white; border: none; border-radius: 6px; padding: 4px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Save Note</button>
+                  <button onclick="savePortalNote('${n.id}', '${textareaId}', '${statusId}', ${n.version || 0})" style="background: var(--teacher-primary, #6d28d9); color: var(--on-primary); border: none; border-radius: 6px; padding: 4px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Save Note</button>
                 </div>
               </div>
             `;
@@ -1540,7 +1540,7 @@
 
       } catch (err) {
         console.warn('Error loading notes:', err);
-        container.innerHTML = `<p style="color: #ef4444; font-size: 0.85rem;">Could not load notes: ${err.message || 'Error'}</p>`;
+        container.innerHTML = `<p style="color: var(--cosy-color-ink-error); font-size: 0.85rem;">Could not load notes: ${err.message || 'Error'}</p>`;
       }
     }
 

@@ -59,16 +59,16 @@
       margin: 12px 0;
       font-size: 0.9rem;
     }
-    .teacher-note-instruction { background: #fffbe3; border-left: 4px solid #f59e0b; color: #78350f; }
-    .teacher-note-speech { background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; }
+    .teacher-note-instruction { background: var(--cosy-color-tint-warn); border-left: 4px solid #f59e0b; color: #78350f; }
+    .teacher-note-speech { background: var(--cosy-color-tint-success); border-left: 4px solid #10b981; color: #065f46; }
     .answer-key-box {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
+      background: var(--cosy-color-surface-muted);
+      border: 1px solid var(--cosy-color-border-strong);
       border-radius: 6px;
       padding: 8px 12px;
       margin: 8px 0;
       font-size: 0.85rem;
-      color: #334155;
+      color: var(--cosy-color-ink-soft);
     }
     :root {
       --sat: env(safe-area-inset-top, 0px);
@@ -106,7 +106,7 @@
       position: absolute;
       left: 0; right: 0; bottom: 0;
       z-index: 50;
-      background: #ffffff;
+      background: var(--cosy-color-surface-raised);
       border-top-left-radius: 16px;
       border-top-right-radius: 16px;
       box-shadow: 0 -10px 25px -5px rgba(0,0,0,0.3);

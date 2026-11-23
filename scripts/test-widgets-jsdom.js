@@ -62,7 +62,7 @@ async function runWidgetJsdomTests() {
       <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
         <button id="essaySaveBtn" class="btn" style="background: var(--student-primary);">Save Essay Response</button>
         <button class="btn btn-outline" onclick="copyEssayText('${fieldKey}_essay_textarea')">Copy text</button>
-        <span id="${statusId}" style="font-size: 0.8rem; color: #166534; font-weight: 600;">${savedText ? 'Saved on this device' : ''}</span>
+        <span id="${statusId}" style="font-size: 0.8rem; color: var(--cosy-color-ink-success); font-weight: 600;">${savedText ? 'Saved on this device' : ''}</span>
       </div>
     </div>
   `;

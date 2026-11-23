@@ -36,7 +36,7 @@
     /* Header */
     .hub-header {
       background: #0f172a;
-      color: white;
+      color: var(--cosy-color-ink-inverse);
       padding: 1.25rem 0;
       border-bottom: 1px solid #1e293b;
     }
@@ -52,7 +52,7 @@
 
     .badge-public {
       background: #38bdf8;
-      color: #0f172a;
+      color: var(--cosy-color-ink-on-accent);
       padding: 4px 12px;
       border-radius: var(--cosy-radius-full, 100px);
       font-size: 0.75rem;
@@ -72,7 +72,7 @@
 
     /* Filters */
     .filter-bar {
-      background: white;
+      background: var(--cosy-color-surface-raised);
       border: 1px solid var(--border-color);
       border-radius: var(--cosy-radius-md, 14px);
       padding: 16px 20px;
@@ -90,15 +90,15 @@
       gap: 8px;
       font-size: 0.85rem;
       font-weight: 600;
-      color: #475569;
+      color: var(--cosy-color-ink-soft);
     }
 
     .filter-group select, .filter-group input {
       padding: 6px 12px;
       border-radius: var(--cosy-radius-sm, 8px);
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--cosy-color-border-strong);
       font-size: 0.85rem;
-      background: #f8fafc;
+      background: var(--cosy-color-surface-subtle);
     }
 
     .catalog-category-grid {
@@ -109,7 +109,7 @@
     }
 
     .category-card {
-      background: #f0f9ff;
+      background: var(--cosy-color-tint-info);
       border: 1px solid #bae6fd;
       border-radius: var(--cosy-radius-md, 14px);
       padding: 16px;
@@ -129,7 +129,7 @@
     .category-header h3 {
       font-size: 1.05rem;
       font-weight: 700;
-      color: #0369a1;
+      color: var(--cosy-color-ink-link);
       margin: 0;
     }
 
@@ -141,8 +141,8 @@
     }
 
     .course-item-card {
-      background: white;
-      border: 1px solid #e2e8f0;
+      background: var(--cosy-color-surface-raised);
+      border: 1px solid var(--cosy-color-border-soft);
       border-radius: var(--cosy-radius-sm, 8px);
       padding: 12px 14px;
       display: flex;
@@ -160,7 +160,7 @@
     .course-item-title {
       font-weight: 600;
       font-size: 0.9rem;
-      color: #0f172a;
+      color: var(--cosy-color-ink);
     }
 
     .course-item-level {
@@ -168,13 +168,13 @@
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 4px;
-      background: #e0f2fe;
-      color: #0369a1;
+      background: var(--cosy-color-tint-info-strong);
+      color: var(--cosy-color-ink-link);
     }
 
     /* Lesson Viewer & Slide Styling */
     .controls-bar {
-      background: white;
+      background: var(--cosy-color-surface-raised);
       border: 1px solid var(--border-color);
       border-radius: var(--cosy-radius-md, 14px);
       padding: 16px 24px;
@@ -188,7 +188,7 @@
     }
 
     .slide-card {
-      background: white;
+      background: var(--cosy-color-surface-raised);
       border-radius: var(--cosy-radius-md, 14px);
       border: 1px solid var(--border-color);
       padding: 32px;
@@ -208,7 +208,7 @@
 
     /* Not Yet Published Placeholder */
     .not-published-card {
-      background: #fffbe3;
+      background: var(--cosy-color-tint-warn);
       border: 1px solid #b45309;
       border-radius: var(--cosy-radius-md, 14px);
       padding: 40px;
@@ -321,16 +321,16 @@
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <div id="header-lang-switcher"></div>
-              <a href="classroom.html" class="btn" style="background: #047857; color: white; padding: 6px 14px; text-decoration: none; font-size: 0.85rem; border-radius: 6px; font-weight: 600;" data-i18n="common.liveClassroom">${window.CosyI18n.t('common.liveClassroom')}</a>
-              <a href="https://cosylanguages.github.io/COSYlanguages/login.html" class="btn" style="background: var(--hub-primary); color: white; padding: 6px 14px; text-decoration: none; font-size: 0.85rem; border-radius: 6px;" data-i18n="common.signIn">${window.CosyI18n.t('common.signIn')} 🔒</a>
+              <a href="classroom.html" class="btn" style="background: #047857; color: var(--cosy-color-ink-inverse); padding: 6px 14px; text-decoration: none; font-size: 0.85rem; border-radius: 6px; font-weight: 600;" data-i18n="common.liveClassroom">${window.CosyI18n.t('common.liveClassroom')}</a>
+              <a href="https://cosylanguages.github.io/COSYlanguages/login.html" class="btn" style="background: var(--hub-primary); color: var(--on-primary); padding: 6px 14px; text-decoration: none; font-size: 0.85rem; border-radius: 6px;" data-i18n="common.signIn">${window.CosyI18n.t('common.signIn')} 🔒</a>
             </div>
           </div>
         </header>
 
         <main class="hub-container">
           <div style="margin-bottom: 24px;">
-            <h1 style="font-size: 1.6rem; color: #0f172a; margin-bottom: 6px;" data-i18n="index.heading">${window.CosyI18n.t('index.heading')}</h1>
-            <p style="color: #5B6B80;" data-i18n="index.subheading">${window.CosyI18n.t('index.subheading')}</p>
+            <h1 style="font-size: 1.6rem; color: var(--cosy-color-ink); margin-bottom: 6px;" data-i18n="index.heading">${window.CosyI18n.t('index.heading')}</h1>
+            <p style="color: var(--cosy-color-ink-muted);" data-i18n="index.subheading">${window.CosyI18n.t('index.subheading')}</p>
           </div>
 
           <div class="filter-bar">
@@ -367,7 +367,7 @@
         const comingSoonCount = courses.filter(c => c.status === 'not_yet_available').length;
 
         const trackHeadingText = window.CosyI18n.t('index.trackTitle', { track: trackLabel(trackName), count: availableCount }) +
-          (comingSoonCount > 0 ? `<span style="font-size: 0.8em; font-weight: normal; color: #5B6B80;" data-i18n-skip>${window.CosyI18n.t('index.trackTitlePlus', { count: comingSoonCount })}</span>` : '');
+          (comingSoonCount > 0 ? `<span style="font-size: 0.8em; font-weight: normal; color: var(--cosy-color-ink-muted);" data-i18n-skip>${window.CosyI18n.t('index.trackTitlePlus', { count: comingSoonCount })}</span>` : '');
 
         html += `
           <div class="category-card" data-track="${trackName}">
@@ -386,7 +386,7 @@
                   <span class="course-item-level" data-i18n-skip>${c.level.toUpperCase()}</span>
                   <span class="course-item-title" style="margin-left: 8px;" data-i18n-skip>${c.title}</span>
                 </div>
-                <a href="index.html?course=${c.id}&level=${c.level.toLowerCase()}" class="btn" style="background: var(--hub-primary); color: white; padding: 6px 12px; font-size: 0.8rem; text-decoration: none; border-radius: 6px;" data-i18n="common.viewRoadmap">
+                <a href="index.html?course=${c.id}&level=${c.level.toLowerCase()}" class="btn" style="background: var(--hub-primary); color: var(--on-primary); padding: 6px 12px; font-size: 0.8rem; text-decoration: none; border-radius: 6px;" data-i18n="common.viewRoadmap">
                   ${window.CosyI18n.t('common.viewRoadmap')}
                 </a>
               </div>
@@ -398,7 +398,7 @@
                   <span class="course-item-level" data-i18n-skip>${c.level.toUpperCase()}</span>
                   <span class="course-item-title" style="margin-left: 8px;" data-i18n-skip>${c.title}</span>
                 </div>
-                <span style="font-size: 0.8rem; color: #5B6B80; font-weight: 500;" data-i18n="common.comingSoon">${window.CosyI18n.t('common.comingSoon')}</span>
+                <span style="font-size: 0.8rem; color: var(--cosy-color-ink-muted); font-weight: 500;" data-i18n="common.comingSoon">${window.CosyI18n.t('common.comingSoon')}</span>
               </div>
             `;
           }
@@ -455,20 +455,20 @@
               </div>
               <div style="display: flex; align-items: center; gap: 12px;">
                 <div id="header-lang-switcher"></div>
-                <a href="index.html" style="color: #5B6B80; text-decoration: none; font-size: 0.9rem;" data-i18n="common.backToCatalog">${window.CosyI18n.t('common.backToCatalog')}</a>
+                <a href="index.html" style="color: var(--cosy-color-ink-muted); text-decoration: none; font-size: 0.9rem;" data-i18n="common.backToCatalog">${window.CosyI18n.t('common.backToCatalog')}</a>
               </div>
             </div>
           </header>
 
           <main class="hub-container">
             <div class="controls-bar">
-              <a href="index.html" style="color: #5B6B80; font-weight: 500; text-decoration: none;" data-i18n="common.backToFullCatalog">${window.CosyI18n.t('common.backToFullCatalog')}</a>
-              <span style="font-weight: 600; color: #0f172a;" data-i18n-skip>${roadmap.title}</span>
+              <a href="index.html" style="color: var(--cosy-color-ink-muted); font-weight: 500; text-decoration: none;" data-i18n="common.backToFullCatalog">${window.CosyI18n.t('common.backToFullCatalog')}</a>
+              <span style="font-weight: 600; color: var(--cosy-color-ink);" data-i18n-skip>${roadmap.title}</span>
             </div>
 
-            <div class="section-card" style="background: white; border: 1px solid var(--border-color); border-radius: 14px; padding: 24px;">
-              <h2 style="font-size: 1.4rem; color: #0f172a; margin-bottom: 6px;">${window.CosyI18n.t('index.sequenceTitle', { title: `<span data-i18n-skip>${roadmap.title}</span>` })}</h2>
-              <p style="color: #5B6B80; margin-bottom: 20px;">${summaryText}</p>
+            <div class="section-card" style="background: var(--cosy-color-surface-raised); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px;">
+              <h2 style="font-size: 1.4rem; color: var(--cosy-color-ink); margin-bottom: 6px;">${window.CosyI18n.t('index.sequenceTitle', { title: `<span data-i18n-skip>${roadmap.title}</span>` })}</h2>
+              <p style="color: var(--cosy-color-ink-muted); margin-bottom: 20px;">${summaryText}</p>
 
               <div class="unit-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
         `;
@@ -479,14 +479,14 @@
 
           if (state === 'available') {
             html += `
-              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div style="background: var(--cosy-color-surface-subtle); border: 1px solid var(--cosy-color-border-soft); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                  <span style="font-size: 0.75rem; color: #5B6B80; font-weight: 600;">${window.CosyI18n.t('common.lessonNumber', { number: item.lessonNumber })}</span>
-                  <h3 style="margin: 6px 0; font-size: 1rem; color: #0f172a;" data-i18n-skip>${item.title}</h3>
-                  ${item.unit ? `<p style="font-size: 0.8rem; color: #5B6B80;" data-i18n-skip>${item.unit}</p>` : ''}
+                  <span style="font-size: 0.75rem; color: var(--cosy-color-ink-muted); font-weight: 600;">${window.CosyI18n.t('common.lessonNumber', { number: item.lessonNumber })}</span>
+                  <h3 style="margin: 6px 0; font-size: 1rem; color: var(--cosy-color-ink);" data-i18n-skip>${item.title}</h3>
+                  ${item.unit ? `<p style="font-size: 0.8rem; color: var(--cosy-color-ink-muted);" data-i18n-skip>${item.unit}</p>` : ''}
                 </div>
                 <div style="display: flex; gap: 6px; flex-direction: column; margin-top: 12px;">
-                  <a href="index.html?lesson=${encodeURIComponent(lessonPath)}&course=${encodeURIComponent(courseId)}" class="btn" style="background: var(--hub-primary); color: white; padding: 6px 12px; font-size: 0.8rem; text-align: center; text-decoration: none; border-radius: 6px;" data-i18n="common.openLesson">
+                  <a href="index.html?lesson=${encodeURIComponent(lessonPath)}&course=${encodeURIComponent(courseId)}" class="btn" style="background: var(--hub-primary); color: var(--on-primary); padding: 6px 12px; font-size: 0.8rem; text-align: center; text-decoration: none; border-radius: 6px;" data-i18n="common.openLesson">
                     ${window.CosyI18n.t('common.openLesson')}
                   </a>
                 </div>
@@ -494,27 +494,27 @@
             `;
           } else if (state === 'teacher-led') {
             html += `
-              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; opacity: 0.6; display: flex; flex-direction: column; justify-content: space-between;">
+              <div style="background: var(--cosy-color-surface-subtle); border: 1px solid var(--cosy-color-border-soft); border-radius: 8px; padding: 14px; opacity: 0.6; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-size: 0.75rem; color: #5B6B80; font-weight: 600;">${window.CosyI18n.t('common.lessonNumber', { number: item.lessonNumber })}</span>
-                    <span style="font-size: 0.75rem; color: #5B6B80; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: 600;" data-i18n="common.taughtWithTeacher">${window.CosyI18n.t('common.taughtWithTeacher')}</span>
+                    <span style="font-size: 0.75rem; color: var(--cosy-color-ink-muted); font-weight: 600;">${window.CosyI18n.t('common.lessonNumber', { number: item.lessonNumber })}</span>
+                    <span style="font-size: 0.75rem; color: var(--cosy-color-ink-muted); background: var(--cosy-color-border-soft); padding: 2px 6px; border-radius: 4px; font-weight: 600;" data-i18n="common.taughtWithTeacher">${window.CosyI18n.t('common.taughtWithTeacher')}</span>
                   </div>
-                  <h3 style="margin: 6px 0; font-size: 1rem; color: #5B6B80;" data-i18n-skip>${item.title}</h3>
-                  ${item.unit ? `<p style="font-size: 0.8rem; color: #5B6B80;" data-i18n-skip>${item.unit}</p>` : ''}
+                  <h3 style="margin: 6px 0; font-size: 1rem; color: var(--cosy-color-ink-muted);" data-i18n-skip>${item.title}</h3>
+                  ${item.unit ? `<p style="font-size: 0.8rem; color: var(--cosy-color-ink-muted);" data-i18n-skip>${item.unit}</p>` : ''}
                 </div>
               </div>
             `;
           } else {
             html += `
-              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; opacity: 0.6; display: flex; flex-direction: column; justify-content: space-between;">
+              <div style="background: var(--cosy-color-surface-subtle); border: 1px solid var(--cosy-color-border-soft); border-radius: 8px; padding: 14px; opacity: 0.6; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-size: 0.75rem; color: #5B6B80; font-weight: 600;">${window.CosyI18n.t('common.lessonNumber', { number: item.lessonNumber })}</span>
-                    <span style="font-size: 0.75rem; color: #5B6B80; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: 600;" data-i18n="common.planned">${window.CosyI18n.t('common.planned')}</span>
+                    <span style="font-size: 0.75rem; color: var(--cosy-color-ink-muted); font-weight: 600;">${window.CosyI18n.t('common.lessonNumber', { number: item.lessonNumber })}</span>
+                    <span style="font-size: 0.75rem; color: var(--cosy-color-ink-muted); background: var(--cosy-color-border-soft); padding: 2px 6px; border-radius: 4px; font-weight: 600;" data-i18n="common.planned">${window.CosyI18n.t('common.planned')}</span>
                   </div>
-                  <h3 style="margin: 6px 0; font-size: 1rem; color: #5B6B80;" data-i18n-skip>${item.title}</h3>
-                  ${item.unit ? `<p style="font-size: 0.8rem; color: #5B6B80;" data-i18n-skip>${item.unit}</p>` : ''}
+                  <h3 style="margin: 6px 0; font-size: 1rem; color: var(--cosy-color-ink-muted);" data-i18n-skip>${item.title}</h3>
+                  ${item.unit ? `<p style="font-size: 0.8rem; color: var(--cosy-color-ink-muted);" data-i18n-skip>${item.unit}</p>` : ''}
                 </div>
               </div>
             `;
@@ -533,7 +533,7 @@
         document.getElementById('app-root').innerHTML = `
           <div class="hub-container">
             <h2 data-i18n="index.roadmapTitle">${window.CosyI18n.t('index.roadmapTitle')}</h2>
-            <p style="color: #ef4444;" data-i18n-skip>${err.message}</p>
+            <p style="color: var(--cosy-color-ink-error);" data-i18n-skip>${err.message}</p>
             <a href="index.html" class="btn" data-i18n="common.backToCatalog">${window.CosyI18n.t('common.backToCatalog')}</a>
           </div>
         `;
@@ -586,7 +586,7 @@
               <span style="font-size: 1.4rem; font-weight: 800;" data-i18n-skip>COSYlanguages</span>
               <div style="display: flex; align-items: center; gap: 12px;">
                 <div id="header-lang-switcher"></div>
-                <a href="index.html" style="color: #5B6B80; text-decoration: none;" data-i18n="common.backToCatalog">${window.CosyI18n.t('common.backToCatalog')}</a>
+                <a href="index.html" style="color: var(--cosy-color-ink-muted); text-decoration: none;" data-i18n="common.backToCatalog">${window.CosyI18n.t('common.backToCatalog')}</a>
               </div>
             </div>
           </header>
@@ -595,7 +595,7 @@
               <h2 data-i18n="index.notPublishedHeading">${window.CosyI18n.t('index.notPublishedHeading')}</h2>
               <p>${window.CosyI18n.t('index.notPublishedMessage', { id: `<strong data-i18n-skip>"${lessonId}"</strong>` })}</p>
               <p style="font-size: 0.85rem; color: #a16207;" data-i18n="index.notPublishedDetail">${window.CosyI18n.t('index.notPublishedDetail')}</p>
-              <a href="index.html" class="btn" style="background: #b45309; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;" data-i18n="index.notPublishedReturn">${window.CosyI18n.t('index.notPublishedReturn')}</a>
+              <a href="index.html" class="btn" style="background: #b45309; color: var(--on-primary); padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;" data-i18n="index.notPublishedReturn">${window.CosyI18n.t('index.notPublishedReturn')}</a>
             </div>
           </main>
         `;
@@ -630,7 +630,7 @@
 
         <main class="hub-container">
           <div class="controls-bar">
-            <a href="index.html" style="color: #5B6B80; text-decoration: none;" data-i18n="common.backToCatalog">${window.CosyI18n.t('common.backToCatalog')}</a>
+            <a href="index.html" style="color: var(--cosy-color-ink-muted); text-decoration: none;" data-i18n="common.backToCatalog">${window.CosyI18n.t('common.backToCatalog')}</a>
             <span style="font-size: 0.85rem; color: #047857; font-weight: 600;" data-i18n="index.liveSupabaseStream">${window.CosyI18n.t('index.liveSupabaseStream')}</span>
           </div>
       `;
@@ -641,9 +641,9 @@
 
         html += `
           <div class="slide-card">
-            <div style="font-weight: 700; font-size: 1.2rem; color: #0f172a; margin-bottom: 16px; display: flex; justify-content: space-between;">
+            <div style="font-weight: 700; font-size: 1.2rem; color: var(--cosy-color-ink); margin-bottom: 16px; display: flex; justify-content: space-between;">
               <span data-i18n-skip>${window.CosyI18n.t('index.slideTitle', { number: idx + 1, title: slideTitle })}</span>
-              ${stage ? `<span style="font-size: 0.75rem; background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 6px; text-transform: uppercase;" data-i18n-skip>${stage}</span>` : ''}
+              ${stage ? `<span style="font-size: 0.75rem; background: var(--cosy-color-surface-muted); color: var(--cosy-color-ink-soft); padding: 4px 10px; border-radius: 6px; text-transform: uppercase;" data-i18n-skip>${stage}</span>` : ''}
             </div>
             <div data-i18n-skip>${isTeacher ? renderXmlNodeToTeacher(s) : renderXmlNodeToStudent(s)}</div>
           </div>

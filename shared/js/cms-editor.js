@@ -209,7 +209,7 @@ window.CosyCMS = window.CosyCMS || {};
       right: 20px;
       z-index: 999999;
       background: #0f172a;
-      color: #ffffff;
+      color: var(--on-primary);
       padding: 10px 16px;
       border-radius: 12px;
       box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
@@ -227,7 +227,7 @@ window.CosyCMS = window.CosyCMS || {};
       </span>
       <button id="cosy-cms-btn-edit" style="
         background: #0284c7;
-        color: white;
+        color: var(--on-primary);
         border: none;
         padding: 6px 12px;
         border-radius: 6px;
@@ -238,7 +238,7 @@ window.CosyCMS = window.CosyCMS || {};
       ">✏️ Edit Page Content</button>
       <button id="cosy-cms-btn-save" style="
         background: #059669;
-        color: white;
+        color: var(--on-primary);
         border: none;
         padding: 6px 12px;
         border-radius: 6px;
@@ -247,7 +247,7 @@ window.CosyCMS = window.CosyCMS || {};
         font-size: 0.8rem;
         transition: background 0.15s ease;
       ">💾 Save & Publish Live</button>
-      <span id="cosy-cms-status" style="font-size: 0.75rem; color: #94a3b8;"></span>
+      <span id="cosy-cms-status" style="font-size: 0.75rem; color: var(--cosy-color-ink-muted);"></span>
     `;
 
     document.body.appendChild(toolbar);
