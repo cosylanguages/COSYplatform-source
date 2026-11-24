@@ -118,6 +118,16 @@
     .bottom-sheet.collapsed {
       transform: translateY(100%);
     }
+  
+    /* the Tailwind utilities on this page have no dark variants */
+    @media (prefers-color-scheme: dark) {
+      body, .bg-gray-100 { background: #121815 !important; color: #e8f0e9 !important; }
+      .bg-gray-50 { background: #161d19 !important; }
+      .bg-white { background: #1b211c !important; }
+      .text-gray-900, .text-gray-800, .text-gray-700 { color: #e8f0e9 !important; }
+      .text-gray-600, .text-gray-500 { color: #a9b6ad !important; }
+      .border-gray-200, .border-gray-300 { border-color: #33403a !important; }
+    }
   </style>
 </head>
 
