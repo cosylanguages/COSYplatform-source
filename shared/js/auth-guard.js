@@ -216,7 +216,9 @@ window.CosyAuth = window.CosyAuth || {};
   let client = null;
   if (isConfigured && window.supabase) {
     try {
-      client = window.supabase.createClient(url, key);
+      client = window.supabase.createClient(url, key, {
+        auth: { storageKey: 'cosy-auth', persistSession: true, autoRefreshToken: true }
+      });
     } catch (e) {
       console.error("Failed to initialize Supabase client:", e);
     }
