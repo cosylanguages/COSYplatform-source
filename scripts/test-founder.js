@@ -221,8 +221,8 @@ async function runFounderTests() {
     } else if (statusText.includes('Saved ✔️')) {
       console.error('❌ FAIL: Status displayed "Saved" when 0 rows were updated!');
       failures++;
-    } else if (!statusHtml.includes('#ef4444')) {
-      console.error(`❌ FAIL: "Not saved" message was not formatted in red (#ef4444). Found: "${statusHtml}"`);
+    } else if (!statusHtml.includes('#ef4444') && !statusHtml.includes('var(--cosy-color-ink-error)')) {
+      console.error(`❌ FAIL: "Not saved" message was not formatted in red (#ef4444 or --cosy-color-ink-error). Found: "${statusHtml}"`);
       failures++;
     } else {
       console.log('  ✅ PASS: 0 rows returned correctly displayed red "Not saved. You may not have permission to change this profile." message and never "Saved".');

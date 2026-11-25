@@ -93,7 +93,9 @@ window.CosyCMS = window.CosyCMS || {};
     const key = config.SUPABASE_ANON_KEY || '';
     if (url && key && window.supabase && typeof window.supabase.createClient === 'function') {
       try {
-        const client = window.supabase.createClient(url, key);
+        const client = window.supabase.createClient(url, key, {
+          auth: { storageKey: 'cosy-auth', persistSession: true, autoRefreshToken: true }
+        });
         if (window.CosyAuth) window.CosyAuth.client = client;
         return client;
       } catch (e) {}

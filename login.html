@@ -161,7 +161,9 @@
       );
       if (isConfigured && window.supabase) {
         try {
-          supabaseClient = window.supabase.createClient(url, key);
+          supabaseClient = window.supabase.createClient(url, key, {
+            auth: { storageKey: 'cosy-auth', persistSession: true, autoRefreshToken: true }
+          });
         } catch (e) {}
       }
     })();

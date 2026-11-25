@@ -94,16 +94,18 @@
       const basePath = window.COSY_BASE_PATH || '/';
       const signInBtn = document.getElementById('btn-signin');
       const workspaceBtn = document.getElementById('btn-workspace');
+      const loginUrl = basePath + 'login.html?redirect=' +
+        encodeURIComponent(window.location.href) + '&v=20261125-1';
 
       if (window.mountCosyLangSwitcher) window.mountCosyLangSwitcher();
 
       if (signInBtn) {
-        signInBtn.href = basePath + 'login.html';
+        signInBtn.href = loginUrl;
       }
 
       if (workspaceBtn) {
         workspaceBtn.addEventListener('click', async () => {
-          let targetPage = 'login.html';
+          let targetPage = loginUrl;
           if (window.CosyAuth && typeof window.CosyAuth.getAuthAndProfile === 'function') {
             try {
               const authData = await window.CosyAuth.getAuthAndProfile();
@@ -115,7 +117,7 @@
               }
             } catch (e) {}
           }
-          window.location.href = basePath + targetPage;
+          window.location.href = /^(?:https?:)?\//.test(targetPage) ? targetPage : basePath + targetPage;
         });
       }
     });
