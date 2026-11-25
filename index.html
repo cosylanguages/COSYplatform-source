@@ -297,7 +297,7 @@
       if (lessonParam) {
         const authState = await checkAuthentication();
         if (!authState.authenticated) {
-          const loginUrl = `https://cosylanguages.github.io/COSYlanguages/login.html?redirect=${encodeURIComponent(window.location.href)}`;
+          const loginUrl = `https://cosylanguages.github.io/COSYlanguages/login.html?redirect=${encodeURIComponent(window.location.href)}&v=20261125-1`;
           window.location.href = loginUrl;
           return;
         }
@@ -322,7 +322,7 @@
             <div style="display: flex; align-items: center; gap: 8px;">
               <div id="header-lang-switcher"></div>
               <a href="classroom.html" class="btn" style="background: #047857; color: var(--cosy-color-ink-inverse); padding: 6px 14px; text-decoration: none; font-size: 0.85rem; border-radius: 6px; font-weight: 600;" data-i18n="common.liveClassroom">${window.CosyI18n.t('common.liveClassroom')}</a>
-              <a href="https://cosylanguages.github.io/COSYlanguages/login.html?redirect=${encodeURIComponent(window.location.href)}" class="btn" style="background: var(--hub-primary); color: var(--on-primary); padding: 6px 14px; text-decoration: none; font-size: 0.85rem; border-radius: 6px;" data-i18n="common.signIn">${window.CosyI18n.t('common.signIn')} 🔒</a>
+              <a href="https://cosylanguages.github.io/COSYlanguages/login.html?redirect=${encodeURIComponent(window.location.href)}&v=20261125-1" class="btn" style="background: var(--hub-primary); color: var(--on-primary); padding: 6px 14px; text-decoration: none; font-size: 0.85rem; border-radius: 6px;" data-i18n="common.signIn">${window.CosyI18n.t('common.signIn')} 🔒</a>
             </div>
           </div>
         </header>

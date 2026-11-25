@@ -166,6 +166,27 @@ async function runAuthSsoTests() {
     failures++;
   }
 
+  // Test 6: sign-in entry links return to the current page and bypass a cached login page
+  console.log('\n🔹 Test 6: sign-in entry links...');
+  const indexSource = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
+  const notFoundSource = fs.readFileSync(path.join(ROOT_DIR, '404.html'), 'utf8');
+  const classroomSource = fs.readFileSync(path.join(ROOT_DIR, 'classroom.html'), 'utf8');
+  const authGuardSource = fs.readFileSync(path.join(ROOT_DIR, 'shared/js/auth-guard.js'), 'utf8');
+  const loginChecks = [
+    ['index sign-in link carries the current page', indexSource.includes('login.html?redirect=${encodeURIComponent(window.location.href)}&v=20261125-1')],
+    ['404 sign-in and workspace fall back to the current page', notFoundSource.includes("encodeURIComponent(window.location.href) + '&v=20261125-1'")],
+    ['classroom sign-in link carries the cache version', classroomSource.includes('login.html?redirect=classroom.html&v=20261125-1')],
+    ['auth guard redirects carry the current page and cache version', authGuardSource.includes("login.html?redirect=${encodeURIComponent(currentUrl)}&v=20261125-1")],
+  ];
+  for (const [label, ok] of loginChecks) {
+    if (ok) {
+      console.log(`  ✅ PASS: ${label}.`);
+    } else {
+      console.error(`  ❌ FAIL: ${label}.`);
+      failures++;
+    }
+  }
+
   console.log('\n---------------------------------------------------');
   if (failures > 0) {
     console.error(`❌ SSO Authentication Handler tests failed with ${failures} errors.`);

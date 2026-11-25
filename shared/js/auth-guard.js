@@ -285,7 +285,7 @@ window.CosyAuth.getAuthAndProfile = async function() {
  */
 window.CosyAuth.redirectToLogin = function() {
   const currentUrl = window.location.href;
-  const loginUrl = `login.html?redirect=${encodeURIComponent(currentUrl)}`;
+  const loginUrl = `login.html?redirect=${encodeURIComponent(currentUrl)}&v=20261125-1`;
   window.location.href = loginUrl;
 };
 
@@ -318,13 +318,14 @@ window.CosyAuth.requireRole = async function(allowedRoles = []) {
  * Renders an access denied message onto the page.
  */
 window.CosyAuth.renderAccessDenied = function(title, message) {
+  const loginUrl = `login.html?redirect=${encodeURIComponent(window.location.href)}&v=20261125-1`;
   document.body.innerHTML = `
     <div style="max-width: 500px; margin: 100px auto; padding: 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; border: 1px solid #fca5a5; border-radius: 12px; background-color: var(--cosy-color-tint-error); color: var(--cosy-color-ink-error); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
       <h2 style="margin-top: 0; color: var(--cosy-color-ink-error); font-size: 1.5rem;">${title}</h2>
       <p style="margin-bottom: 24px; font-size: 0.95rem; color: var(--cosy-color-ink-error);">${message}</p>
       <div style="display: flex; gap: 12px; justify-content: center;">
         <button onclick="window.CosyAuth.logout()" style="background-color: var(--cosy-color-ink-error); color: var(--on-primary); border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">${window.CosyAuth.tr('common.logout', 'Log Out')}</button>
-        <a href="login.html" style="background-color: #6b7280; color: var(--on-primary); text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 600;">${window.CosyAuth.tr('auth.backToLogin', 'Back to Login')}</a>
+        <a href="${loginUrl}" style="background-color: #6b7280; color: var(--on-primary); text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 600;">${window.CosyAuth.tr('auth.backToLogin', 'Back to Login')}</a>
       </div>
     </div>
   `;
@@ -380,5 +381,5 @@ window.CosyAuth.logout = async function() {
   if (window.CosyAuth.client) {
     await window.CosyAuth.client.auth.signOut();
   }
-  window.location.href = "login.html";
+  window.location.href = "login.html?v=20261125-1";
 };
